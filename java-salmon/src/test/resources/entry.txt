@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<entry xmlns='http://www.w3.org/2005/Atom'>
+  <id>tag:example.com,2009:cmt-0.44775718</id>  
+  <author><name>test@example.com</name><uri>acct:charlie@cliqset.com</uri></author>
+  <thr:in-reply-to xmlns:thr='http://purl.org/syndication/thread/1.0'
+      ref='tag:blogger.com,1999:blog-893591374313312737.post-3861663258538857954'>tag:blogger.com,1999:blog-893591374313312737.post-3861663258538857954
+  </thr:in-reply-to>
+  <content>Salmon swim upstream!</content>
+  <title>Salmon swim upstream!</title>
+  <updated>2009-12-18T20:04:03Z</updated>
+</entry>
