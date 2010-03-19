@@ -12,7 +12,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.sun.xml.internal.bind.marshaller.NamespacePrefixMapper;
+import com.sun.xml.bind.marshaller.NamespacePrefixMapper;
 
 @XmlRootElement(name="env", namespace="http://salmon-protocol.org/ns/magic-env")
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -67,11 +67,11 @@ public class MagicEnvelope {
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			JAXBContext context = JAXBContext.newInstance(MagicEnvelope.class);
 			Marshaller m = context.createMarshaller();
-			m.setProperty("com.sun.xml.internal.bind.namespacePrefixMapper", new MagicEnvelopePrefixMapper());
+			m.setProperty("com.sun.xml.bind.namespacePrefixMapper", new MagicEnvelopePrefixMapper());
 			m.marshal(this, baos);
 			return baos.toByteArray();
 		} catch (JAXBException e) {
-			throw new SalmonException("Unable to descerialize Magic Envelope", e);
+			throw new SalmonException("Unable to serialize Magic Envelope", e);
 		}
 	}
 	
@@ -95,7 +95,7 @@ public class MagicEnvelope {
 			if ("http://salmon-protocol.org/ns/magic-env".equals(namespaceUri)) {
 				return "me";
 			}
-			return suggestion;
+			return null;
 		}
 	}
 }
