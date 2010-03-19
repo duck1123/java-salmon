@@ -13,7 +13,7 @@ public class MagicEnvelopeData {
 	@XmlValue
 	private String value;
 	
-	@XmlAttribute(name="type", namespace="http://salmon-protocol.org/ns/magic-env")
+	@XmlAttribute(name="type")//, namespace="http://salmon-protocol.org/ns/magic-env"
 	private String type;
 
 	public void setType(String type) {
