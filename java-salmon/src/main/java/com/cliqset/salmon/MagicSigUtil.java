@@ -19,12 +19,10 @@ package com.cliqset.salmon;
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.security.Security;
 import java.security.Signature;
 import java.security.SignatureException;
 
 import org.apache.commons.codec.binary.Base64;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 public class MagicSigUtil {
 
