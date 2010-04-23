@@ -102,8 +102,8 @@ public class Salmon {
 		byte[] data = MagicSigUtil.decode(encodedData);
 		
 		try {
-			System.out.println("verifying:" + encodedData + "(" + new String(data, "ASCII") + ")");
-		} catch (Exception e) {}
+			logger.debug("verifying:{} ({})", encodedData, new String(data, "ASCII"));
+		} catch (UnsupportedEncodingException e) {}
 		
 		Entry entry = parseEntry(data);
 		
@@ -130,13 +130,13 @@ public class Salmon {
 		byte[] sig = MagicSigUtil.decode(envelope.getSig());
 		
 		try {
-			System.out.println("verifying signature:" + envelope.getSig() + " (" + new String(data, "UTF-8") + ")");
-		} catch (Exception e) {}
+			logger.debug("verifying signature:{} ({})", envelope.getSig(), new String(data, "UTF-8"));
+		} catch (UnsupportedEncodingException e) {}
 		
 		logger.debug("Verifying signature with " + authorKeys.size() + " keys");
 		
 		for (MagicKey key : authorKeys) {
-			logger.debug("Verifying signature with:" + key.toString());
+			logger.debug("Verifying signature with:{}", key.toString());
 			if (MagicSigUtil.verify(encodedData, sig, key)) {
 				Entry entry = parseEntry(data);
 				return entry;
