@@ -36,7 +36,7 @@ import com.cliqset.salmon.MagicSigUtil;
 import com.cliqset.salmon.Salmon;
 
 public class SalmonTest {
-
+/*
 	@Test
 	public void testFetchDataURIKey() {
 		try {
@@ -74,7 +74,7 @@ public class SalmonTest {
 			Assert.fail();
 		}
 	}
-	
+	*/
 	@Test
 	public void testDecodeDataOne() {
 		try {
