@@ -18,7 +18,6 @@ package com.cliqset.salmon.test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -27,6 +26,8 @@ import java.util.List;
 import com.cliqset.salmon.MagicEnvelope;
 import com.cliqset.salmon.MagicKey;
 import com.cliqset.salmon.Salmon;
+import com.cliqset.salmon.dataparser.AbderaDataParser;
+import com.cliqset.salmon.keyfinder.OpenXRDKeyFinder;
 
 public class Verifier {
 	
@@ -43,7 +44,10 @@ public class Verifier {
 			MagicKey key = new MagicKey(getBytes("/DemoKeys.txt"));
 			List<MagicKey> keys = new ArrayList<MagicKey>();
 			keys.add(key);
-			System.out.println(Salmon.verify(envelope, keys));
+			Salmon s = new Salmon()
+				.withDataParser(new AbderaDataParser())
+				.withKeyFinder(new OpenXRDKeyFinder());
+			System.out.println(s.verify(envelope, keys));
 			
 		} catch (Exception e) {
 			System.out.println(e.getMessage());

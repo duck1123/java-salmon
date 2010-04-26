@@ -53,6 +53,7 @@ import org.slf4j.LoggerFactory;
 
 public class Salmon {
 
+	/*
 	private static final String REL_MAGIC_KEY = "magic-public-key";
 	private static final String SCHEME_DATA = "data";
 	private static final String SCHEME_HTTP = "http";
@@ -64,8 +65,14 @@ public class Salmon {
 	
 	private static final Abdera abdera;
 	
+	*/
 	private static final Logger logger = LoggerFactory.getLogger(Salmon.class);
 	
+	private List<DataParser> dataParsers = new LinkedList<DataParser>();
+	
+	private List<KeyFinder> keyFinders = new LinkedList<KeyFinder>();
+	
+	/*
 	static {
 		
 		try {
@@ -95,8 +102,98 @@ public class Salmon {
 		
 	    discoveryManager.getDiscoveryMethods().add(link);
 	}
+	*/
+	public Salmon() {}
 	
-	public static Entry verify(MagicEnvelope envelope) throws SalmonException {
+	public Salmon withDataParser(DataParser parser) {
+		if (null == parser) {
+			throw new IllegalArgumentException("parser must not be null.");
+		}
+		dataParsers.add(parser);
+		return this;
+	}
+	
+	public Salmon withKeyFinder(KeyFinder keyFinder) {
+		if (null == keyFinder) {
+			throw new IllegalArgumentException("keyfinder must not be null.");
+		}
+		keyFinders.add(keyFinder);
+		return this;
+	}
+	
+	public byte[] verify(MagicEnvelope envelope) throws SalmonException {
+		String encodedData = envelope.getData().getValue();
+		
+		byte[] data = MagicSigUtil.decode(encodedData);
+		
+		try {
+			logger.debug("verifying:{} ({})", encodedData, new String(data, "ASCII"));
+		} catch (UnsupportedEncodingException e) {}
+		
+		//get key
+		URI authorURI = extractSignerUri(envelope.getData().getType(), data);
+		
+		List<MagicKey> authorKeys = findKeys(authorURI);
+		
+		if (authorKeys.size() < 1) {
+			throw new SalmonException("Unable to locate any magic public keys for author URI: " + authorURI.toString());
+		}
+		
+		return verify(envelope, authorKeys);
+	}
+	
+	public byte[] verify(MagicEnvelope envelope, List<MagicKey> authorKeys) throws SalmonException {
+		byte[] encodedData = new byte[0];
+		
+		try {
+			encodedData = envelope.getData().getValue().getBytes("ASCII");
+		} catch (Exception e){}
+		
+		byte[] data = MagicSigUtil.decode(envelope.getData().getValue());
+		
+		byte[] sig = MagicSigUtil.decode(envelope.getSig());
+		
+		try {
+			logger.debug("verifying signature:{} ({})", envelope.getSig(), new String(data, "UTF-8"));
+		} catch (UnsupportedEncodingException e) {}
+		
+		logger.debug("Verifying signature with " + authorKeys.size() + " keys");
+		
+		for (MagicKey key : authorKeys) {
+			logger.debug("Verifying signature with:{}", key.toString());
+			if (MagicSigUtil.verify(encodedData, sig, key)) {
+				return data;
+			}
+		}
+		throw new SalmonException("Unable to verify the signature.");
+	}
+	
+	private URI extractSignerUri(String mimeType, byte[] data) throws SalmonException {
+		for (DataParser parser : this.dataParsers) {
+			if (parser.parsesMimeType(mimeType)) {
+				try {
+					return parser.getSignerUri(data);
+				} catch (Exception e) { 
+					//ignore and try the next one
+				}
+			}
+		}
+		throw new SalmonException("Unable to extract signer URI from data.");
+	}
+	
+	private List<MagicKey> findKeys(URI authorUri) throws SalmonException {
+		for (KeyFinder finder : this.keyFinders) {
+			try {
+				return finder.findKeys(authorUri);
+			} catch (Exception e) { 
+				//ignore and try the next one
+			}
+		}
+		throw new SalmonException("UNable to find keys for signer.");
+	}
+	
+	/*
+	public static Entry verifySalmon(MagicEnvelope envelope) throws SalmonException {
 		String encodedData = envelope.getData().getValue();
 		
 		byte[] data = MagicSigUtil.decode(encodedData);
@@ -115,10 +212,10 @@ public class Salmon {
 			throw new SalmonException("Unable to locate any magic public keys for author URI: " + authorURI.toString());
 		}
 		
-		return verify(envelope, authorKeys);
+		return verifySalmon(envelope, authorKeys);
 	}
 
-	public static Entry verify(MagicEnvelope envelope, List<MagicKey> authorKeys) throws SalmonException {
+	public static Entry verifySalmon(MagicEnvelope envelope, List<MagicKey> authorKeys) throws SalmonException {
 		byte[] encodedData = new byte[0];
 		
 		try {
@@ -222,7 +319,7 @@ public class Salmon {
 			throw new SalmonException("URI Scheme " + uri.getScheme() + " is not supported when resolving magic key.");
 		}
 	}
-	
+	*/
 	public static MagicEnvelope sign(byte[] entry, MagicKey key) throws Exception {
 		MagicEnvelope env = new MagicEnvelope();
 		
