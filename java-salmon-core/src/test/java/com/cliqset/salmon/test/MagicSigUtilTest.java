@@ -50,18 +50,6 @@ public class MagicSigUtilTest {
 		
 		Assert.assertArrayEquals(expected, decoded);
 	}
-	
-	@Test
-	public void testDecodeTyler() {
-		byte[] decoded = MagicSigUtil.decode(getBytes("/TempEncoded.txt"));
-		String s = null;
-		try {
-			s = new String(decoded, "UTF-8");
-		} catch (Exception e) {
-			
-		}
-		System.out.println(s);
-	}
 
 	@Test
 	public void testDecode2() {

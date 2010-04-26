@@ -6,5 +6,6 @@
   <packaging>pom</packaging>
   <modules>
   	<module>../java-salmon-core</module>
+  	<module>../java-salmon-simple</module>
   </modules>
 </project>

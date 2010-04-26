@@ -14,7 +14,7 @@
 	limitations under the License.
 */
 
-package com.cliqset.salmon.test;
+package com.cliqset.salmon.utils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;

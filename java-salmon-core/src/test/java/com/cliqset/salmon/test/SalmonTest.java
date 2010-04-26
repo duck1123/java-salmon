@@ -19,21 +19,10 @@ package com.cliqset.salmon.test;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.abdera.i18n.iri.IRI;
-import org.apache.abdera.model.Entry;
-import org.apache.abdera.model.Person;
 import org.junit.Test;
 import org.junit.Assert;
-import org.openxrd.DefaultBootstrap;
-
 import com.cliqset.salmon.MagicEnvelope;
-import com.cliqset.salmon.MagicKey;
 import com.cliqset.salmon.MagicSigUtil;
-import com.cliqset.salmon.Salmon;
 
 public class SalmonTest {
 /*
