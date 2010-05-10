@@ -19,6 +19,7 @@ package com.cliqset.salmon;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.security.KeyFactory;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -80,6 +81,21 @@ public class MagicKey {
 		}
 	}
 
+	public String getKeyhash() {
+		byte[] hash = null;
+		 try { 
+			 MessageDigest md = MessageDigest.getInstance("SHA256");
+			 hash = md.digest(this.toString().getBytes("ASCII"));
+		 } catch (NoSuchAlgorithmException nsae) {
+			 //TODO: what do we do with these?  are they ever going to occur?
+			 return null;
+		 } catch (UnsupportedEncodingException uee) {
+			//TODO: what do we do with these?  are they ever going to occur?
+			 return null;
+		 }
+		 return MagicSigUtil.encodeToString(hash);
+	}
+	
 	public void setType(String type) {
 		this.type = type;
 	}
