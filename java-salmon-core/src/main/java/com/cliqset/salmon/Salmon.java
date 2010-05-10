@@ -32,6 +32,8 @@ public class Salmon {
 	
 	private List<KeyFinder> keyFinders = new LinkedList<KeyFinder>();
 	
+	private static final String DATA_TYPE = "application/atom+xml";
+	
 	public Salmon() {}
 	
 	public Salmon withDataParser(DataParser parser) {
@@ -72,16 +74,20 @@ public class Salmon {
 	}
 	
 	public byte[] verify(MagicEnvelope envelope, List<MagicKey> authorKeys) throws SalmonException {
-		byte[] encodedData = new byte[0];
-		
-		try {
-			encodedData = envelope.getData().getValue().getBytes("ASCII");
-		} catch (Exception e){}
 		
 		byte[] data = MagicSigUtil.decode(envelope.getData().getValue());
 		
-		String signatureKeyhash = envelope.getSig().getKeyhash();
 		byte[] sig = MagicSigUtil.decode(envelope.getSig().getValue());
+		
+		byte[] dataForSig;
+		
+		try {
+			dataForSig = buildDataForSig(data, envelope.getData().getType(), envelope.getEncoding(), envelope.getAlg());
+		} catch (Exception e) {
+			throw new SalmonException("Unable to build data for signature verification.", e);
+		}
+		
+		String signatureKeyhash = envelope.getSig().getKeyhash();
 		
 		try {
 			logger.debug("verifying signature:{} ({})", envelope.getSig(), new String(data, "UTF-8"));
@@ -93,8 +99,10 @@ public class Salmon {
 			String keyhash = key.getKeyhash(); 
 			if (keyhash.equals(signatureKeyhash)) {
 				logger.debug("Verifying signature with:{}", key.toString());
-				if (MagicSigUtil.verify(encodedData, sig, key)) {
+				if (MagicSigUtil.verify(dataForSig, sig, key)) {
 					return data;
+				} else {
+					logger.info("Key {} matched keyhash {}, but didn't verify.", key.toString(), keyhash);
 				}
 			} else {
 				logger.debug("Key {} with keyhash of {} does not match signature keyhash of {}", new String[] {key.toString(), keyhash, signatureKeyhash});
@@ -128,16 +136,33 @@ public class Salmon {
 	}
 	
 	public static MagicEnvelope sign(byte[] entry, MagicKey key) throws Exception {
+		return sign(entry, key, MagicSigUtil.ALGORITHM, MagicSigUtil.ENCODING, DATA_TYPE);
+	}
+	
+	private static MagicEnvelope sign(byte[] data, MagicKey key, String algorithm, String encoding, String dataType) throws Exception {
 		MagicEnvelope env = new MagicEnvelope();
 		
-		env.setAlg(MagicSigUtil.ALGORITHM);
-		MagicEnvelopeData data = new MagicEnvelopeData();
-		data.setValue(MagicSigUtil.encodeToString(entry));
-		data.setType("application/atom+xml");
-		env.setData(data);
-		env.setEncoding(MagicSigUtil.ENCODING);
-		env.setSig(new MagicEnvelopeSignature(key.getKeyhash(), MagicSigUtil.encodeToString(MagicSigUtil.sign(MagicSigUtil.encode(entry), key))));
+		env.setAlg(algorithm);
+		MagicEnvelopeData envelopeData = new MagicEnvelopeData();
+		byte[] signatureData = buildDataForSig(data, dataType, encoding, algorithm);
+		envelopeData.setValue(MagicSigUtil.encodeToString(data));
+		envelopeData.setType(dataType);
+		env.setData(envelopeData);
+		env.setEncoding(encoding);
+		env.setSig(new MagicEnvelopeSignature(key.getKeyhash(), MagicSigUtil.encodeToString(MagicSigUtil.sign(signatureData, key))));
 		
 		return env;
+	}
+	
+	private static byte[] buildDataForSig(byte[] data, String dataType, String encoding, String algorithm) throws Exception {
+		StringBuilder sb = new StringBuilder(MagicSigUtil.encodeToString(data));
+		sb.append(".");
+		sb.append(MagicSigUtil.encodeToString(dataType.getBytes("ASCII")));
+		sb.append(".");
+		sb.append(MagicSigUtil.encodeToString(encoding.getBytes("ASCII")));
+		sb.append(".");
+		sb.append(MagicSigUtil.encodeToString(algorithm.getBytes("ASCII")));
+		
+		return sb.toString().getBytes("ASCII");
 	}
 }

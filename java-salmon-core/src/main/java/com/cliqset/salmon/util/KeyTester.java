@@ -14,7 +14,7 @@
 	limitations under the License.
 */
 
-package com.cliqset.salmon.test;
+package com.cliqset.salmon.util;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -35,17 +35,16 @@ public class KeyTester {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(fis));
 			String line = null;
 			while ((line = reader.readLine()) != null ) {
-				String[] lineSplit = line.split(" ");
-				MagicKey key = new MagicKey(lineSplit[1].getBytes("ASCII"));
+				MagicKey key = new MagicKey(line.getBytes("ASCII"));
 				
 				byte[] sig = MagicSigUtil.sign(data, key);
 				
-				System.out.println(lineSplit[0] + " " + MagicSigUtil.encodeToString(sig));
+				System.out.println(MagicSigUtil.encodeToString(sig));
 				
 				boolean verified = MagicSigUtil.verify(data, sig, key);
 				
 				if (!verified) {
-					System.out.println("FAILED - " + lineSplit[0]);
+					System.out.println("FAILED - " + line);
 				}
 				
 				//System.out.println(lineSplit[0] + " " + key.toString(true));

@@ -16,85 +16,76 @@
 
 package com.cliqset.salmon.test;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.net.URI;
+import java.util.Arrays;
+import java.util.List;
+
 import org.junit.Test;
 import org.junit.Assert;
+
+import com.cliqset.salmon.DataParser;
+import com.cliqset.salmon.KeyFinder;
 import com.cliqset.salmon.MagicEnvelope;
-import com.cliqset.salmon.MagicSigUtil;
+import com.cliqset.salmon.MagicKey;
+import com.cliqset.salmon.Salmon;
+import com.cliqset.salmon.SalmonException;
 
-public class SalmonTest {
-/*
+public class SalmonTest extends BaseTestCase {
 	@Test
-	public void testFetchDataURIKey() {
+	public void testSignBasic() {
 		try {
-			MagicKey key = Salmon.fetchKey(URI.create("data:application/magic-public-key;,RSA.AL2zYG89oU1spKW_vTt5jeAkiOGrxJr4ivEzmj5rp8TXr6OySR97vMb7iPBCRlnHoYvQ74gFMA05e_3rCi3AGap6myqYYq3PsUcAzUTufge-m3YRPYWIkB3S-ioAFVAo8vkK4RYrzrYyPfbTbSuRn3bgpfTFe0wcMaGPuZ_homNd.AQAB"));
-			Assert.assertEquals("RSA", key.getType());
-			Assert.assertArrayEquals(MagicSigUtil.decode("AL2zYG89oU1spKW_vTt5jeAkiOGrxJr4ivEzmj5rp8TXr6OySR97vMb7iPBCRlnHoYvQ74gFMA05e_3rCi3AGap6myqYYq3PsUcAzUTufge-m3YRPYWIkB3S-ioAFVAo8vkK4RYrzrYyPfbTbSuRn3bgpfTFe0wcMaGPuZ_homNd"), key.getN());
-			Assert.assertArrayEquals(MagicSigUtil.decode("AQAB"), key.getE());
-		} catch (Exception e) {
-			Assert.fail();
-		}
-	}
-	
-	@Test
-	public void testFetchDataURIKeyTwo() {
-		try {
-			MagicKey key = Salmon.fetchKey(URI.create("data:application/magic-public-key;,RSA.XxeMlhQWq-NQgYBfLv1cuw2YapWpFMwU_nZ5yfUL-jrnZZZiuYrHXzpVnwd_9VJiSfZZY_zuXz571XE3IyX7wg==.AQAB"));
-			Assert.assertEquals("RSA", key.getType());
-			Assert.assertArrayEquals(MagicSigUtil.decode("XxeMlhQWq-NQgYBfLv1cuw2YapWpFMwU_nZ5yfUL-jrnZZZiuYrHXzpVnwd_9VJiSfZZY_zuXz571XE3IyX7wg=="), key.getN());
-			Assert.assertArrayEquals(MagicSigUtil.decode("AQAB"), key.getE());
-		} catch (Exception e) {
-			Assert.fail();
-		}
-	}
-	
-	@Test
-	public void testparseEntry() {
-		try {
-			String encodedEntry = "PD94bWwgdmVyc2lvbj0nMS4wJyBlbmNvZGluZz0nVVRGLTgnPz4KPGVudHJ5IHhtbG5zPSdodHRwOi8vd3d3LnczLm9yZy8yMDA1L0F0b20nPgogIDxpZD50YWc6ZXhhbXBsZS5jb20sMjAwOTpjbXQtMC40NDc3NTcxODwvaWQ-ICAKICA8YXV0aG9yPjxuYW1lPnRlc3RAZXhhbXBsZS5jb208L25hbWU-PHVyaT5hY2N0OmNoYXJsaWVAY2xpcXNldC5jb208L3VyaT48L2F1dGhvcj4KICA8dGhyOmluLXJlcGx5LXRvIHhtbG5zOnRocj0naHR0cDovL3B1cmwub3JnL3N5bmRpY2F0aW9uL3RocmVhZC8xLjAnCiAgICAgIHJlZj0ndGFnOmJsb2dnZXIuY29tLDE5OTk6YmxvZy04OTM1OTEzNzQzMTMzMTI3MzcucG9zdC0zODYxNjYzMjU4NTM4ODU3OTU0Jz50YWc6YmxvZ2dlci5jb20sMTk5OTpibG9nLTg5MzU5MTM3NDMxMzMxMjczNy5wb3N0LTM4NjE2NjMyNTg1Mzg4NTc5NTQKICA8L3Rocjppbi1yZXBseS10bz4KICA8Y29udGVudD5TYWxtb24gc3dpbSB1cHN0cmVhbSE8L2NvbnRlbnQ-CiAgPHRpdGxlPlNhbG1vbiBzd2ltIHVwc3RyZWFtITwvdGl0bGU-CiAgPHVwZGF0ZWQ-MjAwOS0xMi0xOFQyMDowNDowM1o8L3VwZGF0ZWQ-CjwvZW50cnk-CiAgICA=";
-			byte[] decoded = MagicSigUtil.decode(encodedEntry);
-			Entry e = Salmon.parseEntry(decoded);
-			Person author = e.getAuthor();
-			IRI uri = author.getUri();
-			Assert.assertEquals("acct:charlie@cliqset.com", uri.toString());
-		} catch (Exception e) {
-			Assert.fail();
-		}
-	}
-	*/
-	@Test
-	public void testDecodeDataOne() {
-		try {
-			MagicEnvelope envelope = MagicEnvelope.fromBytes(getBytes("/entry.txt.env"));
-			Assert.assertArrayEquals(MagicSigUtil.decode(envelope.getData().getValue()), getBytes("/entry.txt"));
-		} catch (Exception e) {
-			Assert.fail();
-		}
-	}
-	
-
-	private byte[] getBytes(String filename) {
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		byte[] buffer = new byte[512];
-		InputStream data = MagicSigUtilTest.class.getResourceAsStream(filename);
-		try {
-			int i;
-			while (-1 != (i = data.read(buffer, 0, 512))) {
-				baos.write(buffer, 0, i);
-			}
-		} catch (IOException e) {
+			Salmon s = new Salmon()
+				.withDataParser(new BasicAtomDataParser())
+				.withKeyFinder(new BasicKeyFinder());
+			MagicEnvelope env = s.sign(getBytes("/BasicAtom.txt"), new MagicKey(getBytes("/BasicRSAKey.txt")));
+			Assert.assertEquals(env.getAlg(), "RSA-SHA256");
+			Assert.assertEquals(env.getData().getValue(), "PD94bWwgdmVyc2lvbj0nMS4wJyBlbmNvZGluZz0nVVRGLTgnPz4KPGVudHJ5IHhtbG5zPSdodHRwOi8vd3d3LnczLm9yZy8yMDA1L0F0b20nPgoJPGlkPnRhZzpleGFtcGxlLmNvbSwyMDA5OmNtdC0wLjQ0Nzc1NzE4PC9pZD4KCTxhdXRob3I-CgkJPG5hbWU-dGVzdEBleGFtcGxlLmNvbTwvbmFtZT4KCQk8dXJpPmFjY3Q6dGVzdEBleGFtcGxlLmNvbTwvdXJpPgoJPC9hdXRob3I-Cgk8Y29udGVudD5TYWxtb24gc3dpbSB1cHN0cmVhbSE8L2NvbnRlbnQ-Cgk8dGl0bGU-U2FsbW9uIHN3aW0gdXBzdHJlYW0hPC90aXRsZT4KCTx1cGRhdGVkPjIwMDktMTItMThUMjA6MDQ6MDNaPC91cGRhdGVkPgo8L2VudHJ5Pg==");
+			Assert.assertEquals(env.getData().getType(), "application/atom+xml");
+			Assert.assertEquals(env.getEncoding(), "base64url");
+			Assert.assertEquals(env.getSig().getKeyhash(), "XV4QrdLUj8SyFr-hhobmeKlOTSTg6Rd4sbQXHnx4ejg=");
+			Assert.assertEquals(env.getSig().getValue(), "ARx-SOqs9geUJKhqgGOZ-KUE7Qe_v7w-bPrI4lPwXW95SFuvaQwtB-lhfiXltYS4PvrAEl7wXDDmd1nCR4YMag==");
 			
+		} catch (Exception e){
+			Assert.fail(e.getMessage());
 		}
-		return baos.toByteArray();
 	}
 	
-	private String getString(String filename, String encoding) {
+	@Test
+	public void testVerifyBasic() {
 		try {
-			return new String(getBytes(filename), encoding);
+			Salmon s = new Salmon()
+				.withDataParser(new BasicAtomDataParser())
+				.withKeyFinder(new BasicKeyFinder());
+			MagicEnvelope env = MagicEnvelope.fromBytes(getBytes("/BasicEnvelope.txt"));
+			
+			byte[] dataBytes = s.verify(env);
+			Assert.assertArrayEquals(dataBytes, getBytes("/BasicAtom.txt"));
 		} catch (Exception e) {
-			return "";
+			Assert.fail(e.getMessage());
 		}
+	}
+	
+	public class BasicAtomDataParser implements DataParser {
+
+		@Override
+		public URI getSignerUri(byte[] data) throws SalmonException {
+			return URI.create("acct:test@example.com");
+		}
+
+		@Override
+		public boolean parsesMimeType(String mimeType) {
+			return "application/atom+xml".equals(mimeType);
+		}
+	}
+	
+	public class BasicKeyFinder implements KeyFinder {
+
+		@Override
+		public List<MagicKey> findKeys(URI signerUri) throws SalmonException {
+			if (URI.create("acct:test@example.com").equals(signerUri)) {
+				return Arrays.asList(new MagicKey[] { new MagicKey(getBytes("/BasicRSAKey.txt"))});
+			}
+			throw new SalmonException("Can't find keys for " + signerUri);
+		}	
 	}
 }

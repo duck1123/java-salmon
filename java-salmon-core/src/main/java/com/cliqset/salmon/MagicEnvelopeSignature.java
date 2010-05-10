@@ -38,4 +38,8 @@ public class MagicEnvelopeSignature {
 	public String getKeyhash() {
 		return keyhash;
 	}
+	
+	public String toString() {
+		return "keyhash:" + this.keyhash + ", sig:" + this.value;
+	}
 }

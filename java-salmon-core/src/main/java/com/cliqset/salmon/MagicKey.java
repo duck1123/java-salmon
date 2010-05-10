@@ -27,6 +27,8 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPrivateKeySpec;
 import java.security.spec.RSAPublicKeySpec;
 
+import javax.xml.crypto.dsig.DigestMethod;
+
 public class MagicKey {
 
 	private static final String SEPARATOR = ".";
@@ -84,7 +86,7 @@ public class MagicKey {
 	public String getKeyhash() {
 		byte[] hash = null;
 		 try { 
-			 MessageDigest md = MessageDigest.getInstance("SHA256");
+			 MessageDigest md = MessageDigest.getInstance("SHA-256");
 			 hash = md.digest(this.toString().getBytes("ASCII"));
 		 } catch (NoSuchAlgorithmException nsae) {
 			 //TODO: what do we do with these?  are they ever going to occur?
