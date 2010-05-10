@@ -30,21 +30,23 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import com.sun.xml.bind.marshaller.NamespacePrefixMapper;
 
-@XmlRootElement(name="env", namespace="http://salmon-protocol.org/ns/magic-env")
+@XmlRootElement(name="env", namespace=MagicEnvelope.NS_MAGIC_ENVELOPE)
 @XmlAccessorType(XmlAccessType.FIELD)
 public class MagicEnvelope {
 	
-	@XmlElement(name="data", namespace="http://salmon-protocol.org/ns/magic-env")
+	public static final String NS_MAGIC_ENVELOPE = "http://salmon-protocol.org/ns/magic-env";
+	
+	@XmlElement(name="data", namespace=NS_MAGIC_ENVELOPE)
 	private MagicEnvelopeData data;
 	
-	@XmlElement(name="encoding", namespace="http://salmon-protocol.org/ns/magic-env")
+	@XmlElement(name="encoding", namespace=NS_MAGIC_ENVELOPE)
 	private String encoding;
 	
-	@XmlElement(name="alg", namespace="http://salmon-protocol.org/ns/magic-env")
+	@XmlElement(name="alg", namespace=NS_MAGIC_ENVELOPE)
 	private String alg;
 	
-	@XmlElement(name="sig", namespace="http://salmon-protocol.org/ns/magic-env")
-	private String sig;
+	@XmlElement(name="sig", namespace=NS_MAGIC_ENVELOPE)
+	private MagicEnvelopeSignature sig;
 
 	public void setEncoding(String encoding) {
 		this.encoding = encoding;
@@ -61,14 +63,6 @@ public class MagicEnvelope {
 	public String getAlg() {
 		return alg;
 	}
-
-	public void setSig(String sig) {
-		this.sig = sig;
-	}
-
-	public String getSig() {
-		return sig;
-	}
 	
 	public void setData(MagicEnvelopeData data) {
 		this.data = data;
@@ -76,6 +70,14 @@ public class MagicEnvelope {
 
 	public MagicEnvelopeData getData() {
 		return data;
+	}
+	
+	public void setSig(MagicEnvelopeSignature sig) {
+		this.sig = sig;
+	}
+
+	public MagicEnvelopeSignature getSig() {
+		return sig;
 	}
 	
 	public byte[] toBytes() throws SalmonException {
@@ -108,7 +110,7 @@ public class MagicEnvelope {
 
 		@Override
 		public String getPreferredPrefix(String namespaceUri, String suggestion, boolean requirePrefix) {
-			if ("http://salmon-protocol.org/ns/magic-env".equals(namespaceUri)) {
+			if (NS_MAGIC_ENVELOPE.equals(namespaceUri)) {
 				return "me";
 			}
 			return null;

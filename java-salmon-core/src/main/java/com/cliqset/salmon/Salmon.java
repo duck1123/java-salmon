@@ -80,7 +80,8 @@ public class Salmon {
 		
 		byte[] data = MagicSigUtil.decode(envelope.getData().getValue());
 		
-		byte[] sig = MagicSigUtil.decode(envelope.getSig());
+		String signatureKeyhash = envelope.getSig().getKeyhash();
+		byte[] sig = MagicSigUtil.decode(envelope.getSig().getValue());
 		
 		try {
 			logger.debug("verifying signature:{} ({})", envelope.getSig(), new String(data, "UTF-8"));
@@ -89,9 +90,14 @@ public class Salmon {
 		logger.debug("Verifying signature with " + authorKeys.size() + " keys");
 		
 		for (MagicKey key : authorKeys) {
-			logger.debug("Verifying signature with:{}", key.toString());
-			if (MagicSigUtil.verify(encodedData, sig, key)) {
-				return data;
+			String keyhash = key.getKeyhash(); 
+			if (keyhash.equals(signatureKeyhash)) {
+				logger.debug("Verifying signature with:{}", key.toString());
+				if (MagicSigUtil.verify(encodedData, sig, key)) {
+					return data;
+				}
+			} else {
+				logger.debug("Key {} with keyhash of {} does not match signature keyhash of {}", new String[] {key.toString(), keyhash, signatureKeyhash});
 			}
 		}
 		throw new SalmonException("Unable to verify the signature.");
@@ -130,7 +136,7 @@ public class Salmon {
 		data.setType("application/atom+xml");
 		env.setData(data);
 		env.setEncoding(MagicSigUtil.ENCODING);
-		env.setSig(MagicSigUtil.encodeToString(MagicSigUtil.sign(MagicSigUtil.encode(entry), key)));
+		env.setSig(new MagicEnvelopeSignature(key.getKeyhash(), MagicSigUtil.encodeToString(MagicSigUtil.sign(MagicSigUtil.encode(entry), key))));
 		
 		return env;
 	}

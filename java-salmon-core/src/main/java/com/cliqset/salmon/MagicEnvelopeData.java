@@ -22,7 +22,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlValue;
 
-@XmlRootElement(name="data", namespace="http://salmon-protocol.org/ns/magic-env")
+@XmlRootElement(name="data", namespace=MagicEnvelope.NS_MAGIC_ENVELOPE)
 @XmlAccessorType(XmlAccessType.FIELD)
 public class MagicEnvelopeData {
 
