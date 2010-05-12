@@ -127,12 +127,13 @@ public class Salmon {
 	private List<MagicKey> findKeys(URI authorUri) throws SalmonException {
 		for (KeyFinder finder : this.keyFinders) {
 			try {
-				return finder.findKeys(authorUri);
+				List<MagicKey> keys = finder.findKeys(authorUri); 
+				if (null != keys && keys.size() > 0) { return keys; }
 			} catch (Exception e) { 
 				//ignore and try the next one
 			}
 		}
-		throw new SalmonException("Unable to find keys for signer.");
+		throw new SalmonException("Unable to find keys for signer: " + authorUri.toString());
 	}
 	
 	public static MagicEnvelope sign(byte[] entry, MagicKey key) throws Exception {

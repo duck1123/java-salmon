@@ -17,6 +17,7 @@
 package com.cliqset.salmon.test;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -64,6 +65,108 @@ public class SalmonTest extends BaseTestCase {
 			Assert.fail(e.getMessage());
 		}
 	}
+	
+	@Test
+	public void testEmptyDataParsers() {
+		Salmon s = new Salmon()
+			.withKeyFinder(new BasicKeyFinder());
+		try {
+			MagicEnvelope env = MagicEnvelope.fromBytes(getBytes("/BasicEnvelope.txt"));
+			byte[] dataBytes = s.verify(env);
+			Assert.fail("Should get a SalmonException.");
+		} catch (SalmonException se) {
+			Assert.assertEquals("Unable to extract signer URI from data.", se.getMessage());
+		} catch (Exception e) {
+			Assert.fail("Should get a SalmonException");
+		}
+	}
+	
+	@Test
+	public void testNoMatchingDataParser() {
+		Salmon s = new Salmon()
+			.withDataParser(new DataParser() {
+
+				@Override
+				public URI getSignerUri(byte[] data) throws SalmonException {
+					return URI.create("acct:test@example.com");
+				}
+
+				@Override
+				public boolean parsesMimeType(String mimeType) {
+					return false;
+				}
+			});
+		try {
+			MagicEnvelope env = MagicEnvelope.fromBytes(getBytes("/BasicEnvelope.txt"));
+			byte[] dataBytes = s.verify(env);
+			Assert.fail("Should get a SalmonException.");
+		} catch (SalmonException se) {
+			Assert.assertEquals("Unable to extract signer URI from data.", se.getMessage());
+		} catch (Exception e) {
+			Assert.fail("Should get a SalmonException");
+		}
+	}
+	
+	@Test
+	public void testEmptyKeyFinder() {
+		Salmon s = new Salmon()
+			.withDataParser(new BasicAtomDataParser());
+		try {
+			MagicEnvelope env = MagicEnvelope.fromBytes(getBytes("/BasicEnvelope.txt"));
+			byte[] dataBytes = s.verify(env);
+			Assert.fail("Should get a SalmonException.");
+		} catch (SalmonException se) {
+			Assert.assertEquals("Unable to find keys for signer: acct:test@example.com", se.getMessage());
+		} catch (Exception e) {
+			Assert.fail("Should get a SalmonException");
+		}
+	}
+	
+	@Test
+	public void testEmptyListKeyFinder() {
+		Salmon s = new Salmon()
+			.withDataParser(new BasicAtomDataParser())
+			.withKeyFinder(new KeyFinder() {
+
+				@Override
+				public List<MagicKey> findKeys(URI signerUri) throws SalmonException {
+					return new ArrayList<MagicKey>();
+				}
+			});
+		try {
+			MagicEnvelope env = MagicEnvelope.fromBytes(getBytes("/BasicEnvelope.txt"));
+			byte[] dataBytes = s.verify(env);
+			Assert.fail("Should get a SalmonException.");
+		} catch (SalmonException se) {
+			Assert.assertEquals("Unable to find keys for signer: acct:test@example.com", se.getMessage());
+		} catch (Exception e) {
+			Assert.fail("Should get a SalmonException");
+		}
+	}
+	
+	@Test
+	public void testNullKeyFinder() {
+		Salmon s = new Salmon()
+			.withDataParser(new BasicAtomDataParser())
+			.withKeyFinder(new KeyFinder() {
+
+				@Override
+				public List<MagicKey> findKeys(URI signerUri) throws SalmonException {
+					return null;
+				}
+
+			});
+		try {
+			MagicEnvelope env = MagicEnvelope.fromBytes(getBytes("/BasicEnvelope.txt"));
+			byte[] dataBytes = s.verify(env);
+			Assert.fail("Should get a SalmonException.");
+		} catch (SalmonException se) {
+			Assert.assertEquals("Unable to find keys for signer: acct:test@example.com", se.getMessage());
+		} catch (Exception e) {
+			Assert.fail("Should get a SalmonException");
+		}
+	}
+	
 	
 	public class BasicAtomDataParser implements DataParser {
 
