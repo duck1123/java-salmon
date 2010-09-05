@@ -28,8 +28,6 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.sun.xml.bind.marshaller.NamespacePrefixMapper;
-
 @XmlRootElement(name="env", namespace=MagicEnvelope.NS_MAGIC_ENVELOPE)
 @XmlAccessorType(XmlAccessType.FIELD)
 public class MagicEnvelope {
@@ -85,7 +83,6 @@ public class MagicEnvelope {
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			JAXBContext context = JAXBContext.newInstance(MagicEnvelope.class);
 			Marshaller m = context.createMarshaller();
-			m.setProperty("com.sun.xml.bind.namespacePrefixMapper", new MagicEnvelopePrefixMapper());
 			m.marshal(this, baos);
 			return baos.toByteArray();
 		} catch (JAXBException e) {
@@ -104,16 +101,5 @@ public class MagicEnvelope {
 	
 	public static MagicEnvelope fromBytes(byte[] bytes) throws SalmonException {
 		return fromInputStream(new ByteArrayInputStream(bytes));
-	}
-
-	public static class MagicEnvelopePrefixMapper extends NamespacePrefixMapper {
-
-		@Override
-		public String getPreferredPrefix(String namespaceUri, String suggestion, boolean requirePrefix) {
-			if (NS_MAGIC_ENVELOPE.equals(namespaceUri)) {
-				return "me";
-			}
-			return null;
-		}
 	}
 }
