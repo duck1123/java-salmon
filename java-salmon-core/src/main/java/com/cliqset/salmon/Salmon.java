@@ -102,7 +102,7 @@ public class Salmon {
 				if (MagicSigUtil.verify(dataForSig, sig, key)) {
 					return data;
 				} else {
-					logger.info("Key {} matched keyhash {}, but didn't verify.", key.toString(), keyhash);
+					logger.info("Key {} matched keyhash {}, but didn't verify.", key.toString(), signatureKeyhash);
 				}
 			} else {
 				logger.debug("Key {} with keyhash of {} does not match signature keyhash of {}", new String[] {key.toString(), keyhash, signatureKeyhash});
