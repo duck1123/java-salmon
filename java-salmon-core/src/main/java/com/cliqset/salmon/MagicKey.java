@@ -40,6 +40,26 @@ public class MagicKey {
 	
 	public MagicKey() { }
 	
+	public MagicKey(String type, String armoredN, String armoredE) {
+		if (type == null) { throw new IllegalArgumentException("type must not be null"); }
+		if (armoredN == null) { throw new IllegalArgumentException("N must not be null"); }
+		if (armoredE == null) { throw new IllegalArgumentException("E must not be null"); }
+		this.setType(type);
+		this.setN(MagicSigUtil.decode(armoredN));
+		this.setE(MagicSigUtil.decode(armoredE));
+	}
+	
+	public MagicKey(String type, String armoredN, String armoredE, String armoredD) {
+		if (type == null) { throw new IllegalArgumentException("type must not be null"); }
+		if (armoredN == null) { throw new IllegalArgumentException("N must not be null"); }
+		if (armoredE == null) { throw new IllegalArgumentException("E must not be null"); }
+		if (armoredD == null) { throw new IllegalArgumentException("D must not be null"); }
+		this.setType(type);
+		this.setN(MagicSigUtil.decode(armoredN));
+		this.setE(MagicSigUtil.decode(armoredE));
+		this.setD(MagicSigUtil.decode(armoredD));
+	}
+	
 	public MagicKey(byte[] magicKey) {
 		String mkString = null;
 		try {
