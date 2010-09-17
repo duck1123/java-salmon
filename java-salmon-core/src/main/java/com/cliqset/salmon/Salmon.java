@@ -97,7 +97,7 @@ public class Salmon {
 		
 		for (MagicKey key : authorKeys) {
 			String keyhash = key.getKeyhash(); 
-			if (keyhash.equals(signatureKeyhash)) {
+			if (null == signatureKeyhash || keyhash.equals(signatureKeyhash)) {
 				logger.debug("Verifying signature with:{}", key.toString());
 				if (MagicSigUtil.verify(dataForSig, sig, key)) {
 					return data;
