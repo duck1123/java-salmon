@@ -23,8 +23,8 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.cliqset.salmon.MagicEnvelope;
-import com.cliqset.salmon.MagicKey;
+import com.cliqset.magicsig.MagicEnvelope;
+import com.cliqset.magicsig.MagicKey;
 import com.cliqset.salmon.Salmon;
 import com.cliqset.salmon.dataparser.AbderaDataParser;
 import com.cliqset.salmon.keyfinder.OpenXRDKeyFinder;

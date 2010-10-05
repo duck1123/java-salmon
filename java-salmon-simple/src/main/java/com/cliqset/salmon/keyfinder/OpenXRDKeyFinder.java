@@ -23,8 +23,8 @@ import org.openxrd.discovery.impl.HttpHeaderDiscoveryMethod;
 import org.openxrd.xrd.core.Link;
 import org.openxrd.xrd.core.XRD;
 
+import com.cliqset.magicsig.MagicKey;
 import com.cliqset.salmon.KeyFinder;
-import com.cliqset.salmon.MagicKey;
 import com.cliqset.salmon.SalmonException;
 
 public class OpenXRDKeyFinder implements KeyFinder {

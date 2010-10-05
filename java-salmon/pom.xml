@@ -18,7 +18,9 @@
   <version>0.0.1-SNAPSHOT</version>
   <packaging>pom</packaging>
   <modules>
+  	<module>../java-magicsig</module>
   	<module>../java-salmon-core</module>
   	<module>../java-salmon-simple</module>
+  	<module>../java-hostmeta</module>
   </modules>
 </project>

@@ -16,7 +16,6 @@
 
 package com.cliqset.salmon;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.util.LinkedList;
 import java.util.List;
@@ -24,17 +23,42 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.cliqset.magicsig.EnvelopeVerificationResult;
+import com.cliqset.magicsig.MagicEnvelope;
+import com.cliqset.magicsig.MagicKey;
+import com.cliqset.magicsig.MagicSignatureException;
+import com.cliqset.magicsig.MagicSigner;
+import com.cliqset.magicsig.SignatureVerificationResult;
+import com.cliqset.magicsig.algorithm.RSASHA256MagicSignatureAlgorithm;
+import com.cliqset.magicsig.encoding.Base64URLMagicSignatureEncoding;
+
 public class Salmon {
 
+	public static final String REL_SALMON = "salmon"; 
+	
 	private static final Logger logger = LoggerFactory.getLogger(Salmon.class);
 	
 	private List<DataParser> dataParsers = new LinkedList<DataParser>();
 	
 	private List<KeyFinder> keyFinders = new LinkedList<KeyFinder>();
 	
-	private static final String DATA_TYPE = "application/atom+xml";
+	private static final String DEFAULT_DATA_TYPE = "application/atom+xml";
 	
-	public Salmon() {}
+	private static final String DEFAULT_ALGORITHM = "RSA-SHA256";
+	
+	private static final String DEFAULT_ENCODING = "base64url";
+	
+	private MagicSigner magicSig = null;
+	
+	public Salmon() {
+		this.magicSig = new MagicSigner()
+			.withEncoding(new Base64URLMagicSignatureEncoding())
+			.withAlgorithm(new RSASHA256MagicSignatureAlgorithm());
+	}
+	
+	public Salmon(MagicSigner magicSig) {
+		this.magicSig = magicSig;
+	}
 	
 	public Salmon withDataParser(DataParser parser) {
 		if (null == parser) {
@@ -53,62 +77,42 @@ public class Salmon {
 	}
 	
 	public byte[] verify(MagicEnvelope envelope) throws SalmonException {
-		String encodedData = envelope.getData().getValue();
-		
-		byte[] data = MagicSigUtil.decode(encodedData);
-		
 		try {
-			logger.debug("verifying:{} ({})", encodedData, new String(data, "ASCII"));
-		} catch (UnsupportedEncodingException e) {}
-		
-		//get key
-		URI authorURI = extractSignerUri(envelope.getData().getType(), data);
-		
-		List<MagicKey> authorKeys = findKeys(authorURI);
-		
-		if (authorKeys.size() < 1) {
-			throw new SalmonException("Unable to locate any magic public keys for author URI: " + authorURI.toString());
+			//get key
+			URI authorURI = extractSignerUri(envelope.getData().getType(), this.magicSig.decodeData(envelope));
+			
+			List<MagicKey> authorKeys = findKeys(authorURI);
+			
+			if (authorKeys.size() < 1) {
+				throw new SalmonException("Unable to locate any magic public keys for author URI: " + authorURI.toString());
+			}
+			
+			return verify(envelope, authorKeys);
+		} catch (MagicSignatureException mse) {
+			throw new SalmonException(mse);
 		}
-		
-		return verify(envelope, authorKeys);
 	}
 	
 	public byte[] verify(MagicEnvelope envelope, List<MagicKey> authorKeys) throws SalmonException {
-		
-		byte[] data = MagicSigUtil.decode(envelope.getData().getValue());
-		
-		byte[] sig = MagicSigUtil.decode(envelope.getSig().getValue());
-		
-		byte[] dataForSig;
-		
 		try {
-			dataForSig = buildDataForSig(data, envelope.getData().getType(), envelope.getEncoding(), envelope.getAlg());
-		} catch (Exception e) {
-			throw new SalmonException("Unable to build data for signature verification.", e);
-		}
-		
-		String signatureKeyhash = envelope.getSig().getKeyhash();
-		
-		try {
-			logger.debug("verifying signature:{} ({})", envelope.getSig(), new String(data, "UTF-8"));
-		} catch (UnsupportedEncodingException e) {}
-		
-		logger.debug("Verifying signature with " + authorKeys.size() + " keys");
-		
-		for (MagicKey key : authorKeys) {
-			String keyhash = key.getKeyhash(); 
-			if (null == signatureKeyhash || keyhash.equals(signatureKeyhash)) {
-				logger.debug("Verifying signature with:{}", key.toString());
-				if (MagicSigUtil.verify(dataForSig, sig, key)) {
-					return data;
-				} else {
-					logger.info("Key {} matched keyhash {}, but didn't verify.", key.toString(), signatureKeyhash);
+			EnvelopeVerificationResult result = magicSig.verify(envelope, authorKeys);
+			for (SignatureVerificationResult sigResult : result.getSignatureVerificationResults()) {
+				if (sigResult.isVerified()) {
+					//salmon has one author, so if one of his keys verify, we are good
+					return result.getData();
 				}
-			} else {
-				logger.debug("Key {} with keyhash of {} does not match signature keyhash of {}", new String[] {key.toString(), keyhash, signatureKeyhash});
 			}
+		} catch (MagicSignatureException mse) {
+			throw new SalmonException(mse);
 		}
+
 		throw new SalmonException("Unable to verify the signature.");
+	}
+	
+	// TODO: make this deliver the salmon too, the lib should incorporate the discovery and posting to the endpoint
+	// support different strategies like we do for the KeyFinder and  DataParser
+	public MagicEnvelope sign(byte[] entry, MagicKey key) throws Exception {
+		return magicSig.sign(entry, key, DEFAULT_ALGORITHM, DEFAULT_ENCODING, DEFAULT_DATA_TYPE);
 	}
 	
 	private URI extractSignerUri(String mimeType, byte[] data) throws SalmonException {
@@ -134,36 +138,5 @@ public class Salmon {
 			}
 		}
 		throw new SalmonException("Unable to find keys for signer: " + authorUri.toString());
-	}
-	
-	public static MagicEnvelope sign(byte[] entry, MagicKey key) throws Exception {
-		return sign(entry, key, MagicSigUtil.ALGORITHM, MagicSigUtil.ENCODING, DATA_TYPE);
-	}
-	
-	private static MagicEnvelope sign(byte[] data, MagicKey key, String algorithm, String encoding, String dataType) throws Exception {
-		MagicEnvelope env = new MagicEnvelope();
-		
-		env.setAlg(algorithm);
-		MagicEnvelopeData envelopeData = new MagicEnvelopeData();
-		byte[] signatureData = buildDataForSig(data, dataType, encoding, algorithm);
-		envelopeData.setValue(MagicSigUtil.encodeToString(data));
-		envelopeData.setType(dataType);
-		env.setData(envelopeData);
-		env.setEncoding(encoding);
-		env.setSig(new MagicEnvelopeSignature(key.getKeyhash(), MagicSigUtil.encodeToString(MagicSigUtil.sign(signatureData, key))));
-		
-		return env;
-	}
-	
-	private static byte[] buildDataForSig(byte[] data, String dataType, String encoding, String algorithm) throws Exception {
-		StringBuilder sb = new StringBuilder(MagicSigUtil.encodeToString(data));
-		sb.append(".");
-		sb.append(MagicSigUtil.encodeToString(dataType.getBytes("ASCII")));
-		sb.append(".");
-		sb.append(MagicSigUtil.encodeToString(encoding.getBytes("ASCII")));
-		sb.append(".");
-		sb.append(MagicSigUtil.encodeToString(algorithm.getBytes("ASCII")));
-		
-		return sb.toString().getBytes("ASCII");
 	}
 }

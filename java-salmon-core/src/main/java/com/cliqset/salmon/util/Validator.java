@@ -25,11 +25,10 @@ import java.net.URI;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.cliqset.magicsig.MagicEnvelope;
+import com.cliqset.magicsig.MagicKey;
 import com.cliqset.salmon.DataParser;
 import com.cliqset.salmon.KeyFinder;
-import com.cliqset.salmon.MagicEnvelope;
-import com.cliqset.salmon.MagicKey;
-import com.cliqset.salmon.MagicSigUtil;
 import com.cliqset.salmon.Salmon;
 import com.cliqset.salmon.SalmonException;
 
