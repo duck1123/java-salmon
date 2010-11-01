@@ -23,7 +23,7 @@
 	<groupId>com.cliqset</groupId>
 	<artifactId>java-salmon-simple</artifactId>
 	<name>java-salmon-simple</name>
-	<version>0.0.1-r32</version>
+	<version>0.0.1-SNAPSHOT</version>
 	<description>Some default strategy implementations for java-salmon-core to use.  Separate to reduce to dependencies that java-salmon-core has.</description>
 	<dependencies>
 		<dependency>

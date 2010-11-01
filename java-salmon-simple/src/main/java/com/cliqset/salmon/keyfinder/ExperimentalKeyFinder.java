@@ -34,7 +34,6 @@ public class ExperimentalKeyFinder implements KeyFinder {
 	private static HostMeta hostMeta = new HostMeta()
 		.withTemplateProcessor("lrdd", new LRDDTemplateProcessor());
 	
-	@Override
 	public List<MagicKey> findKeys(URI uri) throws SalmonException {
 		try {
 			MagicKeyHandler handler = new MagicKeyHandler();

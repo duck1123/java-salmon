@@ -45,7 +45,6 @@ public class Validator {
 			Salmon salmon = new Salmon()
 				.withKeyFinder(new KeyFinder() {
 
-					@Override
 					public List<MagicKey> findKeys(URI signerUri) throws SalmonException {
 						List<MagicKey> keys = new LinkedList<MagicKey>();
 						try {
@@ -60,7 +59,6 @@ public class Validator {
 				})
 				.withDataParser(new DataParser() {
 
-					@Override
 					public URI getSignerUri(byte[] data) throws SalmonException {
 						try {
 							return new URI("doesnt@matter.com");
@@ -69,7 +67,6 @@ public class Validator {
 						}
 					}
 
-					@Override
 					public boolean parsesMimeType(String mimeType) {
 						return true;
 					}					

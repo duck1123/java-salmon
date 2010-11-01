@@ -87,12 +87,10 @@ public class SalmonTest extends BaseTestCase {
 		Salmon s = new Salmon()
 			.withDataParser(new DataParser() {
 
-				@Override
 				public URI getSignerUri(byte[] data) throws SalmonException {
 					return URI.create("acct:test@example.com");
 				}
 
-				@Override
 				public boolean parsesMimeType(String mimeType) {
 					return false;
 				}
@@ -129,7 +127,6 @@ public class SalmonTest extends BaseTestCase {
 			.withDataParser(new BasicAtomDataParser())
 			.withKeyFinder(new KeyFinder() {
 
-				@Override
 				public List<MagicKey> findKeys(URI signerUri) throws SalmonException {
 					return new ArrayList<MagicKey>();
 				}
@@ -151,7 +148,6 @@ public class SalmonTest extends BaseTestCase {
 			.withDataParser(new BasicAtomDataParser())
 			.withKeyFinder(new KeyFinder() {
 
-				@Override
 				public List<MagicKey> findKeys(URI signerUri) throws SalmonException {
 					return null;
 				}
@@ -171,12 +167,10 @@ public class SalmonTest extends BaseTestCase {
 	
 	public class BasicAtomDataParser implements DataParser {
 
-		@Override
 		public URI getSignerUri(byte[] data) throws SalmonException {
 			return URI.create("acct:test@example.com");
 		}
 
-		@Override
 		public boolean parsesMimeType(String mimeType) {
 			return "application/atom+xml".equals(mimeType);
 		}
@@ -184,7 +178,6 @@ public class SalmonTest extends BaseTestCase {
 	
 	public class BasicKeyFinder implements KeyFinder {
 
-		@Override
 		public List<MagicKey> findKeys(URI signerUri) throws SalmonException {
 			if (URI.create("acct:test@example.com").equals(signerUri)) {
 				return Arrays.asList(new MagicKey[] { new MagicKey(getBytes("/BasicRSAKey.txt"))});
