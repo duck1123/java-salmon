@@ -1,40 +1,43 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <artifactId>java-salmon</artifactId>
-    <groupId>com.cliqset</groupId>
-    <version>0.0.1-SNAPSHOT</version>
-  </parent>
-  <groupId>com.cliqset</groupId>
-  <artifactId>java-magicsig</artifactId>
-  <name>java-magicsig</name>
-  <version>0.0.1-SNAPSHOT</version>
-  <dependencies>
- 	<dependency>
-		<groupId>org.slf4j</groupId>
-		<artifactId>slf4j-api</artifactId>
-		<version>1.5.10</version>
-	</dependency>
- 		<dependency>
-		<groupId>ch.qos.logback</groupId>
-		<artifactId>logback-classic</artifactId>
-		<version>0.9.15</version>
-		<scope>provided</scope>
-	</dependency>
-	<dependency>
-		<groupId>junit</groupId>
-		<artifactId>junit</artifactId>
-		<version>4.3.1</version>
-		<scope>test</scope>
-	</dependency>
-	<dependency>
-		<groupId>commons-codec</groupId>
-		<artifactId>commons-codec</artifactId>
-		<version>1.4</version>
-	</dependency>
-  </dependencies>
-  <url>http://code.google.com/p/java-salmon/</url>
-  <developers>
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<artifactId>java-salmon</artifactId>
+		<groupId>com.cliqset</groupId>
+		<version>0.0.1-SNAPSHOT</version>
+		<relativePath>../java-salmon/pom.xml</relativePath>
+	</parent>
+	<groupId>com.cliqset</groupId>
+	<artifactId>java-magicsig</artifactId>
+	<name>java-magicsig</name>
+	<version>0.0.1-r32</version>
+	<dependencies>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.5.10</version>
+		</dependency>
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<version>0.9.15</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.3.1</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+			<version>1.4</version>
+		</dependency>
+	</dependencies>
+	<url>http://code.google.com/p/java-salmon/</url>
+	<developers>
 		<developer>
 			<id>charlie@cliqset.com</id>
 			<name>Charlie</name>
