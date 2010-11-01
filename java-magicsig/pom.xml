@@ -7,6 +7,7 @@
   </parent>
   <groupId>com.cliqset</groupId>
   <artifactId>java-magicsig</artifactId>
+  <name>java-magicsig</name>
   <version>0.0.1-SNAPSHOT</version>
   <dependencies>
  	<dependency>
@@ -32,7 +33,8 @@
 		<version>1.4</version>
 	</dependency>
   </dependencies>
-  	<developers>
+  <url>http://code.google.com/p/java-salmon/</url>
+  <developers>
 		<developer>
 			<id>charlie@cliqset.com</id>
 			<name>Charlie</name>

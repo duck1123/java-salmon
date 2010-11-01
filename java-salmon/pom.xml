@@ -15,8 +15,10 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.cliqset</groupId>
   <artifactId>java-salmon</artifactId>
+  <name>java-salmon</name>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>pom</packaging>
+  <url>http://code.google.com/p/java-salmon/</url>
   <modules>
   	<module>../java-magicsig</module>
   	<module>../java-salmon-core</module>

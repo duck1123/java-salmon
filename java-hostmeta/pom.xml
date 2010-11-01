@@ -7,6 +7,7 @@
   </parent>
   <groupId>com.cliqset</groupId>
   <artifactId>java-hostmeta</artifactId>
+  <name>java-hostmeta</name>
   <version>0.0.1-SNAPSHOT</version>
   <dependencies>
  	<dependency>
@@ -27,7 +28,8 @@
 		<scope>test</scope>
 	</dependency>
   </dependencies>
-    <developers>
+  <url>http://code.google.com/p/java-salmon/</url>
+  <developers>
 		<developer>
 			<id>charlie@cliqset.com</id>
 			<name>Charlie</name>
