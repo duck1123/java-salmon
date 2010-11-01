@@ -24,7 +24,7 @@
 	<groupId>com.cliqset</groupId>
 	<artifactId>java-salmon-core</artifactId>
 	<name>java-salmon-core</name>
-	<version>0.0.1-r32</version>
+	<version>0.0.1-SNAPSHOT</version>
 	<url>http://salmon-protocol.org</url>
 	<repositories>
 		<repository>
@@ -68,7 +68,7 @@
 		<dependency>
 			<groupId>com.cliqset</groupId>
 			<artifactId>java-magicsig</artifactId>
-			<version>0.0.1-r32</version>
+			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 	<developers>
