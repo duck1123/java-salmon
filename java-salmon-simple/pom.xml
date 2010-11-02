@@ -39,39 +39,16 @@
 		<dependency>
 			<groupId>org.apache.abdera</groupId>
 			<artifactId>abdera-core</artifactId>
-			<version>1.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.abdera</groupId>
 			<artifactId>abdera-parser</artifactId>
-			<version>1.0</version>
-			<exclusions>
-				<exclusion>
-					<groupId>xerces</groupId>
-					<artifactId>xercesImpl</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.openxrd</groupId>
 			<artifactId>openxrd</artifactId>
-			<version>1.0-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
-	<developers>
-		<developer>
-			<id>charlie@cliqset.com</id>
-			<name>Charlie</name>
-			<email>charlie@cliqset.com</email>
-			<url>http://cliqset.com/user/charlie</url>
-			<organization>Cliqset</organization>
-			<organizationUrl>http://cliqset.com</organizationUrl>
-		</developer>
-	</developers>
-	<organization>
-		<name>cliqset</name>
-		<url>http://cliqset.com</url>
-	</organization>
 	<build>
 		<plugins>
 			<plugin>

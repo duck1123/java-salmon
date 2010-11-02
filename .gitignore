@@ -1,0 +1,18 @@
+*~
+*.iml
+# /java-hostmeta/
+/java-hostmeta/target
+/java-hostmeta/.settings
+
+# /java-magicsig/
+/java-magicsig/target
+/java-magicsig/.settings
+
+# /java-salmon-core/
+/java-salmon-core/target
+/java-salmon-core/.settings
+
+# /java-salmon-simple/
+/java-salmon-simple/target
+/java-salmon-simple/.settings
+/java-salmon-simple/.classpath
