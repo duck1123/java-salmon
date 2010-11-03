@@ -18,7 +18,6 @@ package com.cliqset.salmon.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -27,6 +26,8 @@ import java.util.List;
 
 import com.cliqset.magicsig.MagicEnvelope;
 import com.cliqset.magicsig.MagicKey;
+import com.cliqset.magicsig.MagicSigConstants;
+import com.cliqset.magicsig.xml.XMLMagicEnvelopeDeserializer;
 import com.cliqset.salmon.DataParser;
 import com.cliqset.salmon.KeyFinder;
 import com.cliqset.salmon.Salmon;
@@ -71,8 +72,8 @@ public class Validator {
 						return true;
 					}					
 				});
-			
-			byte[] output = salmon.verify(MagicEnvelope.fromBytes(getBytes(filename)));
+			MagicEnvelope.withDeserializer(new XMLMagicEnvelopeDeserializer());
+			byte[] output = salmon.verify(MagicEnvelope.fromInputStream(MagicSigConstants.MEDIA_TYPE_MAGIC_ENV_XML, new FileInputStream(filename)));
 			
 			System.out.println(new String(output, "UTF-8"));
 		} catch (Exception e) {

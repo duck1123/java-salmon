@@ -25,6 +25,7 @@ import java.io.InputStream;
 import com.cliqset.magicsig.MagicEnvelope;
 import com.cliqset.magicsig.MagicKey;
 import com.cliqset.magicsig.MagicSigner;
+import com.cliqset.magicsig.xml.XMLMagicEnvelope;
 
 public class Signer {
 
@@ -44,7 +45,8 @@ public class Signer {
 			MagicEnvelope env = magicSig.sign(bytes, key, "RSA-SHA256", "base64url", "application/atom+xml");
 			
 			FileOutputStream fos = new FileOutputStream(filename + ".env");
-			fos.write(env.toBytes());
+			//TODO: use new method to serialize this
+			//fos.write(env.toBytes());
 			fos.flush();
 			fos.close();
 		} catch (Exception e) {

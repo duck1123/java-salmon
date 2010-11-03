@@ -20,6 +20,13 @@ import javax.xml.namespace.QName;
 
 public class MagicSigConstants {
 
+	public static final String MEDIA_TYPE_MAGIC_ENV_XML = "application/magic-envelope+xml";
+	
+	public static final String MEDIA_TYPE_MAGIC_ENV_JSON = "application/magic-envelope+json";
+	
+	//TODO: what is the real value for this?
+	public static final String MEDIA_TYPE_MAGIC_ENV_COMPACT = "text/magic-envelope+compact";
+	
 	public static final String MAGIC_SIG_NS = "http://salmon-protocol.org/ns/magic-env";
 	
 	public static final String MAGIC_KEY_NS = "http://salmon-protocol.org/ns/magic-key";

@@ -14,7 +14,7 @@
 	limitations under the License.
 */
 
-package com.cliqset.magicsig;
+package com.cliqset.magicsig.xml;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -22,9 +22,11 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlValue;
 
-@XmlRootElement(name="sig", namespace=MagicEnvelope.NS_MAGIC_ENVELOPE)
+import com.cliqset.magicsig.Signature;
+
+@XmlRootElement(name="sig", namespace=XMLMagicEnvelope.NS_MAGIC_ENVELOPE)
 @XmlAccessorType(XmlAccessType.FIELD)
-public class MagicEnvelopeSignature {
+public class XMLMagicEnvelopeSignature {
 
 	@XmlValue
 	private String value;
@@ -32,19 +34,19 @@ public class MagicEnvelopeSignature {
 	@XmlAttribute(name="key_id")
 	private String keyId;
 
-	public MagicEnvelopeSignature() {}
+	public XMLMagicEnvelopeSignature() {}
 	
-	public MagicEnvelopeSignature(String keyid, String signature) {
+	public XMLMagicEnvelopeSignature(String keyid, String signature) {
 		this.keyId = keyid;
 		this.value = signature;
 	}
 	
-	public MagicEnvelopeSignature withKeyId(String value) {
+	public XMLMagicEnvelopeSignature withKeyId(String value) {
 		this.keyId = value;
 		return this;
 	}
 	
-	public MagicEnvelopeSignature withValue(String value) {
+	public XMLMagicEnvelopeSignature withValue(String value) {
 		this.value = value;
 		return this;
 	}

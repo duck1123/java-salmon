@@ -16,12 +16,14 @@
 
 package com.cliqset.magicsig;
 
+import com.cliqset.magicsig.xml.XMLMagicEnvelopeSignature;
+
 public class SignatureVerificationResult {
 
-	private MagicEnvelopeSignature signature;
+	private Signature signature;
 	private MagicKey key;
 	
-	public SignatureVerificationResult withSignature(MagicEnvelopeSignature signature) {
+	public SignatureVerificationResult withSignature(Signature signature) {
 		this.signature = signature;
 		return this;
 	}
@@ -35,11 +37,11 @@ public class SignatureVerificationResult {
 		return null != getKey();
 	}
 
-	public void setSignature(MagicEnvelopeSignature sig) {
+	public void setSignature(Signature sig) {
 		this.signature = sig;
 	}
 
-	public MagicEnvelopeSignature getSignature() {
+	public Signature getSignature() {
 		return signature;
 	}
 

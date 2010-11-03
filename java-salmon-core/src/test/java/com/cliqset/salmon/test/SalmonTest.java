@@ -26,6 +26,8 @@ import org.junit.Assert;
 
 import com.cliqset.magicsig.MagicEnvelope;
 import com.cliqset.magicsig.MagicKey;
+import com.cliqset.magicsig.MagicSigConstants;
+import com.cliqset.magicsig.xml.XMLMagicEnvelopeDeserializer;
 import com.cliqset.salmon.DataParser;
 import com.cliqset.salmon.KeyFinder;
 import com.cliqset.salmon.Salmon;
@@ -58,7 +60,8 @@ public class SalmonTest extends BaseTestCase {
 			Salmon s = new Salmon()
 				.withDataParser(new BasicAtomDataParser())
 				.withKeyFinder(new BasicKeyFinder());
-			MagicEnvelope env = MagicEnvelope.fromBytes(getBytes("/BasicEnvelope.txt"));
+			MagicEnvelope.withDeserializer(new XMLMagicEnvelopeDeserializer());
+			MagicEnvelope env = MagicEnvelope.fromInputStream(MagicSigConstants.MEDIA_TYPE_MAGIC_ENV_XML, SalmonTest.class.getResourceAsStream("/BasicEnvelope.txt"));
 			
 			byte[] dataBytes = s.verify(env);
 			Assert.assertArrayEquals(dataBytes, getBytes("/BasicAtom.txt"));
@@ -72,7 +75,8 @@ public class SalmonTest extends BaseTestCase {
 		Salmon s = new Salmon()
 			.withKeyFinder(new BasicKeyFinder());
 		try {
-			MagicEnvelope env = MagicEnvelope.fromBytes(getBytes("/BasicEnvelope.txt"));
+			MagicEnvelope.withDeserializer(new XMLMagicEnvelopeDeserializer());
+			MagicEnvelope env = MagicEnvelope.fromInputStream(MagicSigConstants.MEDIA_TYPE_MAGIC_ENV_XML, SalmonTest.class.getResourceAsStream("/BasicEnvelope.txt"));
 			byte[] dataBytes = s.verify(env);
 			Assert.fail("Should get a SalmonException.");
 		} catch (SalmonException se) {
@@ -96,7 +100,8 @@ public class SalmonTest extends BaseTestCase {
 				}
 			});
 		try {
-			MagicEnvelope env = MagicEnvelope.fromBytes(getBytes("/BasicEnvelope.txt"));
+			MagicEnvelope.withDeserializer(new XMLMagicEnvelopeDeserializer());
+			MagicEnvelope env = MagicEnvelope.fromInputStream(MagicSigConstants.MEDIA_TYPE_MAGIC_ENV_XML, SalmonTest.class.getResourceAsStream("/BasicEnvelope.txt"));
 			byte[] dataBytes = s.verify(env);
 			Assert.fail("Should get a SalmonException.");
 		} catch (SalmonException se) {
@@ -111,7 +116,8 @@ public class SalmonTest extends BaseTestCase {
 		Salmon s = new Salmon()
 			.withDataParser(new BasicAtomDataParser());
 		try {
-			MagicEnvelope env = MagicEnvelope.fromBytes(getBytes("/BasicEnvelope.txt"));
+			MagicEnvelope.withDeserializer(new XMLMagicEnvelopeDeserializer());
+			MagicEnvelope env = MagicEnvelope.fromInputStream(MagicSigConstants.MEDIA_TYPE_MAGIC_ENV_XML, SalmonTest.class.getResourceAsStream("/BasicEnvelope.txt"));
 			byte[] dataBytes = s.verify(env);
 			Assert.fail("Should get a SalmonException.");
 		} catch (SalmonException se) {
@@ -132,7 +138,8 @@ public class SalmonTest extends BaseTestCase {
 				}
 			});
 		try {
-			MagicEnvelope env = MagicEnvelope.fromBytes(getBytes("/BasicEnvelope.txt"));
+			MagicEnvelope.withDeserializer(new XMLMagicEnvelopeDeserializer());
+			MagicEnvelope env = MagicEnvelope.fromInputStream(MagicSigConstants.MEDIA_TYPE_MAGIC_ENV_XML, SalmonTest.class.getResourceAsStream("/BasicEnvelope.txt"));
 			byte[] dataBytes = s.verify(env);
 			Assert.fail("Should get a SalmonException.");
 		} catch (SalmonException se) {
@@ -154,7 +161,8 @@ public class SalmonTest extends BaseTestCase {
 
 			});
 		try {
-			MagicEnvelope env = MagicEnvelope.fromBytes(getBytes("/BasicEnvelope.txt"));
+			MagicEnvelope.withDeserializer(new XMLMagicEnvelopeDeserializer());
+			MagicEnvelope env = MagicEnvelope.fromInputStream(MagicSigConstants.MEDIA_TYPE_MAGIC_ENV_XML, SalmonTest.class.getResourceAsStream("/BasicEnvelope.txt"));
 			byte[] dataBytes = s.verify(env);
 			Assert.fail("Should get a SalmonException.");
 		} catch (SalmonException se) {

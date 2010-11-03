@@ -47,7 +47,7 @@ public class MagicSigner {
 			throw new MagicSignatureException("Unrecognized encoding:" + envelope.getEncoding());
 		}
 		
-		return encoder.decode(envelope.getData().getValue());
+		return encoder.decode(envelope.getData());
 	}
 	
 	public MagicEnvelope sign(byte[] data, MagicKey key, String algorithm, String encoding, String dataType) throws Exception {
@@ -65,11 +65,10 @@ public class MagicSigner {
 
 		MagicEnvelope env = new MagicEnvelope()
 			.withAlgorithm(algorithm)
-			.withData(new MagicEnvelopeData()
-				.withType(dataType)
-				.withValue(encoder.encodeToString(data)))
+			.withData(encoder.encodeToString(data))
+			.withDataType(dataType)
 			.withEncoding(encoding)
-			.withSignature(new MagicEnvelopeSignature()
+			.withSignature(new Signature()
 				.withKeyId(key.getKeyId())
 				.withValue(encoder.encodeToString(alg.sign(signatureData, key))));
 		
@@ -82,17 +81,17 @@ public class MagicSigner {
 			throw new MagicSignatureException("Unrecognized encoding:" + envelope.getEncoding());
 		}
 		
-		MagicSignatureAlgorithm algorithm = this.algorithms.get(envelope.getAlg());
+		MagicSignatureAlgorithm algorithm = this.algorithms.get(envelope.getAlgorithm());
 		if (null == algorithm) {
-			throw new MagicSignatureException("Unrecognized algorithm:" + envelope.getAlg());
+			throw new MagicSignatureException("Unrecognized algorithm:" + envelope.getAlgorithm());
 		}
 		
-		byte[] data = encoder.decode(envelope.getData().getValue());
+		byte[] data = encoder.decode(envelope.getData());
 		
 		byte[] dataForSig;
 		
 		try {
-			dataForSig = buildSigBaseString(data, envelope.getData().getType(), envelope.getEncoding(), envelope.getAlg());
+			dataForSig = buildSigBaseString(data, envelope.getDataType(), envelope.getEncoding(), envelope.getAlgorithm());
 		} catch (Exception e) {
 			throw new MagicSignatureException("Unable to build data for signature verification.", e);
 		}
@@ -100,7 +99,7 @@ public class MagicSigner {
 		EnvelopeVerificationResult result = new EnvelopeVerificationResult()
 			.withData(data);
 			
-		for (MagicEnvelopeSignature sig : envelope.getSigs()) {
+		for (Signature sig : envelope.getSignatures()) {
 			logger.debug("verifying signature:{} with keyId:", sig.getValue(), sig.getKeyId());
 		
 			logger.debug("Verifying signature with " + authorKeys.size() + " keys");

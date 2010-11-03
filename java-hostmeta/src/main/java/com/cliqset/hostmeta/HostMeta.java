@@ -112,7 +112,7 @@ public class HostMeta {
 			conn.setConnectTimeout(30000);
 			conn.setReadTimeout(30000);
 			conn.connect();
-			if (!XRDConstants.XRD_MEDIA_TYPE.equals(conn.getContentType())) {
+			if (null == conn.getContentType() || conn.getContentType().startsWith(XRDConstants.XRD_MEDIA_TYPE)) {
 				logger.warn("URL: " + url.toString() + " returned an unexpected content-type:" + conn.getContentType() + " when fetching XRD.");
 			}
 			if (conn.getResponseCode() >= 400) {

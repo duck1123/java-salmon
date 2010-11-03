@@ -14,7 +14,7 @@
 	limitations under the License.
 */
 
-package com.cliqset.magicsig;
+package com.cliqset.magicsig.xml;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -22,9 +22,9 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlValue;
 
-@XmlRootElement(name="data", namespace=MagicEnvelope.NS_MAGIC_ENVELOPE)
+@XmlRootElement(name="data", namespace=XMLMagicEnvelope.NS_MAGIC_ENVELOPE)
 @XmlAccessorType(XmlAccessType.FIELD)
-public class MagicEnvelopeData {
+public class XMLMagicEnvelopeData {
 
 	@XmlValue
 	private String value;
@@ -32,12 +32,12 @@ public class MagicEnvelopeData {
 	@XmlAttribute(name="type")//, namespace="http://salmon-protocol.org/ns/magic-env"
 	private String type;
 
-	public MagicEnvelopeData withValue(String value) {
+	public XMLMagicEnvelopeData withValue(String value) {
 		this.value = value;
 		return this;
 	}
 	
-	public MagicEnvelopeData withType(String value) {
+	public XMLMagicEnvelopeData withType(String value) {
 		this.type = value;
 		return this;
 	}

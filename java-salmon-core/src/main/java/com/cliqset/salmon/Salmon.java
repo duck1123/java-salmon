@@ -79,7 +79,7 @@ public class Salmon {
 	public byte[] verify(MagicEnvelope envelope) throws SalmonException {
 		try {
 			//get key
-			URI authorURI = extractSignerUri(envelope.getData().getType(), this.magicSig.decodeData(envelope));
+			URI authorURI = extractSignerUri(envelope.getDataType(), this.magicSig.decodeData(envelope));
 			
 			List<MagicKey> authorKeys = findKeys(authorURI);
 			
