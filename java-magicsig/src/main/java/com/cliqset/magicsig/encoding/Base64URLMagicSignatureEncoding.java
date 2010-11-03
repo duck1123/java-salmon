@@ -65,7 +65,7 @@ public class Base64URLMagicSignatureEncoding implements MagicSignatureEncoding {
 	}
 
 	public String getIdentifier() {
-		return this.identifier;
+		return identifier;
 	}
 
 }

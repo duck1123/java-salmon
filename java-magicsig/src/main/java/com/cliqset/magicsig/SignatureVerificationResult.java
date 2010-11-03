@@ -16,8 +16,6 @@
 
 package com.cliqset.magicsig;
 
-import com.cliqset.magicsig.xml.XMLMagicEnvelopeSignature;
-
 public class SignatureVerificationResult {
 
 	private Signature signature;

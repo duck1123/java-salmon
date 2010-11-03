@@ -16,23 +16,13 @@
 
 package com.cliqset.magicsig.xml;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-
-import com.cliqset.magicsig.MagicEnvelope;
-import com.cliqset.magicsig.MagicSignatureException;
-import com.cliqset.magicsig.Signature;
 
 @XmlRootElement(name="env", namespace=XMLMagicEnvelope.NS_MAGIC_ENVELOPE)
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -76,8 +66,15 @@ public class XMLMagicEnvelope {
 	public String getAlgorithm() {
 		return this.alg;
 	}
+	
+	public void setAlgorithm(String algorithm) {
+		this.alg = algorithm;
+	}
 
 	public List<XMLMagicEnvelopeSignature> getSignatures() {
+		if (null == this.sigs) {
+			this.sigs = new LinkedList<XMLMagicEnvelopeSignature>();
+		}
 		return this.sigs;
 	}
 
@@ -86,12 +83,30 @@ public class XMLMagicEnvelope {
 		return this.data.getType();
 	}
 	
+	public void setType(String type) {
+		if (null == this.data) {
+			this.data = new XMLMagicEnvelopeData();
+		}
+		this.data.setType(type);
+	}
+
 	public String getData() {
 		if (null == this.data) { return null; }
 		return this.data.getValue();
 	}
+	
+	public void setData(String data) {
+		if (null == this.data) {
+			this.data = new XMLMagicEnvelopeData();
+		}
+		this.data.setValue(data);
+	}
 
 	public String getEncoding() {
 		return this.encoding;
+	}
+	
+	public void setEncoding(String encoding) {
+		this.encoding = encoding;
 	}
 }

@@ -23,7 +23,6 @@ import java.io.InputStreamReader;
 import org.apache.commons.codec.binary.Base64;
 
 import com.cliqset.magicsig.MagicKey;
-import com.cliqset.magicsig.MagicSigner;
 import com.cliqset.magicsig.algorithm.RSASHA256MagicSignatureAlgorithm;
 
 public class KeyTester {
@@ -36,8 +35,6 @@ public class KeyTester {
 			FileInputStream fis = new FileInputStream(keyFile);
 			BufferedReader reader = new BufferedReader(new InputStreamReader(fis));
 			String line = null;
-			
-			MagicSigner magicSig = new MagicSigner();
 			
 			while ((line = reader.readLine()) != null ) {
 				MagicKey key = new MagicKey(line.getBytes("ASCII"));

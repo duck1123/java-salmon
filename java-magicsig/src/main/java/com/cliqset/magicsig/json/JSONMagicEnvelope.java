@@ -1,6 +1,5 @@
 package com.cliqset.magicsig.json;
 
-import java.util.LinkedList;
 import java.util.List;
 
 public class JSONMagicEnvelope {
