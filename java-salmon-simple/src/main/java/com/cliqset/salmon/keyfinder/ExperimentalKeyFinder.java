@@ -22,6 +22,7 @@ import java.util.List;
 import com.cliqset.hostmeta.HostMeta;
 import com.cliqset.hostmeta.HostMetaException;
 import com.cliqset.hostmeta.HostMetaHandler;
+import com.cliqset.hostmeta.JavaNetXRDFetcher;
 import com.cliqset.hostmeta.template.LRDDTemplateProcessor;
 import com.cliqset.magicsig.MagicKey;
 import com.cliqset.salmon.KeyFinder;
@@ -32,7 +33,8 @@ import com.cliqset.magicsig.MagicSigConstants;
 public class ExperimentalKeyFinder implements KeyFinder {
 
 	private static HostMeta hostMeta = new HostMeta()
-		.withTemplateProcessor("lrdd", new LRDDTemplateProcessor());
+		.withTemplateProcessor("lrdd", new LRDDTemplateProcessor())
+		.withXRDFetcher(new JavaNetXRDFetcher());
 	
 	public List<MagicKey> findKeys(URI uri) throws SalmonException {
 		try {
