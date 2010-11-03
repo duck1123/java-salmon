@@ -16,6 +16,7 @@
 
 package com.cliqset.hostmeta;
 
+@SuppressWarnings("serial")
 public class HostMetaException extends Exception {
 
 	public HostMetaException() {}

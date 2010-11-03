@@ -16,8 +16,6 @@
 
 package com.cliqset.hostmeta;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -33,8 +31,6 @@ import com.cliqset.xrd.Alias;
 import com.cliqset.xrd.Link;
 import com.cliqset.xrd.Property;
 import com.cliqset.xrd.XRD;
-import com.cliqset.xrd.XRDConstants;
-import com.cliqset.xrd.XRDException;
 
 public class HostMeta {
 
@@ -42,7 +38,14 @@ public class HostMeta {
 
 	private static final String HOST_META_PATH = "/.well-known/host-meta";
 	
-	private Map<String, TemplateProcessor> templates = new HashMap<String, TemplateProcessor>(); 
+	private Map<String, TemplateProcessor> templates = new HashMap<String, TemplateProcessor>();
+	
+	private XRDFetcher xrdFetcher = null;
+	
+	public HostMeta withXRDFetcher(XRDFetcher fetcher) {
+		this.xrdFetcher = fetcher;
+		return this;
+	}
 	
 	public HostMeta withTemplateProcessor(String rel, TemplateProcessor processor) {
 		this.templates.put(rel, processor);
@@ -104,28 +107,10 @@ public class HostMeta {
 	}
 	
 	private XRD fetchXRD(URL url) throws HostMetaException {
-		//TODO: allow the ability for the library user to provide their own HTTP GET mechanism
-		//to accommodate HttpClient, appengine's restrictions, any other custom situation.
-		HttpURLConnection conn = null;
-		try {
-			conn = (HttpURLConnection)url.openConnection();
-			conn.setConnectTimeout(30000);
-			conn.setReadTimeout(30000);
-			conn.connect();
-			if (null == conn.getContentType() || conn.getContentType().startsWith(XRDConstants.XRD_MEDIA_TYPE)) {
-				logger.warn("URL: " + url.toString() + " returned an unexpected content-type:" + conn.getContentType() + " when fetching XRD.");
-			}
-			if (conn.getResponseCode() >= 400) {
-				throw new HostMetaException("Unsuccessful XRD request, HTTP response code:" + conn.getResponseCode());
-			}
-			return XRD.fromStream(conn.getInputStream());
-		} catch (IOException ioe) {
-			throw new HostMetaException("Unable to request XRD.", ioe);
-		} catch (XRDException xe) {
-			throw new HostMetaException("Unable to parse XRD.", xe);
-		} finally {
-			try { conn.getInputStream().close(); } catch (Exception e) {}
+		if (null == this.xrdFetcher) {
+			throw new HostMetaException("An XRDFetcher must be configured.");
 		}
+		return this.xrdFetcher.fetchXRD(url);
 	}
 	
 	private void processHostWide(XRD xrd, HostMetaHandler handler) {

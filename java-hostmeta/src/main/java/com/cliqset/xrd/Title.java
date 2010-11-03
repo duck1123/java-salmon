@@ -22,8 +22,6 @@ import java.util.Map;
 import javax.xml.bind.annotation.*; 
 import javax.xml.namespace.QName;
 
-import org.w3c.dom.Element;
-
 @XmlType(name="Title", namespace=XRDConstants.XRD_NAMESPACE)
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Title {
