@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import com.cliqset.magicsig.EnvelopeVerificationResult;
 import com.cliqset.magicsig.MagicEnvelope;
-import com.cliqset.magicsig.MagicKey;
+import com.cliqset.magicsig.Key;
 import com.cliqset.magicsig.MagicSignatureException;
 import com.cliqset.magicsig.MagicSigner;
 import com.cliqset.magicsig.SignatureVerificationResult;
@@ -81,7 +81,7 @@ public class Salmon {
 			//get key
 			URI authorURI = extractSignerUri(envelope.getDataType(), this.magicSig.decodeData(envelope));
 			
-			List<MagicKey> authorKeys = findKeys(authorURI);
+			List<Key> authorKeys = findKeys(authorURI);
 			
 			if (authorKeys.size() < 1) {
 				throw new SalmonException("Unable to locate any magic public keys for author URI: " + authorURI.toString());
@@ -93,7 +93,7 @@ public class Salmon {
 		}
 	}
 	
-	public byte[] verify(MagicEnvelope envelope, List<MagicKey> authorKeys) throws SalmonException {
+	public byte[] verify(MagicEnvelope envelope, List<? extends Key> authorKeys) throws SalmonException {
 		try {
 			EnvelopeVerificationResult result = magicSig.verify(envelope, authorKeys);
 			for (SignatureVerificationResult sigResult : result.getSignatureVerificationResults()) {
@@ -111,7 +111,7 @@ public class Salmon {
 	
 	// TODO: make this deliver the salmon too, the lib should incorporate the discovery and posting to the endpoint
 	// support different strategies like we do for the KeyFinder and  DataParser
-	public MagicEnvelope sign(byte[] entry, MagicKey key) throws Exception {
+	public MagicEnvelope sign(byte[] entry, Key key) throws Exception {
 		return magicSig.sign(entry, key, DEFAULT_ALGORITHM, DEFAULT_ENCODING, DEFAULT_DATA_TYPE);
 	}
 	
@@ -128,10 +128,10 @@ public class Salmon {
 		throw new SalmonException("Unable to extract signer URI from data.");
 	}
 	
-	private List<MagicKey> findKeys(URI authorUri) throws SalmonException {
+	private List<Key> findKeys(URI authorUri) throws SalmonException {
 		for (KeyFinder finder : this.keyFinders) {
 			try {
-				List<MagicKey> keys = finder.findKeys(authorUri); 
+				List<Key> keys = finder.findKeys(authorUri); 
 				if (null != keys && keys.size() > 0) { return keys; }
 			} catch (Exception e) { 
 				//ignore and try the next one

@@ -19,14 +19,14 @@ package com.cliqset.magicsig;
 public class SignatureVerificationResult {
 
 	private Signature signature;
-	private MagicKey key;
+	private Key key;
 	
 	public SignatureVerificationResult withSignature(Signature signature) {
 		this.signature = signature;
 		return this;
 	}
 	
-	public SignatureVerificationResult withKey(MagicKey key) {
+	public SignatureVerificationResult withKey(Key key) {
 		this.key = key;
 		return this;
 	}
@@ -43,11 +43,11 @@ public class SignatureVerificationResult {
 		return signature;
 	}
 
-	public void setKey(MagicKey key) {
+	public void setKey(Key key) {
 		this.key = key;
 	}
 
-	public MagicKey getKey() {
+	public Key getKey() {
 		return key;
 	}
 }

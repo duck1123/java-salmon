@@ -25,18 +25,19 @@ import com.cliqset.hostmeta.HostMetaHandler;
 import com.cliqset.hostmeta.JavaNetXRDFetcher;
 import com.cliqset.hostmeta.template.LRDDTemplateProcessor;
 import com.cliqset.magicsig.MagicKey;
+import com.cliqset.magicsig.Key;
 import com.cliqset.salmon.KeyFinder;
 import com.cliqset.salmon.SalmonException;
 import com.cliqset.xrd.Property;
 import com.cliqset.magicsig.MagicSigConstants;
 
-public class ExperimentalKeyFinder implements KeyFinder {
+public class MagicPKIKeyFinder implements KeyFinder {
 
 	private static HostMeta hostMeta = new HostMeta()
 		.withTemplateProcessor("lrdd", new LRDDTemplateProcessor())
 		.withXRDFetcher(new JavaNetXRDFetcher());
 	
-	public List<MagicKey> findKeys(URI uri) throws SalmonException {
+	public List<Key> findKeys(URI uri) throws SalmonException {
 		try {
 			MagicKeyHandler handler = new MagicKeyHandler();
 			hostMeta.discoverResourceSpecific(uri, handler);
@@ -48,7 +49,7 @@ public class ExperimentalKeyFinder implements KeyFinder {
 	
 	private static class MagicKeyHandler extends HostMetaHandler {
 
-		final List<MagicKey> Keys = new LinkedList<MagicKey>();
+		final List<Key> Keys = new LinkedList<Key>();
 		
 		public boolean onProperty(Property property) {
 			if (MagicSigConstants.MAGIC_KEY_TYPE.equals(property.getType().toString())) {

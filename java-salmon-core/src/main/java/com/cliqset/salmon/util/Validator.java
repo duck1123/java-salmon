@@ -25,6 +25,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.cliqset.magicsig.MagicEnvelope;
+import com.cliqset.magicsig.Key;
 import com.cliqset.magicsig.MagicKey;
 import com.cliqset.magicsig.MagicSigConstants;
 import com.cliqset.magicsig.xml.XMLMagicEnvelopeDeserializer;
@@ -46,8 +47,8 @@ public class Validator {
 			Salmon salmon = new Salmon()
 				.withKeyFinder(new KeyFinder() {
 
-					public List<MagicKey> findKeys(URI signerUri) throws SalmonException {
-						List<MagicKey> keys = new LinkedList<MagicKey>();
+					public List<Key> findKeys(URI signerUri) throws SalmonException {
+						List<Key> keys = new LinkedList<Key>();
 						try {
 							keys.add(new MagicKey(getBytes("/DemoKeys.txt")));
 						} catch (Exception e) {

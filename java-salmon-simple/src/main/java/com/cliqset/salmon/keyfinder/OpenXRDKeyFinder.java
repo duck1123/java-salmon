@@ -23,6 +23,7 @@ import org.openxrd.discovery.impl.HttpHeaderDiscoveryMethod;
 import org.openxrd.xrd.core.Link;
 import org.openxrd.xrd.core.XRD;
 
+import com.cliqset.magicsig.Key;
 import com.cliqset.magicsig.MagicKey;
 import com.cliqset.salmon.KeyFinder;
 import com.cliqset.salmon.SalmonException;
@@ -64,10 +65,10 @@ public class OpenXRDKeyFinder implements KeyFinder {
 	    discoveryManager.getDiscoveryMethods().add(link);
 	}
 
-	public List<MagicKey> findKeys(URI signerUri) throws SalmonException {
+	public List<Key> findKeys(URI signerUri) throws SalmonException {
 		XRD xrd = discoveryManager.discover(signerUri);
 
-		List<MagicKey> magicKeys = new LinkedList<MagicKey>();
+		List<Key> magicKeys = new LinkedList<Key>();
 
 		for (Link link : xrd.getLinks()) {
 			if (REL_MAGIC_KEY.equals(link.getRel())) {

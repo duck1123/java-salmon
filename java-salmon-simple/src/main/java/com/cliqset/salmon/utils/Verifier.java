@@ -41,9 +41,8 @@ public class Verifier {
 				filename = args[0];
 			}
 			
-			byte[] bytes = getBytes(filename);
 			MagicEnvelope.withDeserializer(new XMLMagicEnvelopeDeserializer());
-			MagicEnvelope envelope = MagicEnvelope.fromInputStream(MagicSigConstants.MEDIA_TYPE_MAGIC_ENV_XML, new FileInputStream("/BasicEnvelope.txt"));
+			MagicEnvelope envelope = MagicEnvelope.fromInputStream(MagicSigConstants.MEDIA_TYPE_MAGIC_ENV_XML, new FileInputStream(filename));
 			MagicKey key = new MagicKey(getBytes("/DemoKeys.txt"));
 			List<MagicKey> keys = new ArrayList<MagicKey>();
 			keys.add(key);

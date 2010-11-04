@@ -50,7 +50,7 @@ public class MagicSigner {
 		return encoder.decode(envelope.getData());
 	}
 	
-	public MagicEnvelope sign(byte[] data, MagicKey key, String algorithm, String encoding, String dataType) throws Exception {
+	public MagicEnvelope sign(byte[] data, Key key, String algorithm, String encoding, String dataType) throws Exception {
 		MagicSignatureEncoding encoder = this.encoders.get(encoding);
 		if (null == encoder) {
 			throw new MagicSignatureException("Unrecognized encoding:" + encoding);
@@ -75,7 +75,7 @@ public class MagicSigner {
 		return env;
 	}
 	
-	public EnvelopeVerificationResult verify(MagicEnvelope envelope, List<MagicKey> authorKeys) throws MagicSignatureException {
+	public EnvelopeVerificationResult verify(MagicEnvelope envelope, List<? extends Key> keys) throws MagicSignatureException {
 		MagicSignatureEncoding encoder = this.encoders.get(envelope.getEncoding());
 		if (null == encoder) {
 			throw new MagicSignatureException("Unrecognized encoding:" + envelope.getEncoding());
@@ -102,13 +102,13 @@ public class MagicSigner {
 		for (Signature sig : envelope.getSignatures()) {
 			logger.debug("verifying signature:{} with keyId:", sig.getValue(), sig.getKeyId());
 		
-			logger.debug("Verifying signature with " + authorKeys.size() + " keys");
+			logger.debug("Verifying signature with " + keys.size() + " keys");
 			
-			MagicKey verifiedKey = null;
+			Key verifiedKey = null;
 			
-			for (MagicKey key : authorKeys) {
-				if (sig.getKeyId() == null || sig.getKeyId().equals("") || sig.equals(key.getKeyId())) {
-					logger.debug("Verifying signature with:{}", key.toString());
+			for (Key key : keys) {
+				if (!key.supportsKeyId() || sig.getKeyId() == null || sig.getKeyId().equals("") || sig.getKeyId().equals(key.getKeyId())) {
+					logger.debug("Attempting to verify signature with:{}", key.toString());
 					if (algorithm.verify(dataForSig, encoder.decode(sig.getValue()), key)) {
 						verifiedKey = key;
 						break;

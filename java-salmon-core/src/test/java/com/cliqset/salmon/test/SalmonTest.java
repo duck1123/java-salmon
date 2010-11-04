@@ -24,6 +24,7 @@ import java.util.List;
 import org.junit.Test;
 import org.junit.Assert;
 
+import com.cliqset.magicsig.Key;
 import com.cliqset.magicsig.MagicEnvelope;
 import com.cliqset.magicsig.MagicKey;
 import com.cliqset.magicsig.MagicSigConstants;
@@ -77,7 +78,7 @@ public class SalmonTest extends BaseTestCase {
 		try {
 			MagicEnvelope.withDeserializer(new XMLMagicEnvelopeDeserializer());
 			MagicEnvelope env = MagicEnvelope.fromInputStream(MagicSigConstants.MEDIA_TYPE_MAGIC_ENV_XML, SalmonTest.class.getResourceAsStream("/BasicEnvelope.txt"));
-			byte[] dataBytes = s.verify(env);
+			s.verify(env);
 			Assert.fail("Should get a SalmonException.");
 		} catch (SalmonException se) {
 			Assert.assertEquals("Unable to extract signer URI from data.", se.getMessage());
@@ -102,7 +103,7 @@ public class SalmonTest extends BaseTestCase {
 		try {
 			MagicEnvelope.withDeserializer(new XMLMagicEnvelopeDeserializer());
 			MagicEnvelope env = MagicEnvelope.fromInputStream(MagicSigConstants.MEDIA_TYPE_MAGIC_ENV_XML, SalmonTest.class.getResourceAsStream("/BasicEnvelope.txt"));
-			byte[] dataBytes = s.verify(env);
+			s.verify(env);
 			Assert.fail("Should get a SalmonException.");
 		} catch (SalmonException se) {
 			Assert.assertEquals("Unable to extract signer URI from data.", se.getMessage());
@@ -118,7 +119,7 @@ public class SalmonTest extends BaseTestCase {
 		try {
 			MagicEnvelope.withDeserializer(new XMLMagicEnvelopeDeserializer());
 			MagicEnvelope env = MagicEnvelope.fromInputStream(MagicSigConstants.MEDIA_TYPE_MAGIC_ENV_XML, SalmonTest.class.getResourceAsStream("/BasicEnvelope.txt"));
-			byte[] dataBytes = s.verify(env);
+			s.verify(env);
 			Assert.fail("Should get a SalmonException.");
 		} catch (SalmonException se) {
 			Assert.assertEquals("Unable to find keys for signer: acct:test@example.com", se.getMessage());
@@ -133,14 +134,14 @@ public class SalmonTest extends BaseTestCase {
 			.withDataParser(new BasicAtomDataParser())
 			.withKeyFinder(new KeyFinder() {
 
-				public List<MagicKey> findKeys(URI signerUri) throws SalmonException {
-					return new ArrayList<MagicKey>();
+				public List<Key> findKeys(URI signerUri) throws SalmonException {
+					return new ArrayList<Key>();
 				}
 			});
 		try {
 			MagicEnvelope.withDeserializer(new XMLMagicEnvelopeDeserializer());
 			MagicEnvelope env = MagicEnvelope.fromInputStream(MagicSigConstants.MEDIA_TYPE_MAGIC_ENV_XML, SalmonTest.class.getResourceAsStream("/BasicEnvelope.txt"));
-			byte[] dataBytes = s.verify(env);
+			s.verify(env);
 			Assert.fail("Should get a SalmonException.");
 		} catch (SalmonException se) {
 			Assert.assertEquals("Unable to find keys for signer: acct:test@example.com", se.getMessage());
@@ -155,7 +156,7 @@ public class SalmonTest extends BaseTestCase {
 			.withDataParser(new BasicAtomDataParser())
 			.withKeyFinder(new KeyFinder() {
 
-				public List<MagicKey> findKeys(URI signerUri) throws SalmonException {
+				public List<Key> findKeys(URI signerUri) throws SalmonException {
 					return null;
 				}
 
@@ -163,7 +164,7 @@ public class SalmonTest extends BaseTestCase {
 		try {
 			MagicEnvelope.withDeserializer(new XMLMagicEnvelopeDeserializer());
 			MagicEnvelope env = MagicEnvelope.fromInputStream(MagicSigConstants.MEDIA_TYPE_MAGIC_ENV_XML, SalmonTest.class.getResourceAsStream("/BasicEnvelope.txt"));
-			byte[] dataBytes = s.verify(env);
+			s.verify(env);
 			Assert.fail("Should get a SalmonException.");
 		} catch (SalmonException se) {
 			Assert.assertEquals("Unable to find keys for signer: acct:test@example.com", se.getMessage());
@@ -186,9 +187,9 @@ public class SalmonTest extends BaseTestCase {
 	
 	public class BasicKeyFinder implements KeyFinder {
 
-		public List<MagicKey> findKeys(URI signerUri) throws SalmonException {
+		public List<Key> findKeys(URI signerUri) throws SalmonException {
 			if (URI.create("acct:test@example.com").equals(signerUri)) {
-				return Arrays.asList(new MagicKey[] { new MagicKey(getBytes("/BasicRSAKey.txt"))});
+				return Arrays.asList(new Key[] { new MagicKey(getBytes("/BasicRSAKey.txt"))});
 			}
 			throw new SalmonException("Can't find keys for " + signerUri);
 		}	

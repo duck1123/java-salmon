@@ -19,9 +19,9 @@ package com.cliqset.salmon;
 import java.net.URI;
 import java.util.List;
 
-import com.cliqset.magicsig.MagicKey;
+import com.cliqset.magicsig.Key;
 
 public interface KeyFinder {
 
-	List<MagicKey> findKeys(URI signerUri) throws SalmonException;
+	List<Key> findKeys(URI signerUri) throws SalmonException;
 }

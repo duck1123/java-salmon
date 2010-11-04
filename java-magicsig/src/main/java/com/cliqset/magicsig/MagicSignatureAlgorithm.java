@@ -21,7 +21,7 @@ public interface MagicSignatureAlgorithm {
 
 	String getIdentifier();
 	
-	byte[] sign(byte[] data, MagicKey key) throws MagicSignatureException;
+	byte[] sign(byte[] data, Key key) throws MagicSignatureException;
 	
-	boolean verify(byte[] data, byte[] signature, MagicKey key) throws MagicSignatureException;
+	boolean verify(byte[] data, byte[] signature, Key key) throws MagicSignatureException;
 }

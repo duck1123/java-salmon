@@ -26,7 +26,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPrivateKeySpec;
 import java.security.spec.RSAPublicKeySpec;
 import org.apache.commons.codec.binary.Base64;
-public class MagicKey {
+public class MagicKey extends Key {
 
 	private static final String SEPARATOR = ".";
 	
@@ -103,6 +103,10 @@ public class MagicKey {
 	public MagicKey withKeyId(String value) {
 		this.keyId = value;
 		return this;
+	}
+	
+	public boolean supportsKeyId() {
+		return true;
 	}
 	
 	public PrivateKey getPrivateKey() {
