@@ -13,8 +13,8 @@ import org.apache.abdera.model.Person;
 import org.apache.abdera.parser.ParseException;
 import org.apache.abdera.parser.Parser;
 
-import com.cliqset.salmon.DataParser;
-import com.cliqset.salmon.SalmonException;
+import com.cliqset.magicsig.DataParser;
+import com.cliqset.magicsig.MagicSignatureException;
 
 public class AbderaDataParser implements DataParser {
 
@@ -22,19 +22,19 @@ public class AbderaDataParser implements DataParser {
 	private static final Abdera abdera = Abdera.getInstance();
 	
 	
-	public URI getSignerUri(byte[] data) throws SalmonException {
+	public URI getSignerUri(byte[] data) throws MagicSignatureException {
 		Entry entry = null;
 		try {
 			Parser parser = abdera.getParser();
 			Document<Entry> entryDoc = parser.parse(new ByteArrayInputStream(data));
 			entry = entryDoc.getRoot();
 		} catch (ParseException pe) {
-			throw new SalmonException("Unable to parse salmon as ATOM entry", pe);
+			throw new MagicSignatureException("Unable to parse salmon as ATOM entry", pe);
 		}
 		
 		Person author = entry.getAuthor();
 		if (null == author) {
-			throw new SalmonException("No author element on the entry.");
+			throw new MagicSignatureException("No author element on the entry.");
 		}
 		
 		IRI authorIRI = null;
@@ -42,9 +42,9 @@ public class AbderaDataParser implements DataParser {
 			authorIRI = author.getUri();
 			return new URI(authorIRI.toString());
 		} catch (IRISyntaxException ise) {
-			throw new SalmonException("Invalid author URI", ise);
+			throw new MagicSignatureException("Invalid author URI", ise);
 		} catch (URISyntaxException use) {
-			throw new SalmonException("Invalid author URI", use);
+			throw new MagicSignatureException("Invalid author URI", use);
 		}
 	}
 

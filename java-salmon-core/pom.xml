@@ -53,6 +53,11 @@
 			<groupId>com.cliqset</groupId>
 			<artifactId>java-magicsig</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.cliqset</groupId>
+			<artifactId>java-hostmeta</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 
 	<build>

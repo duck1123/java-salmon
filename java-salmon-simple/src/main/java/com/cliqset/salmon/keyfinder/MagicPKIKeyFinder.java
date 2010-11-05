@@ -26,8 +26,8 @@ import com.cliqset.hostmeta.JavaNetXRDFetcher;
 import com.cliqset.hostmeta.template.LRDDTemplateProcessor;
 import com.cliqset.magicsig.MagicKey;
 import com.cliqset.magicsig.Key;
-import com.cliqset.salmon.KeyFinder;
-import com.cliqset.salmon.SalmonException;
+import com.cliqset.magicsig.KeyFinder;
+import com.cliqset.magicsig.MagicSignatureException;
 import com.cliqset.xrd.Property;
 import com.cliqset.magicsig.MagicSigConstants;
 
@@ -37,13 +37,13 @@ public class MagicPKIKeyFinder implements KeyFinder {
 		.withTemplateProcessor("lrdd", new LRDDTemplateProcessor())
 		.withXRDFetcher(new JavaNetXRDFetcher());
 	
-	public List<Key> findKeys(URI uri) throws SalmonException {
+	public List<Key> findKeys(URI uri) throws MagicSignatureException {
 		try {
 			MagicKeyHandler handler = new MagicKeyHandler();
 			hostMeta.discoverResourceSpecific(uri, handler);
 			return handler.Keys;
 		} catch (HostMetaException hme) {
-			throw new SalmonException(hme);
+			throw new MagicSignatureException(hme);
 		}
 	}
 	

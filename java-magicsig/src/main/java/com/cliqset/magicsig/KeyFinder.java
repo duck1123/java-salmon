@@ -14,14 +14,12 @@
 	limitations under the License.
 */
 
-package com.cliqset.salmon;
+package com.cliqset.magicsig;
 
 import java.net.URI;
 import java.util.List;
 
-import com.cliqset.magicsig.Key;
-
 public interface KeyFinder {
 
-	List<Key> findKeys(URI signerUri) throws SalmonException;
+	List<Key> findKeys(URI signerUri) throws MagicSignatureException;
 }

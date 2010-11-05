@@ -24,13 +24,16 @@ import java.net.URI;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.cliqset.magicsig.URIPayloadToMetadataMapper;
+import com.cliqset.magicsig.DataParser;
+import com.cliqset.magicsig.KeyFinder;
+import com.cliqset.magicsig.MagicSignatureException;
 import com.cliqset.magicsig.MagicEnvelope;
 import com.cliqset.magicsig.Key;
 import com.cliqset.magicsig.MagicKey;
 import com.cliqset.magicsig.MagicSigConstants;
+import com.cliqset.magicsig.MagicSigner;
 import com.cliqset.magicsig.xml.XMLMagicEnvelopeDeserializer;
-import com.cliqset.salmon.DataParser;
-import com.cliqset.salmon.KeyFinder;
 import com.cliqset.salmon.Salmon;
 import com.cliqset.salmon.SalmonException;
 
@@ -44,15 +47,15 @@ public class Validator {
 				filename = args[0];
 			}
 
-			Salmon salmon = new Salmon()
+			Salmon salmon = new Salmon(new MagicSigner().withPayloadToMetadataMapper(new URIPayloadToMetadataMapper()
 				.withKeyFinder(new KeyFinder() {
 
-					public List<Key> findKeys(URI signerUri) throws SalmonException {
+					public List<Key> findKeys(URI signerUri) throws MagicSignatureException {
 						List<Key> keys = new LinkedList<Key>();
 						try {
 							keys.add(new MagicKey(getBytes("/DemoKeys.txt")));
 						} catch (Exception e) {
-							throw new SalmonException("Couldn't read the keys!");
+							throw new MagicSignatureException("Couldn't read the keys!");
 						}
 						return keys;
 						
@@ -61,18 +64,18 @@ public class Validator {
 				})
 				.withDataParser(new DataParser() {
 
-					public URI getSignerUri(byte[] data) throws SalmonException {
+					public URI getSignerUri(byte[] data) throws MagicSignatureException {
 						try {
 							return new URI("doesnt@matter.com");
 						} catch (Exception e) {
-							throw new SalmonException("Couldn't create the URI!");
+							throw new MagicSignatureException("Couldn't create the URI!");
 						}
 					}
 
 					public boolean parsesMimeType(String mimeType) {
 						return true;
 					}					
-				});
+				})));
 			MagicEnvelope.withDeserializer(new XMLMagicEnvelopeDeserializer());
 			byte[] output = salmon.verify(MagicEnvelope.fromInputStream(MagicSigConstants.MEDIA_TYPE_MAGIC_ENV_XML, new FileInputStream(filename)));
 			

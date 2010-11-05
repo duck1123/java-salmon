@@ -25,8 +25,8 @@ import org.openxrd.xrd.core.XRD;
 
 import com.cliqset.magicsig.Key;
 import com.cliqset.magicsig.MagicKey;
-import com.cliqset.salmon.KeyFinder;
-import com.cliqset.salmon.SalmonException;
+import com.cliqset.magicsig.KeyFinder;
+import com.cliqset.magicsig.MagicSignatureException;
 
 public class OpenXRDKeyFinder implements KeyFinder {
 
@@ -65,7 +65,7 @@ public class OpenXRDKeyFinder implements KeyFinder {
 	    discoveryManager.getDiscoveryMethods().add(link);
 	}
 
-	public List<Key> findKeys(URI signerUri) throws SalmonException {
+	public List<Key> findKeys(URI signerUri) throws MagicSignatureException {
 		XRD xrd = discoveryManager.discover(signerUri);
 
 		List<Key> magicKeys = new LinkedList<Key>();
@@ -79,7 +79,7 @@ public class OpenXRDKeyFinder implements KeyFinder {
 		return magicKeys;
 	}
 	
-	private MagicKey fetchKey(URI uri) throws SalmonException {
+	private MagicKey fetchKey(URI uri) throws MagicSignatureException {
 		if (SCHEME_DATA.equals(uri.getScheme())) {
 			String data = uri.getSchemeSpecificPart();
 			
@@ -107,12 +107,12 @@ public class OpenXRDKeyFinder implements KeyFinder {
 				response.getEntity().writeTo(baos);
 				return new MagicKey(baos.toByteArray());
 			} catch (ClientProtocolException cpe) {
-				throw new SalmonException(cpe);
+				throw new MagicSignatureException(cpe);
 			} catch (IOException ioe) {
-				throw new SalmonException(ioe);
+				throw new MagicSignatureException(ioe);
 			}
 		} else {
-			throw new SalmonException("URI Scheme " + uri.getScheme() + " is not supported when resolving magic key.");
+			throw new MagicSignatureException("URI Scheme " + uri.getScheme() + " is not supported when resolving magic key.");
 		}
 	}
 }

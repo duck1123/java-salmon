@@ -31,6 +31,8 @@ public class MagicSigner {
 	private Map<String, MagicSignatureAlgorithm> algorithms = new HashMap<String, MagicSignatureAlgorithm>();
 	private Map<String, MagicSignatureEncoding> encoders = new HashMap<String, MagicSignatureEncoding>();
 	
+	private PayloadToMetadataMapper payloadToMetadataMapper = null;
+	
 	public MagicSigner withAlgorithm(MagicSignatureAlgorithm algorithm) {
 		algorithms.put(algorithm.getIdentifier(), algorithm);
 		return this;
@@ -38,6 +40,11 @@ public class MagicSigner {
 	
 	public MagicSigner withEncoding(MagicSignatureEncoding encoding) {
 		encoders.put(encoding.getIdentifier(), encoding);
+		return this;
+	}
+	
+	public MagicSigner withPayloadToMetadataMapper(PayloadToMetadataMapper mapper) {
+		this.payloadToMetadataMapper = mapper;
 		return this;
 	}
 	
@@ -50,7 +57,7 @@ public class MagicSigner {
 		return encoder.decode(envelope.getData());
 	}
 	
-	public MagicEnvelope sign(byte[] data, Key key, String algorithm, String encoding, String dataType) throws Exception {
+	public MagicEnvelope sign(byte[] data, Key key, String algorithm, String encoding, String dataType) throws MagicSignatureException {
 		MagicSignatureEncoding encoder = this.encoders.get(encoding);
 		if (null == encoder) {
 			throw new MagicSignatureException("Unrecognized encoding:" + encoding);
@@ -73,6 +80,11 @@ public class MagicSigner {
 				.withValue(encoder.encodeToString(alg.sign(signatureData, key))));
 		
 		return env;
+	}
+	
+	public EnvelopeVerificationResult verify(MagicEnvelope envelope) throws MagicSignatureException {
+		List<Key> keys = this.payloadToMetadataMapper.getKeys(envelope.getDataType(), this.encoders.get(envelope.getEncoding()).decode(envelope.getData()));
+		return verify(envelope, keys);
 	}
 	
 	public EnvelopeVerificationResult verify(MagicEnvelope envelope, List<? extends Key> keys) throws MagicSignatureException {

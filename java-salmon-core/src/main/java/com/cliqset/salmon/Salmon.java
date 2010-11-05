@@ -16,9 +16,10 @@
 
 package com.cliqset.salmon;
 
+import java.io.ByteArrayOutputStream;
+import java.net.MalformedURLException;
 import java.net.URI;
-import java.util.LinkedList;
-import java.util.List;
+import java.net.URL;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import com.cliqset.magicsig.EnvelopeVerificationResult;
 import com.cliqset.magicsig.MagicEnvelope;
 import com.cliqset.magicsig.Key;
+import com.cliqset.magicsig.MagicSigConstants;
 import com.cliqset.magicsig.MagicSignatureException;
 import com.cliqset.magicsig.MagicSigner;
 import com.cliqset.magicsig.SignatureVerificationResult;
@@ -34,13 +36,13 @@ import com.cliqset.magicsig.encoding.Base64URLMagicSignatureEncoding;
 
 public class Salmon {
 
-	public static final String REL_SALMON = "salmon"; 
+	public static final String REL_SALMON = "salmon";
 	
 	private static final Logger logger = LoggerFactory.getLogger(Salmon.class);
 	
-	private List<DataParser> dataParsers = new LinkedList<DataParser>();
+	private SalmonSender sender = new JavaNetSalmonSender();
 	
-	private List<KeyFinder> keyFinders = new LinkedList<KeyFinder>();
+	private SalmonEndpointFinder finder = new HostMetaSalmonEndpointFinder();
 	
 	private static final String DEFAULT_DATA_TYPE = "application/atom+xml";
 	
@@ -60,42 +62,14 @@ public class Salmon {
 		this.magicSig = magicSig;
 	}
 	
-	public Salmon withDataParser(DataParser parser) {
-		if (null == parser) {
-			throw new IllegalArgumentException("parser must not be null.");
-		}
-		dataParsers.add(parser);
-		return this;
-	}
-	
-	public Salmon withKeyFinder(KeyFinder keyFinder) {
-		if (null == keyFinder) {
-			throw new IllegalArgumentException("keyfinder must not be null.");
-		}
-		keyFinders.add(keyFinder);
+	public Salmon withSalmonSender(SalmonSender sender) {
+		this.sender = sender;
 		return this;
 	}
 	
 	public byte[] verify(MagicEnvelope envelope) throws SalmonException {
 		try {
-			//get key
-			URI authorURI = extractSignerUri(envelope.getDataType(), this.magicSig.decodeData(envelope));
-			
-			List<Key> authorKeys = findKeys(authorURI);
-			
-			if (authorKeys.size() < 1) {
-				throw new SalmonException("Unable to locate any magic public keys for author URI: " + authorURI.toString());
-			}
-			
-			return verify(envelope, authorKeys);
-		} catch (MagicSignatureException mse) {
-			throw new SalmonException(mse);
-		}
-	}
-	
-	public byte[] verify(MagicEnvelope envelope, List<? extends Key> authorKeys) throws SalmonException {
-		try {
-			EnvelopeVerificationResult result = magicSig.verify(envelope, authorKeys);
+			EnvelopeVerificationResult result = magicSig.verify(envelope);
 			for (SignatureVerificationResult sigResult : result.getSignatureVerificationResults()) {
 				if (sigResult.isVerified()) {
 					//salmon has one author, so if one of his keys verify, we are good
@@ -105,38 +79,61 @@ public class Salmon {
 		} catch (MagicSignatureException mse) {
 			throw new SalmonException(mse);
 		}
-
 		throw new SalmonException("Unable to verify the signature.");
 	}
 	
-	// TODO: make this deliver the salmon too, the lib should incorporate the discovery and posting to the endpoint
-	// support different strategies like we do for the KeyFinder and  DataParser
-	public MagicEnvelope sign(byte[] entry, Key key) throws Exception {
+	public void signAndDeliver(byte[] entry, Key key, URL destinationURL) throws SalmonException {
+		signAndDeliver(entry, key, destinationURL, DEFAULT_DATA_TYPE);
+	}
+
+	public void signAndDeliver(byte[] entry, Key key, URL destinationURL, String mediaType) throws SalmonException {
+		signAndDeliver(entry, key, destinationURL, mediaType, DEFAULT_ENCODING, DEFAULT_ALGORITHM);
+	}
+	
+	public void signAndDeliver(byte[] entry, Key key, URL destinationURL, String mediaType, String encoding, String algorithm) throws SalmonException {
+		try {
+			MagicEnvelope env = sign(entry, key);
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			env.writeTo(mediaType, baos);
+			send(destinationURL, MagicSigConstants.MEDIA_TYPE_MAGIC_ENV_XML, baos.toByteArray());
+		} catch (MagicSignatureException mse) {
+			throw new SalmonException(mse);
+		}
+	}
+	
+	public void signAndDeliver(byte[] entry, Key key, URI destinationUser) throws SalmonException {
+		signAndDeliver(entry, key, destinationUser, DEFAULT_DATA_TYPE, DEFAULT_ENCODING, DEFAULT_ALGORITHM);
+	}
+	
+	public void signAndDeliver(byte[] entry, Key key, URI destinationUser, String mediaType) throws SalmonException {
+		signAndDeliver(entry, key, destinationUser, mediaType, DEFAULT_ENCODING, DEFAULT_ALGORITHM);
+	}
+	
+	public void signAndDeliver(byte[] entry, Key key, URI destinationUser, String mediaType, String encoding, String algorithm) throws SalmonException {
+		try {
+			//discover salmon endpoint
+			URL destinationURL = new URL("");
+			signAndDeliver(entry, key, destinationURL, mediaType, encoding, algorithm);
+		} catch (MalformedURLException mue) {
+			throw new SalmonException("Salmon endpoint for user: " + destinationUser + " is not a valid URL", mue);
+		}
+	}
+	
+	public URL findSalmonEndpoint(URI resourceURI) throws SalmonException {
+		if (null == this.finder) {
+			throw new SalmonException("A SalmonEndpointFinder must be configured.");
+		}
+		return this.finder.find(resourceURI);
+	}
+	
+	public MagicEnvelope sign(byte[] entry, Key key) throws MagicSignatureException {
 		return magicSig.sign(entry, key, DEFAULT_ALGORITHM, DEFAULT_ENCODING, DEFAULT_DATA_TYPE);
 	}
 	
-	private URI extractSignerUri(String mimeType, byte[] data) throws SalmonException {
-		for (DataParser parser : this.dataParsers) {
-			if (parser.parsesMimeType(mimeType)) {
-				try {
-					return parser.getSignerUri(data);
-				} catch (Exception e) { 
-					//ignore and try the next one
-				}
-			}
+	private void send(URL destinationURL, String contentType, byte[] data) throws SalmonException {
+		if (null == this.sender) {
+			throw new SalmonException("Please assign a SalmonSender.");
 		}
-		throw new SalmonException("Unable to extract signer URI from data.");
-	}
-	
-	private List<Key> findKeys(URI authorUri) throws SalmonException {
-		for (KeyFinder finder : this.keyFinders) {
-			try {
-				List<Key> keys = finder.findKeys(authorUri); 
-				if (null != keys && keys.size() > 0) { return keys; }
-			} catch (Exception e) { 
-				//ignore and try the next one
-			}
-		}
-		throw new SalmonException("Unable to find keys for signer: " + authorUri.toString());
+		this.sender.send(destinationURL, contentType, data);
 	}
 }

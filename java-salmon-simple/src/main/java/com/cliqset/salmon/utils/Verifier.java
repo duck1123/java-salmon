@@ -23,9 +23,12 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.cliqset.magicsig.Key;
 import com.cliqset.magicsig.MagicEnvelope;
 import com.cliqset.magicsig.MagicKey;
 import com.cliqset.magicsig.MagicSigConstants;
+import com.cliqset.magicsig.MagicSigner;
+import com.cliqset.magicsig.URIPayloadToMetadataMapper;
 import com.cliqset.magicsig.xml.XMLMagicEnvelopeDeserializer;
 import com.cliqset.salmon.Salmon;
 import com.cliqset.salmon.dataparser.AbderaDataParser;
@@ -44,12 +47,12 @@ public class Verifier {
 			MagicEnvelope.withDeserializer(new XMLMagicEnvelopeDeserializer());
 			MagicEnvelope envelope = MagicEnvelope.fromInputStream(MagicSigConstants.MEDIA_TYPE_MAGIC_ENV_XML, new FileInputStream(filename));
 			MagicKey key = new MagicKey(getBytes("/DemoKeys.txt"));
-			List<MagicKey> keys = new ArrayList<MagicKey>();
+			List<Key> keys = new ArrayList<Key>();
 			keys.add(key);
-			Salmon s = new Salmon()
+			Salmon s = new Salmon(new MagicSigner().withPayloadToMetadataMapper(new URIPayloadToMetadataMapper()
 				.withDataParser(new AbderaDataParser())
-				.withKeyFinder(new OpenXRDKeyFinder());
-			System.out.println(s.verify(envelope, keys));
+				.withKeyFinder(new OpenXRDKeyFinder())));
+			System.out.println(s.verify(envelope));
 			
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
