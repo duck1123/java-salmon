@@ -92,6 +92,13 @@ public class MagicEnvelope {
 		deserializers.add(deserializer);
 	}
 	
+	public static void withSerializer(MagicEnvelopeSerializer serializer) {
+		if (null == serializer) {
+			throw new IllegalArgumentException("serializer must not be null.");
+		}
+		serializers.add(serializer);
+	}
+	
 	public void writeTo(String mediaType, OutputStream os) throws MagicSignatureException {
 		//TODO: support wildcards and other complex media-type matching
 		for (MagicEnvelopeSerializer s : serializers) {

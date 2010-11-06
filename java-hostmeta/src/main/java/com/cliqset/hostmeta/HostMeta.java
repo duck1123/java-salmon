@@ -40,7 +40,7 @@ public class HostMeta {
 	
 	private Map<String, TemplateProcessor> templates = new HashMap<String, TemplateProcessor>();
 	
-	private XRDFetcher xrdFetcher = null;
+	private XRDFetcher xrdFetcher = new JavaNetXRDFetcher();
 	
 	public HostMeta withXRDFetcher(XRDFetcher fetcher) {
 		this.xrdFetcher = fetcher;

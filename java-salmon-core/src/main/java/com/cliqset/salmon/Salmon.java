@@ -17,7 +17,6 @@
 package com.cliqset.salmon;
 
 import java.io.ByteArrayOutputStream;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 
@@ -30,8 +29,16 @@ import com.cliqset.magicsig.Key;
 import com.cliqset.magicsig.MagicSigConstants;
 import com.cliqset.magicsig.MagicSignatureException;
 import com.cliqset.magicsig.MagicSigner;
+import com.cliqset.magicsig.json.JSONMagicEnvelopeDeserializer;
+import com.cliqset.magicsig.json.JSONMagicEnvelopeSerializer;
+import com.cliqset.magicsig.keyfinder.MagicPKIKeyFinder;
+import com.cliqset.magicsig.xml.XMLMagicEnvelopeDeserializer;
+import com.cliqset.magicsig.xml.XMLMagicEnvelopeSerializer;
 import com.cliqset.magicsig.SignatureVerificationResult;
+import com.cliqset.magicsig.URIPayloadToMetadataMapper;
 import com.cliqset.magicsig.algorithm.RSASHA256MagicSignatureAlgorithm;
+import com.cliqset.magicsig.compact.CompactMagicEnvelopeDeserializer;
+import com.cliqset.magicsig.compact.CompactMagicEnvelopeSerializer;
 import com.cliqset.magicsig.encoding.Base64URLMagicSignatureEncoding;
 
 public class Salmon {
@@ -42,7 +49,7 @@ public class Salmon {
 	
 	private SalmonSender sender = new JavaNetSalmonSender();
 	
-	private SalmonEndpointFinder finder = new HostMetaSalmonEndpointFinder();
+	private SalmonEndpointFinder endpointFinder = new HostMetaSalmonEndpointFinder();
 	
 	private static final String DEFAULT_DATA_TYPE = "application/atom+xml";
 	
@@ -55,11 +62,27 @@ public class Salmon {
 	public Salmon() {
 		this.magicSig = new MagicSigner()
 			.withEncoding(new Base64URLMagicSignatureEncoding())
-			.withAlgorithm(new RSASHA256MagicSignatureAlgorithm());
+			.withAlgorithm(new RSASHA256MagicSignatureAlgorithm())
+			.withPayloadToMetadataMapper(new URIPayloadToMetadataMapper()
+				.withKeyFinder(new MagicPKIKeyFinder())
+				.withDataParser(new SimpleAtomDataParser()));
+		
+		MagicEnvelope.withSerializer(new CompactMagicEnvelopeSerializer());
+		MagicEnvelope.withSerializer(new JSONMagicEnvelopeSerializer());
+		MagicEnvelope.withSerializer(new XMLMagicEnvelopeSerializer());
+		
+		MagicEnvelope.withDeserializer(new CompactMagicEnvelopeDeserializer());
+		MagicEnvelope.withDeserializer(new JSONMagicEnvelopeDeserializer());
+		MagicEnvelope.withDeserializer(new XMLMagicEnvelopeDeserializer());
 	}
 	
 	public Salmon(MagicSigner magicSig) {
 		this.magicSig = magicSig;
+	}
+	
+	public Salmon withSalmonEndpointFinder(SalmonEndpointFinder endpointFinder) {
+		this.endpointFinder = endpointFinder;
+		return this;
 	}
 	
 	public Salmon withSalmonSender(SalmonSender sender) {
@@ -94,7 +117,7 @@ public class Salmon {
 		try {
 			MagicEnvelope env = sign(entry, key);
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			env.writeTo(mediaType, baos);
+			env.writeTo(MagicSigConstants.MEDIA_TYPE_MAGIC_ENV_XML, baos);
 			send(destinationURL, MagicSigConstants.MEDIA_TYPE_MAGIC_ENV_XML, baos.toByteArray());
 		} catch (MagicSignatureException mse) {
 			throw new SalmonException(mse);
@@ -110,20 +133,15 @@ public class Salmon {
 	}
 	
 	public void signAndDeliver(byte[] entry, Key key, URI destinationUser, String mediaType, String encoding, String algorithm) throws SalmonException {
-		try {
-			//discover salmon endpoint
-			URL destinationURL = new URL("");
-			signAndDeliver(entry, key, destinationURL, mediaType, encoding, algorithm);
-		} catch (MalformedURLException mue) {
-			throw new SalmonException("Salmon endpoint for user: " + destinationUser + " is not a valid URL", mue);
-		}
+		URL destinationURL = findSalmonEndpoint(destinationUser);
+		signAndDeliver(entry, key, destinationURL, mediaType, encoding, algorithm);
 	}
 	
-	public URL findSalmonEndpoint(URI resourceURI) throws SalmonException {
-		if (null == this.finder) {
+	private URL findSalmonEndpoint(URI resourceURI) throws SalmonException {
+		if (null == this.endpointFinder) {
 			throw new SalmonException("A SalmonEndpointFinder must be configured.");
 		}
-		return this.finder.find(resourceURI);
+		return this.endpointFinder.find(resourceURI);
 	}
 	
 	public MagicEnvelope sign(byte[] entry, Key key) throws MagicSignatureException {

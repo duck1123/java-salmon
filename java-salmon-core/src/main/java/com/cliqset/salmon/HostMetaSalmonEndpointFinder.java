@@ -8,8 +8,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.cliqset.hostmeta.HostMeta;
+import com.cliqset.hostmeta.HostMetaConstants;
 import com.cliqset.hostmeta.HostMetaException;
 import com.cliqset.hostmeta.HostMetaHandler;
+import com.cliqset.hostmeta.JavaNetXRDFetcher;
+import com.cliqset.hostmeta.template.LRDDTemplateProcessor;
 import com.cliqset.xrd.Link;
 
 public class HostMetaSalmonEndpointFinder implements SalmonEndpointFinder {
@@ -19,7 +22,9 @@ public class HostMetaSalmonEndpointFinder implements SalmonEndpointFinder {
 	private HostMeta hostMeta = null;
 	
 	public HostMetaSalmonEndpointFinder() { 
-		this.hostMeta = new HostMeta();
+		this.hostMeta = new HostMeta()
+			.withXRDFetcher(new JavaNetXRDFetcher())
+			.withTemplateProcessor(HostMetaConstants.REL_LRDD, new LRDDTemplateProcessor());
 	}
 	
 	public HostMetaSalmonEndpointFinder(HostMeta hostMeta) { 

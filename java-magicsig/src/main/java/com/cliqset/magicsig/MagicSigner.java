@@ -31,7 +31,7 @@ public class MagicSigner {
 	private Map<String, MagicSignatureAlgorithm> algorithms = new HashMap<String, MagicSignatureAlgorithm>();
 	private Map<String, MagicSignatureEncoding> encoders = new HashMap<String, MagicSignatureEncoding>();
 	
-	private PayloadToMetadataMapper payloadToMetadataMapper = null;
+	private PayloadToMetadataMapper payloadToMetadataMapper = new URIPayloadToMetadataMapper();
 	
 	public MagicSigner withAlgorithm(MagicSignatureAlgorithm algorithm) {
 		algorithms.put(algorithm.getIdentifier(), algorithm);
