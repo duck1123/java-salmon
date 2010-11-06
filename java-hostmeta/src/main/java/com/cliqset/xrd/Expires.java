@@ -46,7 +46,7 @@ public class Expires {
 	}
 
 	public Map<QName, Object> getUnknownAttributes() {
-		if (null == this.getUnknownAttributes()) {
+		if (null == this.unknownAttributes) {
 			this.unknownAttributes = new HashMap<QName, Object>();
 		}
 		return unknownAttributes;
