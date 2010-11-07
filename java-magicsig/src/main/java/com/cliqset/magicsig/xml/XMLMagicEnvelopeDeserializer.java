@@ -11,12 +11,12 @@ import javax.xml.bind.JAXBException;
 import com.cliqset.magicsig.MagicEnvelopeDeserializer;
 import com.cliqset.magicsig.MagicEnvelope;
 import com.cliqset.magicsig.MagicSigConstants;
-import com.cliqset.magicsig.MagicSignatureException;
+import com.cliqset.magicsig.MagicSigException;
 import com.cliqset.magicsig.Signature;
 
 public class XMLMagicEnvelopeDeserializer implements MagicEnvelopeDeserializer {
 
-	public MagicEnvelope deserialize(InputStream is) throws MagicSignatureException {
+	public MagicEnvelope deserialize(InputStream is) throws MagicSigException {
 		try {
 			JAXBContext context = JAXBContext.newInstance(XMLMagicEnvelope.class);
 			XMLMagicEnvelope xmlEnv = (XMLMagicEnvelope)context.createUnmarshaller().unmarshal(is);
@@ -31,7 +31,7 @@ public class XMLMagicEnvelopeDeserializer implements MagicEnvelopeDeserializer {
 
 			return me;
 		} catch (JAXBException je) {
-			throw new MagicSignatureException("Unable to parse as a Magic Envelope", je);
+			throw new MagicSigException("Unable to parse as a Magic Envelope", je);
 		}
 	}
 

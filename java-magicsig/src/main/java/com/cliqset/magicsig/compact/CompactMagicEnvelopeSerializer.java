@@ -13,8 +13,8 @@ import org.slf4j.LoggerFactory;
 import com.cliqset.magicsig.MagicEnvelope;
 import com.cliqset.magicsig.MagicEnvelopeSerializer;
 import com.cliqset.magicsig.MagicSigConstants;
-import com.cliqset.magicsig.MagicSignatureException;
-import com.cliqset.magicsig.encoding.Base64URLMagicSignatureEncoding;
+import com.cliqset.magicsig.MagicSigException;
+import com.cliqset.magicsig.encoding.Base64URLMagicSigEncoding;
 
 public class CompactMagicEnvelopeSerializer implements MagicEnvelopeSerializer {
 
@@ -24,7 +24,7 @@ public class CompactMagicEnvelopeSerializer implements MagicEnvelopeSerializer {
 		return Collections.unmodifiableList(Arrays.asList(MagicSigConstants.MEDIA_TYPE_MAGIC_ENV_COMPACT));
 	}
 
-	public void serialize(MagicEnvelope env, OutputStream os) throws MagicSignatureException {
+	public void serialize(MagicEnvelope env, OutputStream os) throws MagicSigException {
 		/*
 			1. The value of the "key_id" parameter
 			2. The value of the "sig" parameter
@@ -33,7 +33,7 @@ public class CompactMagicEnvelopeSerializer implements MagicEnvelopeSerializer {
 			5. The Base64url encoding of the "encoding" parameter
 			6. The Base64url encoding of the "alg" parameter
 		 */
-		Base64URLMagicSignatureEncoding encoder = new Base64URLMagicSignatureEncoding();
+		Base64URLMagicSigEncoding encoder = new Base64URLMagicSigEncoding();
 		StringBuilder sb = new StringBuilder();
 		
 		try {
@@ -55,7 +55,7 @@ public class CompactMagicEnvelopeSerializer implements MagicEnvelopeSerializer {
 		try {
 			os.write(sb.toString().getBytes());
 		} catch (IOException ioe) {
-			throw new MagicSignatureException("Unable to serialize magic envelope to output stream.", ioe);
+			throw new MagicSigException("Unable to serialize magic envelope to output stream.", ioe);
 		}
 	}
 }

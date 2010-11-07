@@ -16,15 +16,20 @@
 
 package com.cliqset.magicsig;
 
-public interface MagicSignatureEncoding {
+@SuppressWarnings("serial")
+public class MagicSigException extends Exception {
 
-	String getIdentifier();
+	public MagicSigException() {}
 	
-	String encodeToString(byte[] data);
+	public MagicSigException(String message) {
+		super(message);
+	}
 	
-	byte[] encode(byte[] data);
+	public MagicSigException(Throwable cause) {
+		super(cause);
+	}
 	
-	byte[] decode(String armoredData);
-	
-	byte[] decode(byte[] armoredDataBytes);
+	public MagicSigException(String message, Throwable cause) {
+		super(message, cause);
+	}
 }

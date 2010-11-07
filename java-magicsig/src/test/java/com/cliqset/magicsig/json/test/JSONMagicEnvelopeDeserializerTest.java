@@ -3,7 +3,7 @@ package com.cliqset.magicsig.json.test;
 import org.junit.*;
 
 import com.cliqset.magicsig.MagicEnvelope;
-import com.cliqset.magicsig.MagicSignatureException;
+import com.cliqset.magicsig.MagicSigException;
 import com.cliqset.magicsig.json.JSONMagicEnvelopeDeserializer;
 
 public class JSONMagicEnvelopeDeserializerTest {
@@ -20,7 +20,7 @@ public class JSONMagicEnvelopeDeserializerTest {
 			Assert.assertEquals("XV4QrdLUj8SyFr-hhobmeKlOTSTg6Rd4sbQXHnx4ejg=", me.getSignatures().get(0).getKeyId());
 			Assert.assertEquals("ARx-SOqs9geUJKhqgGOZ-KUE7Qe_v7w-bPrI4lPwXW95SFuvaQwtB-lhfiXltYS4PvrAEl7wXDDmd1nCR4YMag==", me.getSignatures().get(0).getValue());
 		
-		} catch (MagicSignatureException mse) {
+		} catch (MagicSigException mse) {
 			Assert.fail(mse.getMessage());
 		}
 	}

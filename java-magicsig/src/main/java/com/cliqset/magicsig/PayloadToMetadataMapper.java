@@ -6,5 +6,5 @@ import java.util.List;
 public interface PayloadToMetadataMapper {
 	
 	//include alorithm? and other hints
-	List<Key> getKeys(String mediaType, byte[] data) throws MagicSignatureException;
+	List<Key> getKeys(String mediaType, byte[] data) throws MagicSigException;
 }

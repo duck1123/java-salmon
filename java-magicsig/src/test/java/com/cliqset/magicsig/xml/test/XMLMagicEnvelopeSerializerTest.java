@@ -10,7 +10,7 @@ import org.junit.Test;
 
 import com.cliqset.magicsig.MagicEnvelope;
 import com.cliqset.magicsig.MagicEnvelopeSerializer;
-import com.cliqset.magicsig.MagicSignatureException;
+import com.cliqset.magicsig.MagicSigException;
 import com.cliqset.magicsig.Signature;
 import com.cliqset.magicsig.xml.XMLMagicEnvelopeSerializer;
 
@@ -31,7 +31,7 @@ public class XMLMagicEnvelopeSerializerTest {
 			MagicEnvelopeSerializer s = new XMLMagicEnvelopeSerializer();
 			s.serialize(me, baos);
 			Assert.assertEquals(new String(getBytes("/MagicEnvelopeOne.xml"), "UTF-8"), baos.toString("UTF-8"));	
-		} catch (MagicSignatureException mse) {
+		} catch (MagicSigException mse) {
 			Assert.fail(mse.getMessage());
 		} catch (UnsupportedEncodingException e) {
 			Assert.fail("Not UTF-8?");

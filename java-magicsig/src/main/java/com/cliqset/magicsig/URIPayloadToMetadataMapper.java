@@ -1,18 +1,23 @@
 package com.cliqset.magicsig;
 
 import java.net.URI;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import com.cliqset.magicsig.DataParser;
 import com.cliqset.magicsig.KeyFinder;
 
 public class URIPayloadToMetadataMapper implements PayloadToMetadataMapper {
 
-	private List<DataParser> dataParsers = new LinkedList<DataParser>();
+	private Set<DataParser> dataParsers;
 	
-	private List<KeyFinder> keyFinders = new LinkedList<KeyFinder>();
+	private Set<KeyFinder> keyFinders;
 	
+	public URIPayloadToMetadataMapper(Set<DataParser> dataParsers, Set<KeyFinder> keyFinders) {
+		this.keyFinders = keyFinders;
+		this.dataParsers = dataParsers;
+	}
+	/*
 	public URIPayloadToMetadataMapper withDataParser(DataParser parser) {
 		if (null == parser) {
 			throw new IllegalArgumentException("parser must not be null.");
@@ -28,8 +33,8 @@ public class URIPayloadToMetadataMapper implements PayloadToMetadataMapper {
 		keyFinders.add(keyFinder);
 		return this;
 	}
-	
-	public List<Key> getKeys(String mediaType, byte[] data) throws MagicSignatureException {
+	*/
+	public List<Key> getKeys(String mediaType, byte[] data) throws MagicSigException {
 		URI signerURI = extractSignerUri(mediaType, data);
         
         List<Key> signerKeys = findKeys(signerURI);
@@ -37,7 +42,7 @@ public class URIPayloadToMetadataMapper implements PayloadToMetadataMapper {
         return signerKeys;
 	}
 
-	private URI extractSignerUri(String mimeType, byte[] data) throws MagicSignatureException {
+	private URI extractSignerUri(String mimeType, byte[] data) throws MagicSigException {
 		for (DataParser parser : this.dataParsers) {
 			if (parser.parsesMimeType(mimeType)) {
 				try {
@@ -47,10 +52,10 @@ public class URIPayloadToMetadataMapper implements PayloadToMetadataMapper {
 				}
 			}
 		}
-		throw new MagicSignatureException("Unable to extract signer URI from data.");
+		throw new MagicSigException("Unable to extract signer URI from data.");
 	}
 	
-	private List<Key> findKeys(URI authorUri) throws MagicSignatureException {
+	private List<Key> findKeys(URI authorUri) throws MagicSigException {
 		for (KeyFinder finder : this.keyFinders) {
 			try {
 				List<Key> keys = finder.findKeys(authorUri); 
@@ -59,6 +64,6 @@ public class URIPayloadToMetadataMapper implements PayloadToMetadataMapper {
 				//ignore and try the next one
 			}
 		}
-		throw new MagicSignatureException("Unable to find keys for signer: " + authorUri.toString());
+		throw new MagicSigException("Unable to find keys for signer: " + authorUri.toString());
 	}
 }

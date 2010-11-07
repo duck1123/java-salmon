@@ -7,11 +7,11 @@ import java.util.Arrays;
 import javax.crypto.Mac;
 
 import com.cliqset.magicsig.Key;
-import com.cliqset.magicsig.MagicSignatureAlgorithm;
-import com.cliqset.magicsig.MagicSignatureException;
+import com.cliqset.magicsig.MagicSigAlgorithm;
+import com.cliqset.magicsig.MagicSigException;
 import com.cliqset.magicsig.SecretKey;
 
-public class HMACSHA256MagicSignatureAlgorithm implements MagicSignatureAlgorithm {
+public class HMACSHA256MagicSigAlgorithm implements MagicSigAlgorithm {
 
 	private static String IDENTIFIER = "HMAC-SHA256";
 	
@@ -21,7 +21,7 @@ public class HMACSHA256MagicSignatureAlgorithm implements MagicSignatureAlgorith
 		return IDENTIFIER;
 	}
 
-	public byte[] sign(byte[] data, Key key) throws MagicSignatureException {
+	public byte[] sign(byte[] data, Key key) throws MagicSigException {
 		if (null == data) { throw new IllegalArgumentException("data must not be null."); }
 		if (null == key) { throw new IllegalArgumentException("key must not be null."); }
 		
@@ -29,10 +29,10 @@ public class HMACSHA256MagicSignatureAlgorithm implements MagicSignatureAlgorith
 		if (key instanceof SecretKey) {
 			secretKey = (SecretKey)key;
 			if (!secretKey.getAlgorithm().equals(IDENTIFIER)) {
-				throw new MagicSignatureException("Key must be a SecretKey suitable for algorithm " + IDENTIFIER + " to use this algorithm.");
+				throw new MagicSigException("Key must be a SecretKey suitable for algorithm " + IDENTIFIER + " to use this algorithm.");
 			}
 		} else {
-			throw new MagicSignatureException("Key must be a SecretKey suitable for algorithm " + IDENTIFIER + " to use this algorithm.");
+			throw new MagicSigException("Key must be a SecretKey suitable for algorithm " + IDENTIFIER + " to use this algorithm.");
 		}
 
 		try {
@@ -40,14 +40,14 @@ public class HMACSHA256MagicSignatureAlgorithm implements MagicSignatureAlgorith
 			mac.init(secretKey.getSecretKey());
 			return mac.doFinal(data);
 		} catch (NoSuchAlgorithmException nsae) {
-			throw new MagicSignatureException("Algorithm HmacSHA256 is required", nsae);
+			throw new MagicSigException("Algorithm HmacSHA256 is required", nsae);
 		} catch (InvalidKeyException ike) {
-			throw new MagicSignatureException("Key is invalid for this algorithm.", ike);
+			throw new MagicSigException("Key is invalid for this algorithm.", ike);
 		}
 		
 	}
 
-	public boolean verify(byte[] data, byte[] signature, Key key) throws MagicSignatureException {
+	public boolean verify(byte[] data, byte[] signature, Key key) throws MagicSigException {
 		if (null == data) { throw new IllegalArgumentException("data must not be null."); }
 		if (null == key) { throw new IllegalArgumentException("key must not be null."); }
 		if (null == signature) { throw new IllegalArgumentException("signature must not be null"); }

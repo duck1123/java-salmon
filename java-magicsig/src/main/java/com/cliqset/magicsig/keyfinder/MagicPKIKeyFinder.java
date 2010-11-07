@@ -16,34 +16,47 @@ package com.cliqset.magicsig.keyfinder;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import com.cliqset.hostmeta.HostMeta;
 import com.cliqset.hostmeta.HostMetaException;
 import com.cliqset.hostmeta.HostMetaHandler;
 import com.cliqset.hostmeta.JavaNetXRDFetcher;
 import com.cliqset.hostmeta.template.LRDDTemplateProcessor;
+import com.cliqset.hostmeta.template.TemplateProcessor;
 import com.cliqset.magicsig.MagicKey;
 import com.cliqset.magicsig.Key;
 import com.cliqset.magicsig.KeyFinder;
-import com.cliqset.magicsig.MagicSignatureException;
+import com.cliqset.magicsig.MagicSigException;
 import com.cliqset.xrd.Property;
 import com.cliqset.magicsig.MagicSigConstants;
 
 public class MagicPKIKeyFinder implements KeyFinder {
 
-	private static HostMeta hostMeta = new HostMeta()
-		.withTemplateProcessor("lrdd", new LRDDTemplateProcessor())
-		.withXRDFetcher(new JavaNetXRDFetcher());
+	private HostMeta hostMeta;
 	
-	public List<Key> findKeys(URI uri) throws MagicSignatureException {
+	public MagicPKIKeyFinder() {
+		Map<String, TemplateProcessor> templateProcessors = new HashMap<String, TemplateProcessor>();
+		templateProcessors.put("lrdd", new LRDDTemplateProcessor());
+		
+		HostMeta hm = new HostMeta(templateProcessors, new JavaNetXRDFetcher());
+	}
+	
+	public MagicPKIKeyFinder(HostMeta hostMeta) {
+		this.hostMeta = hostMeta;
+	}
+	                                            
+	
+	public List<Key> findKeys(URI uri) throws MagicSigException {
 		try {
 			MagicKeyHandler handler = new MagicKeyHandler();
 			hostMeta.discoverResourceSpecific(uri, handler);
 			return handler.Keys;
 		} catch (HostMetaException hme) {
-			throw new MagicSignatureException(hme);
+			throw new MagicSigException(hme);
 		}
 	}
 	

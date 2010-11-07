@@ -22,5 +22,5 @@ public interface DataParser {
 
 	boolean parsesMimeType(String mimeType);
 	
-	URI getSignerUri(byte[] data) throws MagicSignatureException;
+	URI getSignerUri(byte[] data) throws MagicSigException;
 }

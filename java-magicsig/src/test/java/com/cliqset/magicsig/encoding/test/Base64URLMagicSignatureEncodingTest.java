@@ -5,7 +5,7 @@ import java.io.UnsupportedEncodingException;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.cliqset.magicsig.encoding.Base64URLMagicSignatureEncoding;
+import com.cliqset.magicsig.encoding.Base64URLMagicSigEncoding;
 
 public class Base64URLMagicSignatureEncodingTest {
 
@@ -23,7 +23,7 @@ public class Base64URLMagicSignatureEncodingTest {
 	@Test
 	public void testEncodeToBytes() {
 		try {
-			Base64URLMagicSignatureEncoding encoder = new Base64URLMagicSignatureEncoding();
+			Base64URLMagicSigEncoding encoder = new Base64URLMagicSigEncoding();
 			byte[] encoded = encoder.encode(dataBytes);
 			Assert.assertArrayEquals(encodedBytes, encoded);
 		} catch (Exception e) {
@@ -34,7 +34,7 @@ public class Base64URLMagicSignatureEncodingTest {
 	@Test
 	public void testEncodeToString() {
 		try {
-			Base64URLMagicSignatureEncoding encoder = new Base64URLMagicSignatureEncoding();
+			Base64URLMagicSigEncoding encoder = new Base64URLMagicSigEncoding();
 			String encoded = encoder.encodeToString(dataBytes);
 			Assert.assertEquals(encodedString, encoded);
 		} catch (Exception e) {
@@ -45,7 +45,7 @@ public class Base64URLMagicSignatureEncodingTest {
 	@Test
 	public void testDecodeString() {
 		try {
-			Base64URLMagicSignatureEncoding encoder = new Base64URLMagicSignatureEncoding();
+			Base64URLMagicSigEncoding encoder = new Base64URLMagicSigEncoding();
 			byte[] decoded = encoder.decode(encodedString);
 			Assert.assertArrayEquals(dataBytes, decoded);
 		} catch (Exception e) {
@@ -56,7 +56,7 @@ public class Base64URLMagicSignatureEncodingTest {
 	@Test
 	public void testDecodeBytes() {
 		try {
-			Base64URLMagicSignatureEncoding encoder = new Base64URLMagicSignatureEncoding();
+			Base64URLMagicSigEncoding encoder = new Base64URLMagicSigEncoding();
 			byte[] decoded = encoder.decode(encodedBytes);
 			Assert.assertArrayEquals(dataBytes, decoded);
 		} catch (Exception e) {

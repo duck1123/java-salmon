@@ -23,7 +23,7 @@ import java.io.InputStreamReader;
 import org.apache.commons.codec.binary.Base64;
 
 import com.cliqset.magicsig.MagicKey;
-import com.cliqset.magicsig.algorithm.RSASHA256MagicSignatureAlgorithm;
+import com.cliqset.magicsig.algorithm.RSASHA256MagicSigAlgorithm;
 
 public class KeyTester {
 	
@@ -39,7 +39,7 @@ public class KeyTester {
 			while ((line = reader.readLine()) != null ) {
 				MagicKey key = new MagicKey(line.getBytes("ASCII"));
 				
-				RSASHA256MagicSignatureAlgorithm alg = new RSASHA256MagicSignatureAlgorithm();
+				RSASHA256MagicSigAlgorithm alg = new RSASHA256MagicSigAlgorithm();
 				byte[] sig = alg.sign(data, key);
 				
 				System.out.println(Base64.encodeBase64URLSafeString(sig));

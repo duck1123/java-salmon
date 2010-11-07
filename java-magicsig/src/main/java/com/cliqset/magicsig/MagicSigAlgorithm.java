@@ -16,20 +16,12 @@
 
 package com.cliqset.magicsig;
 
-@SuppressWarnings("serial")
-public class MagicSignatureException extends Exception {
 
-	public MagicSignatureException() {}
+public interface MagicSigAlgorithm {
+
+	String getIdentifier();
 	
-	public MagicSignatureException(String message) {
-		super(message);
-	}
+	byte[] sign(byte[] data, Key key) throws MagicSigException;
 	
-	public MagicSignatureException(Throwable cause) {
-		super(cause);
-	}
-	
-	public MagicSignatureException(String message, Throwable cause) {
-		super(message, cause);
-	}
+	boolean verify(byte[] data, byte[] signature, Key key) throws MagicSigException;
 }

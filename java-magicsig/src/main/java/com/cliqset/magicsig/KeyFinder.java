@@ -21,5 +21,5 @@ import java.util.List;
 
 public interface KeyFinder {
 
-	List<Key> findKeys(URI signerUri) throws MagicSignatureException;
+	List<Key> findKeys(URI signerUri) throws MagicSigException;
 }

@@ -19,16 +19,25 @@ package com.cliqset.salmon;
 import java.io.ByteArrayOutputStream;
 import java.net.URI;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.cliqset.magicsig.DataParser;
 import com.cliqset.magicsig.EnvelopeVerificationResult;
+import com.cliqset.magicsig.KeyFinder;
 import com.cliqset.magicsig.MagicEnvelope;
 import com.cliqset.magicsig.Key;
+import com.cliqset.magicsig.MagicSig;
+import com.cliqset.magicsig.MagicSigAlgorithm;
 import com.cliqset.magicsig.MagicSigConstants;
-import com.cliqset.magicsig.MagicSignatureException;
-import com.cliqset.magicsig.MagicSigner;
+import com.cliqset.magicsig.MagicSigEncoding;
+import com.cliqset.magicsig.MagicSigException;
+import com.cliqset.magicsig.MagicSig;
 import com.cliqset.magicsig.json.JSONMagicEnvelopeDeserializer;
 import com.cliqset.magicsig.json.JSONMagicEnvelopeSerializer;
 import com.cliqset.magicsig.keyfinder.MagicPKIKeyFinder;
@@ -36,10 +45,10 @@ import com.cliqset.magicsig.xml.XMLMagicEnvelopeDeserializer;
 import com.cliqset.magicsig.xml.XMLMagicEnvelopeSerializer;
 import com.cliqset.magicsig.SignatureVerificationResult;
 import com.cliqset.magicsig.URIPayloadToMetadataMapper;
-import com.cliqset.magicsig.algorithm.RSASHA256MagicSignatureAlgorithm;
+import com.cliqset.magicsig.algorithm.RSASHA256MagicSigAlgorithm;
 import com.cliqset.magicsig.compact.CompactMagicEnvelopeDeserializer;
 import com.cliqset.magicsig.compact.CompactMagicEnvelopeSerializer;
-import com.cliqset.magicsig.encoding.Base64URLMagicSignatureEncoding;
+import com.cliqset.magicsig.encoding.Base64URLMagicSigEncoding;
 
 public class Salmon {
 
@@ -57,15 +66,22 @@ public class Salmon {
 	
 	private static final String DEFAULT_ENCODING = "base64url";
 	
-	private MagicSigner magicSig = null;
+	private MagicSig magicSig = null;
 	
 	public Salmon() {
-		this.magicSig = new MagicSigner()
-			.withEncoding(new Base64URLMagicSignatureEncoding())
-			.withAlgorithm(new RSASHA256MagicSignatureAlgorithm())
-			.withPayloadToMetadataMapper(new URIPayloadToMetadataMapper()
-				.withKeyFinder(new MagicPKIKeyFinder())
-				.withDataParser(new SimpleAtomDataParser()));
+		Map<String, MagicSigAlgorithm> algorithms = new HashMap<String, MagicSigAlgorithm>();
+		algorithms.put("RSA-SHA256", new RSASHA256MagicSigAlgorithm());
+		
+		Map<String, MagicSigEncoding> encodings = new HashMap<String, MagicSigEncoding>();
+		encodings.put("base64url", new Base64URLMagicSigEncoding());
+		
+		Set<DataParser> dataParsers = new HashSet<DataParser>();
+		dataParsers.add(new SimpleAtomDataParser());
+		
+		Set<KeyFinder> keyFinders = new HashSet<KeyFinder>();
+		keyFinders.add(new MagicPKIKeyFinder());
+		
+		MagicSig magicSig = new MagicSig(algorithms, encodings, new URIPayloadToMetadataMapper(dataParsers, keyFinders));
 		
 		MagicEnvelope.withSerializer(new CompactMagicEnvelopeSerializer());
 		MagicEnvelope.withSerializer(new JSONMagicEnvelopeSerializer());
@@ -76,10 +92,11 @@ public class Salmon {
 		MagicEnvelope.withDeserializer(new XMLMagicEnvelopeDeserializer());
 	}
 	
-	public Salmon(MagicSigner magicSig) {
+	public Salmon(MagicSig magicSig) {
 		this.magicSig = magicSig;
 	}
 	
+	/*
 	public Salmon withSalmonEndpointFinder(SalmonEndpointFinder endpointFinder) {
 		this.endpointFinder = endpointFinder;
 		return this;
@@ -89,7 +106,7 @@ public class Salmon {
 		this.sender = sender;
 		return this;
 	}
-	
+	*/
 	public byte[] verify(MagicEnvelope envelope) throws SalmonException {
 		try {
 			EnvelopeVerificationResult result = magicSig.verify(envelope);
@@ -99,7 +116,7 @@ public class Salmon {
 					return result.getData();
 				}
 			}
-		} catch (MagicSignatureException mse) {
+		} catch (MagicSigException mse) {
 			throw new SalmonException(mse);
 		}
 		throw new SalmonException("Unable to verify the signature.");
@@ -119,7 +136,7 @@ public class Salmon {
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			env.writeTo(MagicSigConstants.MEDIA_TYPE_MAGIC_ENV_XML, baos);
 			send(destinationURL, MagicSigConstants.MEDIA_TYPE_MAGIC_ENV_XML, baos.toByteArray());
-		} catch (MagicSignatureException mse) {
+		} catch (MagicSigException mse) {
 			throw new SalmonException(mse);
 		}
 	}
@@ -144,7 +161,7 @@ public class Salmon {
 		return this.endpointFinder.find(resourceURI);
 	}
 	
-	public MagicEnvelope sign(byte[] entry, Key key) throws MagicSignatureException {
+	public MagicEnvelope sign(byte[] entry, Key key) throws MagicSigException {
 		return magicSig.sign(entry, key, DEFAULT_ALGORITHM, DEFAULT_ENCODING, DEFAULT_DATA_TYPE);
 	}
 	

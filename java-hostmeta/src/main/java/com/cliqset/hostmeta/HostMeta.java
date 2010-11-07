@@ -19,7 +19,6 @@ package com.cliqset.hostmeta;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -38,18 +37,13 @@ public class HostMeta {
 
 	private static final String HOST_META_PATH = "/.well-known/host-meta";
 	
-	private Map<String, TemplateProcessor> templates = new HashMap<String, TemplateProcessor>();
+	private Map<String, TemplateProcessor> templateProcessors;
 	
-	private XRDFetcher xrdFetcher = new JavaNetXRDFetcher();
+	private XRDFetcher xrdFetcher;
 	
-	public HostMeta withXRDFetcher(XRDFetcher fetcher) {
-		this.xrdFetcher = fetcher;
-		return this;
-	}
-	
-	public HostMeta withTemplateProcessor(String rel, TemplateProcessor processor) {
-		this.templates.put(rel, processor);
-		return this;
+	public HostMeta(Map<String, TemplateProcessor> templateProcessors, XRDFetcher xrdFetcher) {
+		this.templateProcessors = templateProcessors;
+		this.xrdFetcher = xrdFetcher;
 	}
 	
 	public Descriptor discoverHostWide(URI uri) throws HostMetaException {
@@ -151,7 +145,7 @@ public class HostMeta {
 				try {
 					if (l.hasTemplate()) {
 						//process the template
-						URI u = this.templates.get(l.getRel().toString()).process(l.getTemplate(), contextResourceURI);
+						URI u = this.templateProcessors.get(l.getRel().toString()).process(l.getTemplate(), contextResourceURI);
 						
 						if (HostMetaConstants.REL_LRDD.equals(l.getRel().toString())) {
 							if (handler.onLinkVisit(l)) { return; }
@@ -181,7 +175,7 @@ public class HostMeta {
 							for (Link lk : x.getLinks()) {
 								if (!HostMetaConstants.REL_LRDD.equals(lk.getRel().toString())) {
 									if (lk.hasTemplate()) {
-										URI processedTemplate = this.templates.get(lk.getRel().toString()).process(lk.getTemplate(), contextResourceURI);
+										URI processedTemplate = this.templateProcessors.get(lk.getRel().toString()).process(lk.getTemplate(), contextResourceURI);
 										lk.setProcessedTemplate(processedTemplate);
 									}
 									

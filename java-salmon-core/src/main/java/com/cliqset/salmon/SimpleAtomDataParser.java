@@ -8,26 +8,26 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 
 import com.cliqset.magicsig.DataParser;
-import com.cliqset.magicsig.MagicSignatureException;
+import com.cliqset.magicsig.MagicSigException;
 
 public class SimpleAtomDataParser implements DataParser {
 
-	public URI getSignerUri(byte[] data) throws MagicSignatureException {
+	public URI getSignerUri(byte[] data) throws MagicSigException {
 		try {
 			JAXBContext context = JAXBContext.newInstance(AtomEntry.class);
 			AtomEntry e = (AtomEntry)context.createUnmarshaller().unmarshal(new ByteArrayInputStream(data));
 			if (null == e.Author) {
-				throw new MagicSignatureException("Cannot extract signer URI, no author element on this entry.");
+				throw new MagicSigException("Cannot extract signer URI, no author element on this entry.");
 			}
 			if (null == e.Author.URI) {
-				throw new MagicSignatureException("Cannot extract signer URI, author element has no uri element.");
+				throw new MagicSigException("Cannot extract signer URI, author element has no uri element.");
 			}
 	
 			return new URI(e.Author.URI);
 		} catch (JAXBException je) {
-			throw new MagicSignatureException("Cannot extract signer URI, unable to deserialize atom entry.", je);
+			throw new MagicSigException("Cannot extract signer URI, unable to deserialize atom entry.", je);
 		} catch (URISyntaxException use) {
-			throw new MagicSignatureException("Cannot extract signer URI, author uri element is not a valid URI.", use);
+			throw new MagicSigException("Cannot extract signer URI, author uri element is not a valid URI.", use);
 		}	
 	}
 

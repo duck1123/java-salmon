@@ -16,12 +16,15 @@
 
 package com.cliqset.magicsig;
 
-
-public interface MagicSignatureAlgorithm {
+public interface MagicSigEncoding {
 
 	String getIdentifier();
 	
-	byte[] sign(byte[] data, Key key) throws MagicSignatureException;
+	String encodeToString(byte[] data);
 	
-	boolean verify(byte[] data, byte[] signature, Key key) throws MagicSignatureException;
+	byte[] encode(byte[] data);
+	
+	byte[] decode(String armoredData);
+	
+	byte[] decode(byte[] armoredDataBytes);
 }

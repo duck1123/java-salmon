@@ -20,9 +20,9 @@ import java.io.UnsupportedEncodingException;
 
 import org.apache.commons.codec.binary.Base64;
 
-import com.cliqset.magicsig.MagicSignatureEncoding;
+import com.cliqset.magicsig.MagicSigEncoding;
 
-public class Base64URLMagicSignatureEncoding implements MagicSignatureEncoding {
+public class Base64URLMagicSigEncoding implements MagicSigEncoding {
 
 	private static final String identifier = "base64url";
 	

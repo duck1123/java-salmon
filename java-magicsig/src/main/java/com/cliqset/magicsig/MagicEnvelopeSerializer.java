@@ -7,5 +7,5 @@ public interface MagicEnvelopeSerializer {
 	
 	List<String> getSupportedMediaTypes();
 	
-	void serialize(MagicEnvelope env, OutputStream os) throws MagicSignatureException;
+	void serialize(MagicEnvelope env, OutputStream os) throws MagicSigException;
 }

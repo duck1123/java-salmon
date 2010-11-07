@@ -9,13 +9,13 @@ import java.util.List;
 import com.cliqset.magicsig.MagicEnvelopeDeserializer;
 import com.cliqset.magicsig.MagicEnvelope;
 import com.cliqset.magicsig.MagicSigConstants;
-import com.cliqset.magicsig.MagicSignatureException;
+import com.cliqset.magicsig.MagicSigException;
 import com.cliqset.magicsig.Signature;
 import com.google.gson.Gson;
 
 public class JSONMagicEnvelopeDeserializer implements MagicEnvelopeDeserializer {
 
-	public MagicEnvelope deserialize(InputStream is) throws MagicSignatureException {
+	public MagicEnvelope deserialize(InputStream is) throws MagicSigException {
 		JSONMagicEnvelope jsonEnv = new Gson().fromJson(new InputStreamReader(is), JSONMagicEnvelope.class);
 		
 		//TODO: validate required elements are present

@@ -12,7 +12,7 @@ import javax.xml.bind.Marshaller;
 import com.cliqset.magicsig.MagicEnvelope;
 import com.cliqset.magicsig.MagicEnvelopeSerializer;
 import com.cliqset.magicsig.MagicSigConstants;
-import com.cliqset.magicsig.MagicSignatureException;
+import com.cliqset.magicsig.MagicSigException;
 import com.cliqset.magicsig.Signature;
 
 public class XMLMagicEnvelopeSerializer implements MagicEnvelopeSerializer {
@@ -21,7 +21,7 @@ public class XMLMagicEnvelopeSerializer implements MagicEnvelopeSerializer {
 		return Collections.unmodifiableList(Arrays.asList(new String[] {MagicSigConstants.MEDIA_TYPE_MAGIC_ENV_XML}));
 	}
 
-	public void serialize(MagicEnvelope env, OutputStream os) throws MagicSignatureException {
+	public void serialize(MagicEnvelope env, OutputStream os) throws MagicSigException {
 		try {
 			XMLMagicEnvelope xme = new XMLMagicEnvelope();
 			xme.setAlgorithm(env.getAlgorithm());
@@ -35,7 +35,7 @@ public class XMLMagicEnvelopeSerializer implements MagicEnvelopeSerializer {
 			Marshaller m = context.createMarshaller();
 			m.marshal(xme, os);
 		} catch (JAXBException e) {
-			throw new MagicSignatureException("Unable to serialize Magic Envelope", e);
+			throw new MagicSigException("Unable to serialize Magic Envelope", e);
 		}
 	}
 }

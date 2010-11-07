@@ -10,9 +10,9 @@ import java.util.List;
 import com.cliqset.magicsig.MagicEnvelopeDeserializer;
 import com.cliqset.magicsig.MagicEnvelope;
 import com.cliqset.magicsig.MagicSigConstants;
-import com.cliqset.magicsig.MagicSignatureException;
+import com.cliqset.magicsig.MagicSigException;
 import com.cliqset.magicsig.Signature;
-import com.cliqset.magicsig.encoding.Base64URLMagicSignatureEncoding;
+import com.cliqset.magicsig.encoding.Base64URLMagicSigEncoding;
 
 
 public class CompactMagicEnvelopeDeserializer implements MagicEnvelopeDeserializer {
@@ -27,7 +27,7 @@ public class CompactMagicEnvelopeDeserializer implements MagicEnvelopeDeserializ
 	private static final String DEFAULT_ENCODING = "base64url";
 	private static final String DEFAULT_ALGORITHM = "RSA-SHA256";
 	
-	public MagicEnvelope deserialize(InputStream is) throws MagicSignatureException {
+	public MagicEnvelope deserialize(InputStream is) throws MagicSigException {
 		/*
 		 * 
 			1. The value of the "key_id" parameter
@@ -48,14 +48,14 @@ public class CompactMagicEnvelopeDeserializer implements MagicEnvelopeDeserializ
 		
 			String[] compactEnvArray = baos.toString("UTF-8").split("\\.");
 			if (compactEnvArray.length < 6) {
-				throw new MagicSignatureException("Compact Serialization must have 6 segments, this input only has " + compactEnvArray.length);
+				throw new MagicSigException("Compact Serialization must have 6 segments, this input only has " + compactEnvArray.length);
 			}
 			
 			if (null == compactEnvArray[DATA_TYPE_INDEX]) {
-				throw new MagicSignatureException("The data-type parameter must not be omitted.");
+				throw new MagicSigException("The data-type parameter must not be omitted.");
 			}
 			
-			Base64URLMagicSignatureEncoding encoder = new Base64URLMagicSignatureEncoding();
+			Base64URLMagicSigEncoding encoder = new Base64URLMagicSigEncoding();
 			
 			if (null == compactEnvArray[ALGORITHM_INDEX]) { compactEnvArray[ALGORITHM_INDEX] = encoder.encodeToString(DEFAULT_ALGORITHM.getBytes("UTF-8"));}
 			if (null == compactEnvArray[ENCODING_INDEX]) { compactEnvArray[ENCODING_INDEX] = encoder.encodeToString(DEFAULT_ENCODING.getBytes("UTF-8"));}
@@ -68,7 +68,7 @@ public class CompactMagicEnvelopeDeserializer implements MagicEnvelopeDeserializ
 						.withAlgorithm(new String(encoder.decode(compactEnvArray[ALGORITHM_INDEX]), "UTF-8"));
 			
 		} catch (IOException ie) {
-			throw new MagicSignatureException("Unable to deserialize magic envelope.", ie);
+			throw new MagicSigException("Unable to deserialize magic envelope.", ie);
 		}
 	}
 

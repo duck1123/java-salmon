@@ -19,7 +19,12 @@ package com.cliqset.salmon.test;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.junit.Test;
 import org.junit.Assert;
@@ -31,13 +36,18 @@ import com.cliqset.magicsig.URIPayloadToMetadataMapper;
 import com.cliqset.magicsig.MagicEnvelope;
 import com.cliqset.magicsig.MagicKey;
 import com.cliqset.magicsig.MagicSigConstants;
-import com.cliqset.magicsig.MagicSignatureException;
-import com.cliqset.magicsig.MagicSigner;
-import com.cliqset.magicsig.algorithm.RSASHA256MagicSignatureAlgorithm;
-import com.cliqset.magicsig.encoding.Base64URLMagicSignatureEncoding;
+import com.cliqset.magicsig.MagicSigException;
+import com.cliqset.magicsig.MagicSig;
+import com.cliqset.magicsig.algorithm.RSASHA256MagicSigAlgorithm;
+import com.cliqset.magicsig.encoding.Base64URLMagicSigEncoding;
 import com.cliqset.magicsig.xml.XMLMagicEnvelopeDeserializer;
 import com.cliqset.salmon.Salmon;
 import com.cliqset.salmon.SalmonException;
+import com.cliqset.magicsig.encoding.Base64URLMagicSigEncoding;
+import com.cliqset.magicsig.MagicSig;
+import com.cliqset.magicsig.MagicSigAlgorithm;
+import com.cliqset.magicsig.MagicSigEncoding;
+import com.cliqset.magicsig.algorithm.RSASHA256MagicSigAlgorithm;
 
 public class SalmonTest extends BaseTestCase {
 	/*
@@ -63,15 +73,51 @@ public class SalmonTest extends BaseTestCase {
 	@Test
 	public void testVerifyBasic() {
 		try {
-			Salmon s = new Salmon(new MagicSigner().withPayloadToMetadataMapper(new URIPayloadToMetadataMapper()
-				.withDataParser(new BasicAtomDataParser())
-				.withKeyFinder(new BasicKeyFinder()))
-				.withAlgorithm(new RSASHA256MagicSignatureAlgorithm())
-				.withEncoding(new Base64URLMagicSignatureEncoding()));
+			Map<String, MagicSigAlgorithm> algorithms = new HashMap<String, MagicSigAlgorithm>();
+			algorithms.put("RSA-SHA256", new RSASHA256MagicSigAlgorithm());
+			
+			Map<String, MagicSigEncoding> encodings = new HashMap<String, MagicSigEncoding>();
+			encodings.put("base64url", new Base64URLMagicSigEncoding());
+			
+			Set<DataParser> dataParsers = new HashSet<DataParser>();
+			dataParsers.add(new DataParser() {
+
+				public URI getSignerUri(byte[] data) throws MagicSigException {
+					try {
+						return new URI("acct:doesnt@matter.com");
+					} catch (Exception e) {
+						throw new MagicSigException("Couldn't create the URI!");
+					}
+				}
+
+				public boolean parsesMimeType(String mimeType) {
+					return true;
+				}					
+			});
+			
+			Set<KeyFinder> keyFinders = new HashSet<KeyFinder>();
+			keyFinders.add(new KeyFinder() {
+
+				public List<Key> findKeys(URI signerUri) throws MagicSigException {
+					List<Key> keys = new LinkedList<Key>();
+					try {
+						keys.add(new MagicKey(getBytes("/BasicRSAKey.txt")));
+					} catch (Exception e) {
+						throw new MagicSigException("Couldn't read the keys!");
+					}
+					return keys;
+					
+				}
+			
+			});
+			
+			MagicSig magicSig = new MagicSig(algorithms, encodings, new URIPayloadToMetadataMapper(dataParsers, keyFinders));
+			
+			Salmon salmon = new Salmon(magicSig);
 			MagicEnvelope.withDeserializer(new XMLMagicEnvelopeDeserializer());
 			MagicEnvelope env = MagicEnvelope.fromInputStream(MagicSigConstants.MEDIA_TYPE_MAGIC_ENV_XML, SalmonTest.class.getResourceAsStream("/BasicEnvelope.txt"));
 			
-			byte[] dataBytes = s.verify(env);
+			byte[] dataBytes = salmon.verify(env);
 			Assert.assertArrayEquals(dataBytes, getBytes("/BasicAtom.txt"));
 		} catch (Exception e) {
 			Assert.fail(e.getMessage());
@@ -185,7 +231,7 @@ public class SalmonTest extends BaseTestCase {
 	
 	public class BasicAtomDataParser implements DataParser {
 
-		public URI getSignerUri(byte[] data) throws MagicSignatureException {
+		public URI getSignerUri(byte[] data) throws MagicSigException {
 			return URI.create("acct:test@example.com");
 		}
 
@@ -196,11 +242,11 @@ public class SalmonTest extends BaseTestCase {
 	
 	public class BasicKeyFinder implements KeyFinder {
 
-		public List<Key> findKeys(URI signerUri) throws MagicSignatureException {
+		public List<Key> findKeys(URI signerUri) throws MagicSigException {
 			if (URI.create("acct:test@example.com").equals(signerUri)) {
 				return Arrays.asList(new Key[] { new MagicKey(getBytes("/BasicRSAKey.txt"))});
 			}
-			throw new MagicSignatureException("Can't find keys for " + signerUri);
+			throw new MagicSigException("Can't find keys for " + signerUri);
 		}	
 	}
 }

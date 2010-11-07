@@ -7,5 +7,5 @@ public interface MagicEnvelopeDeserializer {
 
 	List<String> getSupportedMediaTypes();
 	
-	MagicEnvelope deserialize(InputStream is) throws MagicSignatureException;
+	MagicEnvelope deserialize(InputStream is) throws MagicSigException;
 }

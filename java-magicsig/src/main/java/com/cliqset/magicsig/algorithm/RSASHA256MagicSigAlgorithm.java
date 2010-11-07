@@ -23,10 +23,10 @@ import java.security.SignatureException;
 
 import com.cliqset.magicsig.Key;
 import com.cliqset.magicsig.MagicKey;
-import com.cliqset.magicsig.MagicSignatureAlgorithm;
-import com.cliqset.magicsig.MagicSignatureException;
+import com.cliqset.magicsig.MagicSigAlgorithm;
+import com.cliqset.magicsig.MagicSigException;
 
-public class RSASHA256MagicSignatureAlgorithm implements MagicSignatureAlgorithm {
+public class RSASHA256MagicSigAlgorithm implements MagicSigAlgorithm {
 
 	private static final String IDENTIFIER = "RSA-SHA256";
 	
@@ -34,7 +34,7 @@ public class RSASHA256MagicSignatureAlgorithm implements MagicSignatureAlgorithm
 		return IDENTIFIER;
 	}
 
-	public byte[] sign(byte[] data, Key key) throws MagicSignatureException {
+	public byte[] sign(byte[] data, Key key) throws MagicSigException {
 		if (null == data) { throw new IllegalArgumentException("data must not be null."); }
 		if (null == key) { throw new IllegalArgumentException("key must not be null."); }
 		
@@ -43,10 +43,10 @@ public class RSASHA256MagicSignatureAlgorithm implements MagicSignatureAlgorithm
 		if (key instanceof MagicKey) {
 			magicKey = (MagicKey)key;
 			if (!"RSA".equals(magicKey.getType())) {
-				throw new MagicSignatureException("Key must be a MagicKey of type RSA to use this algorithm.");	
+				throw new MagicSigException("Key must be a MagicKey of type RSA to use this algorithm.");	
 			}
 		} else {
-			throw new MagicSignatureException("Key must be a MagicKey of type RSA to use this algorithm.");
+			throw new MagicSigException("Key must be a MagicKey of type RSA to use this algorithm.");
 		}
 		
 		Signature sig = null;
@@ -56,15 +56,15 @@ public class RSASHA256MagicSignatureAlgorithm implements MagicSignatureAlgorithm
 			sig.update(data);
 			return sig.sign();
 		} catch (NoSuchAlgorithmException nsae) {
-			throw new MagicSignatureException("Signature Algorithm SHA256withRSA is required", nsae);
+			throw new MagicSigException("Signature Algorithm SHA256withRSA is required", nsae);
 		} catch (InvalidKeyException ike) {
-			throw new MagicSignatureException(ike);
+			throw new MagicSigException(ike);
 		} catch (SignatureException se) {
-			throw new MagicSignatureException(se);
+			throw new MagicSigException(se);
 		}
 	}
 
-	public boolean verify(byte[] data, byte[] signature, Key key) throws MagicSignatureException {
+	public boolean verify(byte[] data, byte[] signature, Key key) throws MagicSigException {
 		if (null == data) { throw new IllegalArgumentException("data must not be null."); }
 		if (null == key) { throw new IllegalArgumentException("key must not be null."); }
 		if (null == signature) { throw new IllegalArgumentException("signature must not be null"); }
@@ -76,10 +76,10 @@ public class RSASHA256MagicSignatureAlgorithm implements MagicSignatureAlgorithm
 		if (key instanceof MagicKey) {
 			magicKey = (MagicKey)key;
 			if (!"RSA".equals(magicKey.getType())) {
-				throw new MagicSignatureException("Key must be a MagicKey of type RSA to use this algorithm.");	
+				throw new MagicSigException("Key must be a MagicKey of type RSA to use this algorithm.");	
 			}
 		} else {
-			throw new MagicSignatureException("Key must be a MagicKey of type RSA to use this algorithm.");
+			throw new MagicSigException("Key must be a MagicKey of type RSA to use this algorithm.");
 		}
 		
 		try {
@@ -88,11 +88,11 @@ public class RSASHA256MagicSignatureAlgorithm implements MagicSignatureAlgorithm
 			sig.update(data);
 			return sig.verify(signature);
 		} catch (NoSuchAlgorithmException nsae) {
-			throw new MagicSignatureException("Signature Algorithm SHA256withRSA is required", nsae);
+			throw new MagicSigException("Signature Algorithm SHA256withRSA is required", nsae);
 		} catch (InvalidKeyException ike) {
-			throw new MagicSignatureException("Key is invalid for this algorithm.", ike);
+			throw new MagicSigException("Key is invalid for this algorithm.", ike);
 		} catch (SignatureException se) {
-			throw new MagicSignatureException(se);
+			throw new MagicSigException(se);
 		}
 	}
 }

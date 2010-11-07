@@ -5,9 +5,9 @@ import org.junit.Assert;
 import org.apache.commons.codec.binary.Hex;
 import org.junit.Test;
 
-import com.cliqset.magicsig.MagicSignatureException;
+import com.cliqset.magicsig.MagicSigException;
 import com.cliqset.magicsig.SecretKey;
-import com.cliqset.magicsig.algorithm.HMACSHA256MagicSignatureAlgorithm;
+import com.cliqset.magicsig.algorithm.HMACSHA256MagicSigAlgorithm;
 
 public class HMACSHA256MagicSignatureAlgorithmTest {
 
@@ -20,7 +20,7 @@ public class HMACSHA256MagicSignatureAlgorithmTest {
 	public void testSign() {
 		try {
 			SecretKey key = new SecretKey("HMAC-SHA256", Hex.decodeHex(hexKey.toCharArray()));
-			HMACSHA256MagicSignatureAlgorithm alg = new HMACSHA256MagicSignatureAlgorithm();
+			HMACSHA256MagicSigAlgorithm alg = new HMACSHA256MagicSigAlgorithm();
 			byte[] sig = alg.sign(stringData.getBytes("UTF-8"), key);
 
 			Assert.assertArrayEquals(Hex.decodeHex(hexSig.toCharArray()), sig);
@@ -34,7 +34,7 @@ public class HMACSHA256MagicSignatureAlgorithmTest {
 	public void testVerifySuccess() {
 		try {
 			SecretKey key = new SecretKey("HMAC-SHA256", Hex.decodeHex(hexKey.toCharArray()));
-			HMACSHA256MagicSignatureAlgorithm alg = new HMACSHA256MagicSignatureAlgorithm();
+			HMACSHA256MagicSigAlgorithm alg = new HMACSHA256MagicSigAlgorithm();
 			Assert.assertTrue(alg.verify(stringData.getBytes("UTF-8"), Hex.decodeHex(hexSig.toCharArray()), key));
 			
 		} catch (Exception e) {
@@ -46,7 +46,7 @@ public class HMACSHA256MagicSignatureAlgorithmTest {
 	public void testVerifyFailDataDifferent() {
 		try {
 			SecretKey key = new SecretKey("HMAC-SHA256", Hex.decodeHex(hexKey.toCharArray()));
-			HMACSHA256MagicSignatureAlgorithm alg = new HMACSHA256MagicSignatureAlgorithm();
+			HMACSHA256MagicSigAlgorithm alg = new HMACSHA256MagicSigAlgorithm();
 			Assert.assertFalse(alg.verify(stringData.substring(1).getBytes("UTF-8"), Hex.decodeHex(hexSig.toCharArray()), key));
 		} catch (Exception e) {
 			Assert.fail(e.getMessage());
@@ -57,7 +57,7 @@ public class HMACSHA256MagicSignatureAlgorithmTest {
 	public void testVerifyFailSigDifferent() {
 		try {
 			SecretKey key = new SecretKey("HMAC-SHA256", Hex.decodeHex(hexKey.toCharArray()));
-			HMACSHA256MagicSignatureAlgorithm alg = new HMACSHA256MagicSignatureAlgorithm();
+			HMACSHA256MagicSigAlgorithm alg = new HMACSHA256MagicSigAlgorithm();
 			Assert.assertFalse(alg.verify(stringData.getBytes("UTF-8"), Hex.decodeHex(hexSig.replace("c", "d").toCharArray()), key));
 		} catch (Exception e) {
 			Assert.fail(e.getMessage());
@@ -68,10 +68,10 @@ public class HMACSHA256MagicSignatureAlgorithmTest {
 	public void testInvalidKeyAlgorithm() {
 		try {
 			SecretKey key = new SecretKey("HMAC-SHA1", Hex.decodeHex(hexKey.toCharArray()));
-			HMACSHA256MagicSignatureAlgorithm alg = new HMACSHA256MagicSignatureAlgorithm();
+			HMACSHA256MagicSigAlgorithm alg = new HMACSHA256MagicSigAlgorithm();
 			alg.verify(stringData.substring(1).getBytes("UTF-8"), Hex.decodeHex(hexSig.toCharArray()), key);
 			Assert.fail();
-		} catch (MagicSignatureException mse) {
+		} catch (MagicSigException mse) {
 			Assert.assertTrue(true);
 		} catch (Exception e) {
 			Assert.fail(e.getMessage());
@@ -81,7 +81,7 @@ public class HMACSHA256MagicSignatureAlgorithmTest {
 	@Test
 	public void testExceptionVerifyNullKey() {
 		try {
-			HMACSHA256MagicSignatureAlgorithm alg = new HMACSHA256MagicSignatureAlgorithm();
+			HMACSHA256MagicSigAlgorithm alg = new HMACSHA256MagicSigAlgorithm();
 			alg.verify(stringData.substring(1).getBytes("UTF-8"), Hex.decodeHex(hexSig.toCharArray()), null);
 			Assert.fail();
 		} catch (IllegalArgumentException iae) {
@@ -95,7 +95,7 @@ public class HMACSHA256MagicSignatureAlgorithmTest {
 	public void testExceptionVerifyNullData() {
 		try {
 			SecretKey key = new SecretKey("HMAC-SHA256", Hex.decodeHex(hexKey.toCharArray()));
-			HMACSHA256MagicSignatureAlgorithm alg = new HMACSHA256MagicSignatureAlgorithm();
+			HMACSHA256MagicSigAlgorithm alg = new HMACSHA256MagicSigAlgorithm();
 			alg.verify(null, Hex.decodeHex(hexSig.toCharArray()), key);
 			Assert.fail();
 		} catch (IllegalArgumentException iae) {
@@ -109,7 +109,7 @@ public class HMACSHA256MagicSignatureAlgorithmTest {
 	public void testExceptionVerifyNullSig() {
 		try {
 			SecretKey key = new SecretKey("HMAC-SHA256", Hex.decodeHex(hexKey.toCharArray()));
-			HMACSHA256MagicSignatureAlgorithm alg = new HMACSHA256MagicSignatureAlgorithm();
+			HMACSHA256MagicSigAlgorithm alg = new HMACSHA256MagicSigAlgorithm();
 			alg.verify(stringData.getBytes("UTF-8"), null, key);
 			Assert.fail();
 		} catch (IllegalArgumentException iae) {

@@ -99,7 +99,7 @@ public class MagicEnvelope {
 		serializers.add(serializer);
 	}
 	
-	public void writeTo(String mediaType, OutputStream os) throws MagicSignatureException {
+	public void writeTo(String mediaType, OutputStream os) throws MagicSigException {
 		//TODO: support wildcards and other complex media-type matching
 		for (MagicEnvelopeSerializer s : serializers) {
 			if (s.getSupportedMediaTypes().contains(mediaType)) {
@@ -107,16 +107,16 @@ public class MagicEnvelope {
 				return;
 			}
 		}
-		throw new MagicSignatureException("No known serializer for media-type " + mediaType);
+		throw new MagicSigException("No known serializer for media-type " + mediaType);
 	}
 	
-	public static MagicEnvelope fromInputStream(String mediaType, InputStream is) throws MagicSignatureException {		
+	public static MagicEnvelope fromInputStream(String mediaType, InputStream is) throws MagicSigException {		
 		//TODO: support wildcards and other complex media-type matching
 		for (MagicEnvelopeDeserializer d : deserializers) {
 			if (d.getSupportedMediaTypes().contains(mediaType)) {
 				return d.deserialize(is);
 			}
 		}
-		throw new MagicSignatureException("No known deserializer for media-type " + mediaType);
+		throw new MagicSigException("No known deserializer for media-type " + mediaType);
 	}
 }

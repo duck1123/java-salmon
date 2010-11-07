@@ -5,9 +5,9 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.cliqset.magicsig.MagicKey;
-import com.cliqset.magicsig.MagicSignatureException;
+import com.cliqset.magicsig.MagicSigException;
 import com.cliqset.magicsig.SecretKey;
-import com.cliqset.magicsig.algorithm.RSASHA256MagicSignatureAlgorithm;
+import com.cliqset.magicsig.algorithm.RSASHA256MagicSigAlgorithm;
 
 public class RSASHA256MagicSignatureAlgorithmTest {
 	
@@ -21,7 +21,7 @@ public class RSASHA256MagicSignatureAlgorithmTest {
 		try {
 			MagicKey key = new MagicKey(magicKey.getBytes("ASCII"));
 			
-			RSASHA256MagicSignatureAlgorithm alg = new RSASHA256MagicSignatureAlgorithm();
+			RSASHA256MagicSigAlgorithm alg = new RSASHA256MagicSigAlgorithm();
 			byte[] sig = alg.sign(stringData.getBytes("UTF-8"), key);
 
 			Assert.assertArrayEquals(Hex.decodeHex(hexSig.toCharArray()), sig);
@@ -35,7 +35,7 @@ public class RSASHA256MagicSignatureAlgorithmTest {
 	public void testVerifySuccess() {
 		try {
 			MagicKey key = new MagicKey(magicKey.getBytes("ASCII"));
-			RSASHA256MagicSignatureAlgorithm alg = new RSASHA256MagicSignatureAlgorithm();
+			RSASHA256MagicSigAlgorithm alg = new RSASHA256MagicSigAlgorithm();
 			Assert.assertTrue(alg.verify(stringData.getBytes("UTF-8"), Hex.decodeHex(hexSig.toCharArray()), key));
 		} catch (Exception e) {
 			Assert.fail(e.getMessage());
@@ -46,7 +46,7 @@ public class RSASHA256MagicSignatureAlgorithmTest {
 	public void testVerifyFailDataDifferent() {
 		try {
 			MagicKey key = new MagicKey(magicKey.getBytes("ASCII"));
-			RSASHA256MagicSignatureAlgorithm alg = new RSASHA256MagicSignatureAlgorithm();
+			RSASHA256MagicSigAlgorithm alg = new RSASHA256MagicSigAlgorithm();
 			Assert.assertFalse(alg.verify(stringData.substring(1).getBytes("UTF-8"), Hex.decodeHex(hexSig.toCharArray()), key));
 		} catch (Exception e) {
 			Assert.fail(e.getMessage());
@@ -57,7 +57,7 @@ public class RSASHA256MagicSignatureAlgorithmTest {
 	public void testVerifyFailSigDifferent() {
 		try {
 			MagicKey key = new MagicKey(magicKey.getBytes("ASCII"));
-			RSASHA256MagicSignatureAlgorithm alg = new RSASHA256MagicSignatureAlgorithm();
+			RSASHA256MagicSigAlgorithm alg = new RSASHA256MagicSigAlgorithm();
 			Assert.assertFalse(alg.verify(stringData.getBytes("UTF-8"), Hex.decodeHex(hexSig.replace("c", "d").toCharArray()), key));
 		} catch (Exception e) {
 			Assert.fail(e.getMessage());
@@ -68,10 +68,10 @@ public class RSASHA256MagicSignatureAlgorithmTest {
 	public void testInvalidKeyAlgorithm() {
 		try {
 			SecretKey key = new SecretKey("HMAC-SHA256", Hex.decodeHex("1234567890abcdef".toCharArray()));
-			RSASHA256MagicSignatureAlgorithm alg = new RSASHA256MagicSignatureAlgorithm();
+			RSASHA256MagicSigAlgorithm alg = new RSASHA256MagicSigAlgorithm();
 			alg.verify(stringData.substring(1).getBytes("UTF-8"), Hex.decodeHex(hexSig.toCharArray()), key);
 			Assert.fail();
-		} catch (MagicSignatureException mse) {
+		} catch (MagicSigException mse) {
 			Assert.assertTrue(true);
 		} catch (Exception e) {
 			Assert.fail(e.getMessage());
@@ -81,7 +81,7 @@ public class RSASHA256MagicSignatureAlgorithmTest {
 	@Test
 	public void testExceptionVerifyNullKey() {
 		try {
-			RSASHA256MagicSignatureAlgorithm alg = new RSASHA256MagicSignatureAlgorithm();
+			RSASHA256MagicSigAlgorithm alg = new RSASHA256MagicSigAlgorithm();
 			alg.verify(stringData.substring(1).getBytes("UTF-8"), Hex.decodeHex(hexSig.toCharArray()), null);
 			Assert.fail();
 		} catch (IllegalArgumentException iae) {
@@ -95,7 +95,7 @@ public class RSASHA256MagicSignatureAlgorithmTest {
 	public void testExceptionVerifyNullData() {
 		try {
 			MagicKey key = new MagicKey(magicKey.getBytes("ASCII"));
-			RSASHA256MagicSignatureAlgorithm alg = new RSASHA256MagicSignatureAlgorithm();
+			RSASHA256MagicSigAlgorithm alg = new RSASHA256MagicSigAlgorithm();
 			alg.verify(null, Hex.decodeHex(hexSig.toCharArray()), key);
 			Assert.fail();
 		} catch (IllegalArgumentException iae) {
@@ -109,7 +109,7 @@ public class RSASHA256MagicSignatureAlgorithmTest {
 	public void testExceptionVerifyNullSig() {
 		try {
 			MagicKey key = new MagicKey(magicKey.getBytes("ASCII"));
-			RSASHA256MagicSignatureAlgorithm alg = new RSASHA256MagicSignatureAlgorithm();
+			RSASHA256MagicSigAlgorithm alg = new RSASHA256MagicSigAlgorithm();
 			alg.verify(stringData.getBytes("UTF-8"), null, key);
 			Assert.fail();
 		} catch (IllegalArgumentException iae) {

@@ -10,7 +10,7 @@ import java.util.List;
 import com.cliqset.magicsig.MagicEnvelope;
 import com.cliqset.magicsig.MagicEnvelopeSerializer;
 import com.cliqset.magicsig.MagicSigConstants;
-import com.cliqset.magicsig.MagicSignatureException;
+import com.cliqset.magicsig.MagicSigException;
 import com.cliqset.magicsig.Signature;
 
 import com.google.gson.Gson;
@@ -21,7 +21,7 @@ public class JSONMagicEnvelopeSerializer implements MagicEnvelopeSerializer {
 		return Collections.unmodifiableList(Arrays.asList(new String[] {MagicSigConstants.MEDIA_TYPE_MAGIC_ENV_JSON}));
 	}
 
-	public void serialize(MagicEnvelope env, OutputStream os) throws MagicSignatureException {
+	public void serialize(MagicEnvelope env, OutputStream os) throws MagicSigException {
 		JSONMagicEnvelope jme = new JSONMagicEnvelope();
 		jme.setAlg(env.getAlgorithm());
 		jme.setEncoding(env.getEncoding());
@@ -41,7 +41,7 @@ public class JSONMagicEnvelopeSerializer implements MagicEnvelopeSerializer {
 		try {
 			os.write(json.getBytes("UTF-8"));
 		} catch (IOException ioe) {
-			throw new MagicSignatureException("Unable to serialize magic envelope to output stream.", ioe);
+			throw new MagicSigException("Unable to serialize magic envelope to output stream.", ioe);
 		}
 	}
 }

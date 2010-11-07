@@ -21,11 +21,22 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
+import com.cliqset.magicsig.DataParser;
+import com.cliqset.magicsig.KeyFinder;
 import com.cliqset.magicsig.MagicEnvelope;
 import com.cliqset.magicsig.MagicKey;
 import com.cliqset.magicsig.MagicSigConstants;
-import com.cliqset.magicsig.MagicSigner;
+import com.cliqset.magicsig.MagicSigAlgorithm;
+import com.cliqset.magicsig.MagicSigEncoding;
+import com.cliqset.magicsig.MagicSig;
+import com.cliqset.magicsig.URIPayloadToMetadataMapper;
+import com.cliqset.magicsig.algorithm.RSASHA256MagicSigAlgorithm;
+import com.cliqset.magicsig.encoding.Base64URLMagicSigEncoding;
 
 public class Signer {
 
@@ -41,7 +52,18 @@ public class Signer {
 			
 			MagicKey key = new MagicKey(getBytes("/DemoKeys.txt"));
 			
-			MagicSigner magicSig = new MagicSigner(); 
+			Map<String, MagicSigAlgorithm> algorithms = new HashMap<String, MagicSigAlgorithm>();
+			algorithms.put("RSA-SHA256", new RSASHA256MagicSigAlgorithm());
+			
+			Map<String, MagicSigEncoding> encodings = new HashMap<String, MagicSigEncoding>();
+			encodings.put("base64url", new Base64URLMagicSigEncoding());
+			
+			Set<DataParser> dataParsers = new HashSet<DataParser>();
+			
+			Set<KeyFinder> keyFinders = new HashSet<KeyFinder>();
+			
+			MagicSig magicSig = new MagicSig(algorithms, encodings, new URIPayloadToMetadataMapper(dataParsers, keyFinders));
+			
 			MagicEnvelope env = magicSig.sign(bytes, key, "RSA-SHA256", "base64url", "application/atom+xml");
 			
 			FileOutputStream fos = new FileOutputStream(filename + ".env");

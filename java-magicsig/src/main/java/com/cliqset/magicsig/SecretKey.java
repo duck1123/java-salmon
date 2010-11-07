@@ -17,10 +17,10 @@ public class SecretKey extends Key {
 	
 	private byte[] bytes;
 	
-	public SecretKey(String algorithm, byte[] bytes) throws MagicSignatureException {
+	public SecretKey(String algorithm, byte[] bytes) throws MagicSigException {
 		if (null == algorithm) { throw new IllegalArgumentException("algorithm must not be null."); }
 		if (null == bytes || bytes.length < 1) { throw new IllegalArgumentException("bytes must contain a valid key value."); }		
-		if (null == spec2JavaAlgorithmMap.get(algorithm)) { throw new MagicSignatureException("Unknown algorithm: " + algorithm); }
+		if (null == spec2JavaAlgorithmMap.get(algorithm)) { throw new MagicSigException("Unknown algorithm: " + algorithm); }
 		
 		this.algorithm = algorithm;
 		this.bytes = bytes;

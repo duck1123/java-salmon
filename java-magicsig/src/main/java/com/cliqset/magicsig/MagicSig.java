@@ -17,29 +17,34 @@
 package com.cliqset.magicsig;
 
 import java.io.UnsupportedEncodingException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MagicSigner {
+public class MagicSig {
 
-	private static Logger logger = LoggerFactory.getLogger(MagicSigner.class);
+	private static Logger logger = LoggerFactory.getLogger(MagicSig.class);
 	
-	private Map<String, MagicSignatureAlgorithm> algorithms = new HashMap<String, MagicSignatureAlgorithm>();
-	private Map<String, MagicSignatureEncoding> encoders = new HashMap<String, MagicSignatureEncoding>();
+	private Map<String, MagicSigAlgorithm> algorithms;
+	private Map<String, MagicSigEncoding> encodings;
 	
-	private PayloadToMetadataMapper payloadToMetadataMapper = new URIPayloadToMetadataMapper();
+	private PayloadToMetadataMapper payloadToMetadataMapper;
 	
+	public MagicSig(Map<String, MagicSigAlgorithm> algorithms, Map<String, MagicSigEncoding> encodings, PayloadToMetadataMapper payloadToMetadataMapper) {
+		this.algorithms = algorithms;
+		this.encodings = encodings;
+		this.payloadToMetadataMapper = payloadToMetadataMapper;
+	}
+	/*
 	public MagicSigner withAlgorithm(MagicSignatureAlgorithm algorithm) {
 		algorithms.put(algorithm.getIdentifier(), algorithm);
 		return this;
 	}
 	
 	public MagicSigner withEncoding(MagicSignatureEncoding encoding) {
-		encoders.put(encoding.getIdentifier(), encoding);
+		encodings.put(encoding.getIdentifier(), encoding);
 		return this;
 	}
 	
@@ -47,25 +52,25 @@ public class MagicSigner {
 		this.payloadToMetadataMapper = mapper;
 		return this;
 	}
-	
-	public byte[] decodeData(MagicEnvelope envelope) throws MagicSignatureException {
-		MagicSignatureEncoding encoder = this.encoders.get(envelope.getEncoding());
+	*/
+	public byte[] decodeData(MagicEnvelope envelope) throws MagicSigException {
+		MagicSigEncoding encoder = this.encodings.get(envelope.getEncoding());
 		if (null == encoder) {
-			throw new MagicSignatureException("Unrecognized encoding:" + envelope.getEncoding());
+			throw new MagicSigException("Unrecognized encoding:" + envelope.getEncoding());
 		}
 		
 		return encoder.decode(envelope.getData());
 	}
 	
-	public MagicEnvelope sign(byte[] data, Key key, String algorithm, String encoding, String dataType) throws MagicSignatureException {
-		MagicSignatureEncoding encoder = this.encoders.get(encoding);
+	public MagicEnvelope sign(byte[] data, Key key, String algorithm, String encoding, String dataType) throws MagicSigException {
+		MagicSigEncoding encoder = this.encodings.get(encoding);
 		if (null == encoder) {
-			throw new MagicSignatureException("Unrecognized encoding:" + encoding);
+			throw new MagicSigException("Unrecognized encoding:" + encoding);
 		}
 		
-		MagicSignatureAlgorithm alg = this.algorithms.get(algorithm);
+		MagicSigAlgorithm alg = this.algorithms.get(algorithm);
 		if (null == alg) {
-			throw new MagicSignatureException("Unrecognized algorithm:" + algorithm);
+			throw new MagicSigException("Unrecognized algorithm:" + algorithm);
 		}
 
 		byte[] signatureData = buildSigBaseString(data, dataType, encoding, algorithm);
@@ -82,20 +87,20 @@ public class MagicSigner {
 		return env;
 	}
 	
-	public EnvelopeVerificationResult verify(MagicEnvelope envelope) throws MagicSignatureException {
-		List<Key> keys = this.payloadToMetadataMapper.getKeys(envelope.getDataType(), this.encoders.get(envelope.getEncoding()).decode(envelope.getData()));
+	public EnvelopeVerificationResult verify(MagicEnvelope envelope) throws MagicSigException {
+		List<Key> keys = this.payloadToMetadataMapper.getKeys(envelope.getDataType(), this.encodings.get(envelope.getEncoding()).decode(envelope.getData()));
 		return verify(envelope, keys);
 	}
 	
-	public EnvelopeVerificationResult verify(MagicEnvelope envelope, List<? extends Key> keys) throws MagicSignatureException {
-		MagicSignatureEncoding encoder = this.encoders.get(envelope.getEncoding());
+	public EnvelopeVerificationResult verify(MagicEnvelope envelope, List<? extends Key> keys) throws MagicSigException {
+		MagicSigEncoding encoder = this.encodings.get(envelope.getEncoding());
 		if (null == encoder) {
-			throw new MagicSignatureException("Unrecognized encoding:" + envelope.getEncoding());
+			throw new MagicSigException("Unrecognized encoding:" + envelope.getEncoding());
 		}
 		
-		MagicSignatureAlgorithm algorithm = this.algorithms.get(envelope.getAlgorithm());
+		MagicSigAlgorithm algorithm = this.algorithms.get(envelope.getAlgorithm());
 		if (null == algorithm) {
-			throw new MagicSignatureException("Unrecognized algorithm:" + envelope.getAlgorithm());
+			throw new MagicSigException("Unrecognized algorithm:" + envelope.getAlgorithm());
 		}
 		
 		byte[] data = encoder.decode(envelope.getData());
@@ -105,7 +110,7 @@ public class MagicSigner {
 		try {
 			dataForSig = buildSigBaseString(data, envelope.getDataType(), envelope.getEncoding(), envelope.getAlgorithm());
 		} catch (Exception e) {
-			throw new MagicSignatureException("Unable to build data for signature verification.", e);
+			throw new MagicSigException("Unable to build data for signature verification.", e);
 		}
 		
 		EnvelopeVerificationResult result = new EnvelopeVerificationResult()
@@ -138,10 +143,10 @@ public class MagicSigner {
 		return result;
 	}
 	
-	private byte[] buildSigBaseString(byte[] data, String dataType, String encoding, String algorithm) throws MagicSignatureException {
-		MagicSignatureEncoding encoder = this.encoders.get(encoding);
+	private byte[] buildSigBaseString(byte[] data, String dataType, String encoding, String algorithm) throws MagicSigException {
+		MagicSigEncoding encoder = this.encodings.get(encoding);
 		if (null == encoder) {
-			throw new MagicSignatureException("Unrecognized encoding:" + encoding);
+			throw new MagicSigException("Unrecognized encoding:" + encoding);
 		}
 		
 		try {
@@ -155,7 +160,7 @@ public class MagicSigner {
 			
 			return sb.toString().getBytes("ASCII");
 		} catch (UnsupportedEncodingException uee) {
-			throw new MagicSignatureException("ASCII is not supported on this system.", uee);
+			throw new MagicSigException("ASCII is not supported on this system.", uee);
 		}
 	}
 }
