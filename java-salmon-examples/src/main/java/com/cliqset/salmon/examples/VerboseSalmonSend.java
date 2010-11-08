@@ -59,7 +59,7 @@ public class VerboseSalmonSend {
 			
 			MagicSig magicSig = new MagicSig(algorithms, encodings, new URIPayloadToMetadataMapper(dataParsers, keyFinders));
 			
-			Salmon salmon = new Salmon(magicSig);
+			Salmon salmon = new Salmon(magicSig, null);
 			
 			MagicEnvelope.withSerializer(new CompactMagicEnvelopeSerializer());
 			MagicEnvelope.withSerializer(new JSONMagicEnvelopeSerializer());

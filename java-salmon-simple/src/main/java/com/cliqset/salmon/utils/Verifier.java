@@ -72,7 +72,7 @@ public class Verifier {
 			
 			MagicSig magicSig = new MagicSig(algorithms, encodings, new URIPayloadToMetadataMapper(dataParsers, keyFinders));
 			
-			Salmon s = new Salmon(magicSig);
+			Salmon s = new Salmon(magicSig, null);
 			System.out.println(s.verify(envelope));
 			
 		} catch (Exception e) {
