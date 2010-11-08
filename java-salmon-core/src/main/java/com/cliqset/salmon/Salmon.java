@@ -23,6 +23,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +40,6 @@ import com.cliqset.magicsig.MagicSigAlgorithm;
 import com.cliqset.magicsig.MagicSigConstants;
 import com.cliqset.magicsig.MagicSigEncoding;
 import com.cliqset.magicsig.MagicSigException;
-import com.cliqset.magicsig.MagicSig;
 import com.cliqset.magicsig.json.JSONMagicEnvelopeDeserializer;
 import com.cliqset.magicsig.json.JSONMagicEnvelopeSerializer;
 import com.cliqset.magicsig.keyfinder.MagicPKIKeyFinder;
@@ -56,9 +58,11 @@ public class Salmon {
 	
 	private static final Logger logger = LoggerFactory.getLogger(Salmon.class);
 	
-	private SalmonSender sender = new JavaNetSalmonSender();
+	private SalmonSender sender;
 	
-	private SalmonEndpointFinder endpointFinder = new HostMetaSalmonEndpointFinder();
+	private SalmonEndpointFinder endpointFinder;
+	
+	private ExecutorService executor;
 	
 	private static final String DEFAULT_DATA_TYPE = "application/atom+xml";
 	
@@ -81,7 +85,7 @@ public class Salmon {
 		Set<KeyFinder> keyFinders = new HashSet<KeyFinder>();
 		keyFinders.add(new MagicPKIKeyFinder());
 		
-		MagicSig magicSig = new MagicSig(algorithms, encodings, new URIPayloadToMetadataMapper(dataParsers, keyFinders));
+		this.magicSig = new MagicSig(algorithms, encodings, new URIPayloadToMetadataMapper(dataParsers, keyFinders));
 		
 		MagicEnvelope.withSerializer(new CompactMagicEnvelopeSerializer());
 		MagicEnvelope.withSerializer(new JSONMagicEnvelopeSerializer());
@@ -92,21 +96,11 @@ public class Salmon {
 		MagicEnvelope.withDeserializer(new XMLMagicEnvelopeDeserializer());
 	}
 	
-	public Salmon(MagicSig magicSig) {
+	public Salmon(MagicSig magicSig, ExecutorService executor) {
 		this.magicSig = magicSig;
+		this.executor = executor;
 	}
 	
-	/*
-	public Salmon withSalmonEndpointFinder(SalmonEndpointFinder endpointFinder) {
-		this.endpointFinder = endpointFinder;
-		return this;
-	}
-	
-	public Salmon withSalmonSender(SalmonSender sender) {
-		this.sender = sender;
-		return this;
-	}
-	*/
 	public byte[] verify(MagicEnvelope envelope) throws SalmonException {
 		try {
 			EnvelopeVerificationResult result = magicSig.verify(envelope);
@@ -121,37 +115,106 @@ public class Salmon {
 		}
 		throw new SalmonException("Unable to verify the signature.");
 	}
-	
-	public void signAndDeliver(byte[] entry, Key key, URL destinationURL) throws SalmonException {
-		signAndDeliver(entry, key, destinationURL, DEFAULT_DATA_TYPE);
-	}
 
-	public void signAndDeliver(byte[] entry, Key key, URL destinationURL, String mediaType) throws SalmonException {
-		signAndDeliver(entry, key, destinationURL, mediaType, DEFAULT_ENCODING, DEFAULT_ALGORITHM);
+	public SalmonDeliveryResponse signAndDeliver(byte[] entry, Key key, URL destinationURL) throws SalmonException {
+		return signAndDeliver(entry, key, destinationURL, DEFAULT_DATA_TYPE);
 	}
 	
-	public void signAndDeliver(byte[] entry, Key key, URL destinationURL, String mediaType, String encoding, String algorithm) throws SalmonException {
+	public SalmonDeliveryResponse signAndDeliver(byte[] entry, Key key, URL destinationURL, String mediaType) throws SalmonException {
+		return signAndDeliver(entry, key, destinationURL, mediaType, DEFAULT_ENCODING, DEFAULT_ALGORITHM);
+	}
+	
+	public SalmonDeliveryResponse signAndDeliver(byte[] entry, Key key, URL destinationURL, String mediaType, String encoding, String algorithm) throws SalmonException {
 		try {
 			MagicEnvelope env = sign(entry, key);
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			env.writeTo(MagicSigConstants.MEDIA_TYPE_MAGIC_ENV_XML, baos);
 			send(destinationURL, MagicSigConstants.MEDIA_TYPE_MAGIC_ENV_XML, baos.toByteArray());
+			
+			return new SalmonDeliveryResponse();
 		} catch (MagicSigException mse) {
 			throw new SalmonException(mse);
 		}
 	}
 	
-	public void signAndDeliver(byte[] entry, Key key, URI destinationUser) throws SalmonException {
-		signAndDeliver(entry, key, destinationUser, DEFAULT_DATA_TYPE, DEFAULT_ENCODING, DEFAULT_ALGORITHM);
+	public SalmonDeliveryResponse signAndDeliver(byte[] entry, Key key, URI destinationUser) throws SalmonException {
+		return signAndDeliver(entry, key, destinationUser, DEFAULT_DATA_TYPE, DEFAULT_ENCODING, DEFAULT_ALGORITHM);
 	}
 	
-	public void signAndDeliver(byte[] entry, Key key, URI destinationUser, String mediaType) throws SalmonException {
-		signAndDeliver(entry, key, destinationUser, mediaType, DEFAULT_ENCODING, DEFAULT_ALGORITHM);
+	public SalmonDeliveryResponse signAndDeliver(byte[] entry, Key key, URI destinationUser, String mediaType) throws SalmonException {
+		return signAndDeliver(entry, key, destinationUser, mediaType, DEFAULT_ENCODING, DEFAULT_ALGORITHM);
 	}
 	
-	public void signAndDeliver(byte[] entry, Key key, URI destinationUser, String mediaType, String encoding, String algorithm) throws SalmonException {
+	public SalmonDeliveryResponse signAndDeliver(byte[] entry, Key key, URI destinationUser, String mediaType, String encoding, String algorithm) throws SalmonException {
 		URL destinationURL = findSalmonEndpoint(destinationUser);
-		signAndDeliver(entry, key, destinationURL, mediaType, encoding, algorithm);
+		return signAndDeliver(entry, key, destinationURL, mediaType, encoding, algorithm);
+	}
+	
+	public MagicEnvelope sign(byte[] entry, Key key) throws MagicSigException {
+		return magicSig.sign(entry, key, DEFAULT_ALGORITHM, DEFAULT_ENCODING, DEFAULT_DATA_TYPE);
+	}
+	
+	public Future<byte[]> verifyAsync(final MagicEnvelope envelope) {
+		return this.executor.submit(new Callable<byte[]>() {
+			
+			public byte[] call() throws SalmonException {
+				return verify(envelope);
+			}			
+		});
+	}
+
+	public Future<SalmonDeliveryResponse> signAndDeliverAsync(final byte[] entry, final Key key, final URL destinationURL) throws SalmonException {
+		return this.executor.submit(new Callable<SalmonDeliveryResponse>() {
+			
+			public SalmonDeliveryResponse call() throws SalmonException {
+				return signAndDeliver(entry, key, destinationURL); 
+			}
+		});
+	}
+	
+	public Future<SalmonDeliveryResponse> signAndDeliverAsync(final byte[] entry, final Key key, final URL destinationURL, final String mediaType) throws SalmonException {
+		return this.executor.submit(new Callable<SalmonDeliveryResponse>() {
+			
+			public SalmonDeliveryResponse call() throws SalmonException {
+				return signAndDeliver(entry, key, destinationURL, mediaType);
+			}
+		});
+	}
+	
+	public Future<SalmonDeliveryResponse> signAndDeliverAsync(final byte[] entry, final Key key, final URL destinationURL, final String mediaType, final String encoding, final String algorithm) throws SalmonException {
+		return this.executor.submit(new Callable<SalmonDeliveryResponse>() {
+			
+			public SalmonDeliveryResponse call() throws SalmonException {
+				return signAndDeliver(entry, key, destinationURL, mediaType, encoding, algorithm);
+			}
+		});
+	}
+
+	public Future<SalmonDeliveryResponse> signAndDeliverAsync(final byte[] entry, final Key key, final URI destinationUser) throws SalmonException {
+		return this.executor.submit(new Callable<SalmonDeliveryResponse>() {
+			
+			public SalmonDeliveryResponse call() throws SalmonException {
+				return signAndDeliver(entry, key, destinationUser);
+			}
+		});
+	}
+	
+	public Future<SalmonDeliveryResponse> signAndDeliverAsync(final byte[] entry, final Key key, final URI destinationUser, final String mediaType) throws SalmonException {
+		return this.executor.submit(new Callable<SalmonDeliveryResponse>() {
+			
+			public SalmonDeliveryResponse call() throws SalmonException {
+				return signAndDeliver(entry, key, destinationUser, mediaType);
+			}
+		});		
+	}
+	
+	public Future<SalmonDeliveryResponse> signAndDeliverAsync(final byte[] entry, final Key key, final URI destinationUser, final String mediaType, final String encoding, final String algorithm) throws SalmonException {
+		return this.executor.submit(new Callable<SalmonDeliveryResponse>() {
+			
+			public SalmonDeliveryResponse call() throws SalmonException {
+				return signAndDeliver(entry, key, destinationUser, mediaType, encoding, algorithm);
+			}
+		});
 	}
 	
 	private URL findSalmonEndpoint(URI resourceURI) throws SalmonException {
@@ -159,10 +222,6 @@ public class Salmon {
 			throw new SalmonException("A SalmonEndpointFinder must be configured.");
 		}
 		return this.endpointFinder.find(resourceURI);
-	}
-	
-	public MagicEnvelope sign(byte[] entry, Key key) throws MagicSigException {
-		return magicSig.sign(entry, key, DEFAULT_ALGORITHM, DEFAULT_ENCODING, DEFAULT_DATA_TYPE);
 	}
 	
 	private void send(URL destinationURL, String contentType, byte[] data) throws SalmonException {

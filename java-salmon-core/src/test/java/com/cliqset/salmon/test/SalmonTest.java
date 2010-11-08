@@ -113,7 +113,7 @@ public class SalmonTest extends BaseTestCase {
 			
 			MagicSig magicSig = new MagicSig(algorithms, encodings, new URIPayloadToMetadataMapper(dataParsers, keyFinders));
 			
-			Salmon salmon = new Salmon(magicSig);
+			Salmon salmon = new Salmon(magicSig, null);
 			MagicEnvelope.withDeserializer(new XMLMagicEnvelopeDeserializer());
 			MagicEnvelope env = MagicEnvelope.fromInputStream(MagicSigConstants.MEDIA_TYPE_MAGIC_ENV_XML, SalmonTest.class.getResourceAsStream("/BasicEnvelope.txt"));
 			

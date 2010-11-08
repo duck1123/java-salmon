@@ -97,7 +97,7 @@ public class Validator {
 			
 			MagicSig magicSig = new MagicSig(algorithms, encodings, new URIPayloadToMetadataMapper(dataParsers, keyFinders));
 			
-			Salmon salmon = new Salmon(magicSig);
+			Salmon salmon = new Salmon(magicSig, null);
 			MagicEnvelope.withDeserializer(new XMLMagicEnvelopeDeserializer());
 			byte[] output = salmon.verify(MagicEnvelope.fromInputStream(MagicSigConstants.MEDIA_TYPE_MAGIC_ENV_XML, new FileInputStream(filename)));
 			
