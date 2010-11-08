@@ -37,22 +37,7 @@ public class MagicSig {
 		this.encodings = encodings;
 		this.payloadToMetadataMapper = payloadToMetadataMapper;
 	}
-	/*
-	public MagicSigner withAlgorithm(MagicSignatureAlgorithm algorithm) {
-		algorithms.put(algorithm.getIdentifier(), algorithm);
-		return this;
-	}
-	
-	public MagicSigner withEncoding(MagicSignatureEncoding encoding) {
-		encodings.put(encoding.getIdentifier(), encoding);
-		return this;
-	}
-	
-	public MagicSigner withPayloadToMetadataMapper(PayloadToMetadataMapper mapper) {
-		this.payloadToMetadataMapper = mapper;
-		return this;
-	}
-	*/
+
 	public byte[] decodeData(MagicEnvelope envelope) throws MagicSigException {
 		MagicSigEncoding encoder = this.encodings.get(envelope.getEncoding());
 		if (null == encoder) {
