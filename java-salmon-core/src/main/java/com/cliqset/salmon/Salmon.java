@@ -59,9 +59,10 @@ public class Salmon {
 	private MagicSig magicSig = null;
 	
 	@Inject
-	public Salmon(MagicSig magicSig, SalmonSender sender, ExecutorService executor) {
+	public Salmon(MagicSig magicSig, SalmonSender sender, SalmonEndpointFinder endpointFinder, ExecutorService executor) {
 		this.magicSig = magicSig;
 		this.sender = sender;
+		this.endpointFinder = endpointFinder;
 		this.executor = executor;
 	}
 	

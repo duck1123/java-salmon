@@ -9,6 +9,8 @@ import java.util.concurrent.TimeUnit;
 import com.cliqset.hostmeta.HostMeta;
 import com.cliqset.hostmeta.JavaNetXRDFetcher;
 import com.cliqset.hostmeta.XRDFetcher;
+import com.cliqset.hostmeta.template.LRDDTemplateProcessor;
+import com.cliqset.hostmeta.template.TemplateProcessor;
 import com.cliqset.magicsig.DataParser;
 import com.cliqset.magicsig.KeyFinder;
 import com.cliqset.magicsig.MagicSig;
@@ -53,7 +55,10 @@ public class DefaultSalmonModule extends AbstractModule {
 	    MapBinder<String, DataParser> dataParserBinder = MapBinder.newMapBinder(binder(), String.class, DataParser.class);
 	    dataParserBinder.addBinding("application/atom+xml").to(SimpleAtomDataParser.class);
 
-		bind(PayloadToMetadataMapper.class).to(URIPayloadToMetadataMapper.class);		
+		bind(PayloadToMetadataMapper.class).to(URIPayloadToMetadataMapper.class);
+		
+		MapBinder<String, TemplateProcessor> templateBinder = MapBinder.newMapBinder(binder(), String.class, TemplateProcessor.class);
+		templateBinder.addBinding(LRDDTemplateProcessor.REL).to(LRDDTemplateProcessor.class);
 	}
 	
 	@Provides

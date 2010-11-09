@@ -15,6 +15,10 @@
 	<dependencies>
 		<dependency>
 			<groupId>com.cliqset</groupId>
+			<artifactId>java-magicsig</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.cliqset</groupId>
 			<artifactId>java-salmon-core</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>

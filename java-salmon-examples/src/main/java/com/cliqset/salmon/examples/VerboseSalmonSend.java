@@ -1,19 +1,19 @@
 package com.cliqset.salmon.examples;
 
 import java.net.URI;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import com.cliqset.hostmeta.HostMeta;
+import com.cliqset.hostmeta.JavaNetXRDFetcher;
+import com.cliqset.hostmeta.XRDFetcher;
+import com.cliqset.hostmeta.template.LRDDTemplateProcessor;
+import com.cliqset.hostmeta.template.TemplateProcessor;
 import com.cliqset.magicsig.DataParser;
 import com.cliqset.magicsig.KeyFinder;
-import com.cliqset.magicsig.MagicEnvelope;
 import com.cliqset.magicsig.MagicKey;
 import com.cliqset.magicsig.MagicSig;
 import com.cliqset.magicsig.MagicSigAlgorithm;
@@ -22,23 +22,19 @@ import com.cliqset.magicsig.PayloadToMetadataMapper;
 import com.cliqset.magicsig.URIPayloadToMetadataMapper;
 import com.cliqset.magicsig.algorithm.HMACSHA256MagicSigAlgorithm;
 import com.cliqset.magicsig.algorithm.RSASHA256MagicSigAlgorithm;
-import com.cliqset.magicsig.compact.CompactMagicEnvelopeDeserializer;
-import com.cliqset.magicsig.compact.CompactMagicEnvelopeSerializer;
 import com.cliqset.magicsig.dataparser.SimpleAtomDataParser;
 import com.cliqset.magicsig.encoding.Base64URLMagicSigEncoding;
-import com.cliqset.magicsig.json.JSONMagicEnvelopeDeserializer;
-import com.cliqset.magicsig.json.JSONMagicEnvelopeSerializer;
 import com.cliqset.magicsig.keyfinder.MagicPKIKeyFinder;
-import com.cliqset.magicsig.xml.XMLMagicEnvelopeDeserializer;
-import com.cliqset.magicsig.xml.XMLMagicEnvelopeSerializer;
 import com.cliqset.salmon.HostMetaSalmonEndpointFinder;
 import com.cliqset.salmon.JavaNetSalmonSender;
 import com.cliqset.salmon.Salmon;
+import com.cliqset.salmon.SalmonEndpointFinder;
 import com.cliqset.salmon.SalmonSender;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Provides;
+import com.google.inject.multibindings.MapBinder;
 import com.google.inject.multibindings.Multibinder;
 
 public class VerboseSalmonSend {
@@ -74,24 +70,33 @@ public class VerboseSalmonSend {
 
 		@Override
 		protected void configure() {
-			bind(MagicSig.class).to(MagicSig.class);
+			bind(MagicSig.class);
 			bind(SalmonSender.class).to(JavaNetSalmonSender.class);
 			
+			bind(SalmonEndpointFinder.class).to(HostMetaSalmonEndpointFinder.class);
+			
+			bind(XRDFetcher.class).to(JavaNetXRDFetcher.class);
+			
+			bind(HostMeta.class);
+			
 			//MagicSig dependencies
-			Multibinder<MagicSigAlgorithm> algorithmBinder = Multibinder.newSetBinder(binder(), MagicSigAlgorithm.class);
-		    algorithmBinder.addBinding().to(HMACSHA256MagicSigAlgorithm.class);
-		    algorithmBinder.addBinding().to(RSASHA256MagicSigAlgorithm.class);
+			MapBinder<String, MagicSigAlgorithm> algorithmBinder = MapBinder.newMapBinder(binder(), String.class, MagicSigAlgorithm.class);
+		    algorithmBinder.addBinding(HMACSHA256MagicSigAlgorithm.ALGORITHM_IDENTIFIER).to(HMACSHA256MagicSigAlgorithm.class);
+		    algorithmBinder.addBinding(RSASHA256MagicSigAlgorithm.ALGORITHM_IDENTIFIER).to(RSASHA256MagicSigAlgorithm.class);
 		    
-		    Multibinder<MagicSigEncoding> encodingBinder = Multibinder.newSetBinder(binder(), MagicSigEncoding.class);
-		    encodingBinder.addBinding().to(Base64URLMagicSigEncoding.class);
+		    MapBinder<String, MagicSigEncoding> encodingBinder = MapBinder.newMapBinder(binder(), String.class, MagicSigEncoding.class);
+		    encodingBinder.addBinding(Base64URLMagicSigEncoding.ENCODING_IDENTIFIER).to(Base64URLMagicSigEncoding.class);
 		    
 		    Multibinder<KeyFinder> keyFinderBinder = Multibinder.newSetBinder(binder(), KeyFinder.class);
 		    keyFinderBinder.addBinding().to(MagicPKIKeyFinder.class);
 		    
-		    Multibinder<DataParser> dataParserBinder = Multibinder.newSetBinder(binder(), DataParser.class);
-		    dataParserBinder.addBinding().to(SimpleAtomDataParser.class);
+		    MapBinder<String, DataParser> dataParserBinder = MapBinder.newMapBinder(binder(), String.class, DataParser.class);
+		    dataParserBinder.addBinding("application/atom+xml").to(SimpleAtomDataParser.class);
 
-			bind(PayloadToMetadataMapper.class).to(URIPayloadToMetadataMapper.class);		
+			bind(PayloadToMetadataMapper.class).to(URIPayloadToMetadataMapper.class);
+			
+			MapBinder<String, TemplateProcessor> templateBinder = MapBinder.newMapBinder(binder(), String.class, TemplateProcessor.class);
+			templateBinder.addBinding(LRDDTemplateProcessor.REL).to(LRDDTemplateProcessor.class);
 		}
 		
 		@Provides

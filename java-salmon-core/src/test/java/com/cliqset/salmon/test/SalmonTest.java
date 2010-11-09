@@ -29,6 +29,10 @@ import java.util.concurrent.TimeUnit;
 import org.junit.Test;
 import org.junit.Assert;
 
+import com.cliqset.hostmeta.JavaNetXRDFetcher;
+import com.cliqset.hostmeta.XRDFetcher;
+import com.cliqset.hostmeta.template.LRDDTemplateProcessor;
+import com.cliqset.hostmeta.template.TemplateProcessor;
 import com.cliqset.magicsig.DataParser;
 import com.cliqset.magicsig.Key;
 import com.cliqset.magicsig.KeyFinder;
@@ -42,8 +46,10 @@ import com.cliqset.magicsig.algorithm.HMACSHA256MagicSigAlgorithm;
 import com.cliqset.magicsig.algorithm.RSASHA256MagicSigAlgorithm;
 import com.cliqset.magicsig.encoding.Base64URLMagicSigEncoding;
 import com.cliqset.magicsig.xml.XMLMagicEnvelopeDeserializer;
+import com.cliqset.salmon.HostMetaSalmonEndpointFinder;
 import com.cliqset.salmon.JavaNetSalmonSender;
 import com.cliqset.salmon.Salmon;
+import com.cliqset.salmon.SalmonEndpointFinder;
 import com.cliqset.salmon.SalmonSender;
 import com.cliqset.magicsig.MagicEnvelopeSerializationProvider;
 import com.cliqset.magicsig.MagicSigAlgorithm;
@@ -84,6 +90,10 @@ public class SalmonTest extends BaseTestCase {
 				protected void configure() {
 					bind(MagicSig.class);
 					bind(SalmonSender.class).to(JavaNetSalmonSender.class);
+					bind(SalmonEndpointFinder.class).to(HostMetaSalmonEndpointFinder.class);
+					bind(XRDFetcher.class).to(JavaNetXRDFetcher.class);
+					MapBinder<String, TemplateProcessor> templateBinder = MapBinder.newMapBinder(binder(), String.class, TemplateProcessor.class);
+					templateBinder.addBinding(LRDDTemplateProcessor.REL).to(LRDDTemplateProcessor.class);
 					
 					//MagicSig dependencies
 					MapBinder<String, MagicSigAlgorithm> algorithmBinder = MapBinder.newMapBinder(binder(), String.class, MagicSigAlgorithm.class);
