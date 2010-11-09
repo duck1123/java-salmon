@@ -18,8 +18,6 @@ package com.cliqset.magicsig;
 
 public interface MagicSigEncoding {
 
-	String getIdentifier();
-	
 	String encodeToString(byte[] data);
 	
 	byte[] encode(byte[] data);

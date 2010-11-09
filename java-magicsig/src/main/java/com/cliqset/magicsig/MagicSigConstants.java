@@ -20,9 +20,9 @@ import javax.xml.namespace.QName;
 
 public class MagicSigConstants {
 
-	public static final String MEDIA_TYPE_MAGIC_ENV_XML = "application/magic-envelope+xml";
+	public static final String MEDIA_TYPE_MAGIC_ENV_XML = "application/magic-env+xml";
 	
-	public static final String MEDIA_TYPE_MAGIC_ENV_JSON = "application/magic-envelope+json";
+	public static final String MEDIA_TYPE_MAGIC_ENV_JSON = "application/magic-env+json";
 	
 	public static final String MEDIA_TYPE_MAGIC_ENV_COMPACT = "application/magic-env";
 	

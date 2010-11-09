@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.cliqset.magicsig.URIPayloadToMetadataMapper;
+import com.cliqset.magicsig.MagicEnvelopeDeserializer;
 import com.cliqset.magicsig.DataParser;
 import com.cliqset.magicsig.KeyFinder;
 import com.cliqset.magicsig.MagicSigException;
@@ -36,16 +36,13 @@ import com.cliqset.magicsig.MagicEnvelope;
 import com.cliqset.magicsig.Key;
 import com.cliqset.magicsig.MagicKey;
 import com.cliqset.magicsig.MagicSigConstants;
-import com.cliqset.magicsig.MagicSig;
-import com.cliqset.magicsig.keyfinder.MagicPKIKeyFinder;
+import com.cliqset.magicsig.MagicEnvelopeSerializationProvider;
 import com.cliqset.magicsig.xml.XMLMagicEnvelopeDeserializer;
 import com.cliqset.magicsig.encoding.Base64URLMagicSigEncoding;
 import com.cliqset.magicsig.MagicSigAlgorithm;
 import com.cliqset.magicsig.MagicSigEncoding;
 import com.cliqset.magicsig.algorithm.RSASHA256MagicSigAlgorithm;
 import com.cliqset.salmon.Salmon;
-import com.cliqset.salmon.SalmonException;
-import com.cliqset.salmon.SimpleAtomDataParser;
 
 public class Validator {
 
@@ -95,11 +92,10 @@ public class Validator {
 			
 			});
 			
-			MagicSig magicSig = new MagicSig(algorithms, encodings, new URIPayloadToMetadataMapper(dataParsers, keyFinders));
-			
-			Salmon salmon = new Salmon(magicSig, null);
+			Salmon salmon = Salmon.getDefault();
+			MagicEnvelopeDeserializer deserializer = MagicEnvelopeSerializationProvider.getDefault().getDeserializer(MagicSigConstants.MEDIA_TYPE_MAGIC_ENV_XML);
 			MagicEnvelope.withDeserializer(new XMLMagicEnvelopeDeserializer());
-			byte[] output = salmon.verify(MagicEnvelope.fromInputStream(MagicSigConstants.MEDIA_TYPE_MAGIC_ENV_XML, new FileInputStream(filename)));
+			byte[] output = salmon.verify(deserializer.deserialize(new FileInputStream(filename)));
 			
 			System.out.println(new String(output, "UTF-8"));
 		} catch (Exception e) {

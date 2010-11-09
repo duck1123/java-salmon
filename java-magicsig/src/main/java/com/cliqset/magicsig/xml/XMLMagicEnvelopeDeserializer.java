@@ -16,6 +16,8 @@ import com.cliqset.magicsig.Signature;
 
 public class XMLMagicEnvelopeDeserializer implements MagicEnvelopeDeserializer {
 
+	public static final String MEDIA_TYPE = MagicSigConstants.MEDIA_TYPE_MAGIC_ENV_XML;
+	
 	public MagicEnvelope deserialize(InputStream is) throws MagicSigException {
 		try {
 			JAXBContext context = JAXBContext.newInstance(XMLMagicEnvelope.class);
@@ -33,9 +35,5 @@ public class XMLMagicEnvelopeDeserializer implements MagicEnvelopeDeserializer {
 		} catch (JAXBException je) {
 			throw new MagicSigException("Unable to parse as a Magic Envelope", je);
 		}
-	}
-
-	public List<String> getSupportedMediaTypes() {
-		return Collections.unmodifiableList(Arrays.asList(new String[] {MagicSigConstants.MEDIA_TYPE_MAGIC_ENV_XML}));
 	}
 }

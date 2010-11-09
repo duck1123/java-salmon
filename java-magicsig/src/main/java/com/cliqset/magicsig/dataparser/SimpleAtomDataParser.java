@@ -1,4 +1,4 @@
-package com.cliqset.salmon;
+package com.cliqset.magicsig.dataparser;
 
 import java.io.ByteArrayInputStream;
 import java.net.URI;

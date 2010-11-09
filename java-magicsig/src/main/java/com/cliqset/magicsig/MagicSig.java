@@ -23,6 +23,11 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.cliqset.magicsig.guice.DefaultMagicSigModule;
+import com.google.inject.Guice;
+import com.google.inject.Inject;
+import com.google.inject.Injector;
+
 public class MagicSig {
 
 	private static Logger logger = LoggerFactory.getLogger(MagicSig.class);
@@ -32,7 +37,10 @@ public class MagicSig {
 	
 	private PayloadToMetadataMapper payloadToMetadataMapper;
 	
-	public MagicSig(Map<String, MagicSigAlgorithm> algorithms, Map<String, MagicSigEncoding> encodings, PayloadToMetadataMapper payloadToMetadataMapper) {
+	@Inject
+	protected MagicSig(Map<String, MagicSigAlgorithm> algorithms, 
+					Map<String, MagicSigEncoding> encodings,
+					PayloadToMetadataMapper payloadToMetadataMapper) {
 		this.algorithms = algorithms;
 		this.encodings = encodings;
 		this.payloadToMetadataMapper = payloadToMetadataMapper;
@@ -126,7 +134,7 @@ public class MagicSig {
 				.withKey(verifiedKey));
 		}
 		return result;
-	}
+	}	
 	
 	private byte[] buildSigBaseString(byte[] data, String dataType, String encoding, String algorithm) throws MagicSigException {
 		MagicSigEncoding encoder = this.encodings.get(encoding);
@@ -147,5 +155,10 @@ public class MagicSig {
 		} catch (UnsupportedEncodingException uee) {
 			throw new MagicSigException("ASCII is not supported on this system.", uee);
 		}
+	}
+	
+	public static MagicSig getDefault() {
+		Injector i = Guice.createInjector(new DefaultMagicSigModule());
+		return i.getInstance(MagicSig.class);
 	}
 }

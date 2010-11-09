@@ -24,7 +24,7 @@ public class SimpleSalmonSend {
 	
 	public static void main(String[] args) {
 		try {
-			Salmon salmon = new Salmon();
+			Salmon salmon = Salmon.getDefault();
 			MagicKey key = new MagicKey(keyString.getBytes("UTF-8"));
 			salmon.signAndDeliver(entry.getBytes("UTF-8"), key, destinationUser);
 		} catch (Exception e) {

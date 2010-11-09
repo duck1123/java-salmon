@@ -30,6 +30,9 @@ import com.cliqset.xrd.Alias;
 import com.cliqset.xrd.Link;
 import com.cliqset.xrd.Property;
 import com.cliqset.xrd.XRD;
+import com.google.inject.Guice;
+import com.google.inject.Inject;
+import com.google.inject.Injector;
 
 public class HostMeta {
 
@@ -41,7 +44,8 @@ public class HostMeta {
 	
 	private XRDFetcher xrdFetcher;
 	
-	public HostMeta(Map<String, TemplateProcessor> templateProcessors, XRDFetcher xrdFetcher) {
+	@Inject
+	private HostMeta(Map<String, TemplateProcessor> templateProcessors, XRDFetcher xrdFetcher) {
 		this.templateProcessors = templateProcessors;
 		this.xrdFetcher = xrdFetcher;
 	}
@@ -205,4 +209,9 @@ public class HostMeta {
         }
         return splitUri[1];
     }
+	
+	public static HostMeta getDefault() {
+		Injector injector = Guice.createInjector(new DefaultHostMetaModule());
+		return injector.getInstance(HostMeta.class);
+	}
 }

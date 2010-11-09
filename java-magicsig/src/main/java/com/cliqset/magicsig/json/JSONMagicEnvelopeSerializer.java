@@ -17,9 +17,7 @@ import com.google.gson.Gson;
 
 public class JSONMagicEnvelopeSerializer implements MagicEnvelopeSerializer {
 
-	public List<String> getSupportedMediaTypes() {
-		return Collections.unmodifiableList(Arrays.asList(new String[] {MagicSigConstants.MEDIA_TYPE_MAGIC_ENV_JSON}));
-	}
+	public static final String MEDIA_TYPE = MagicSigConstants.MEDIA_TYPE_MAGIC_ENV_JSON;
 
 	public void serialize(MagicEnvelope env, OutputStream os) throws MagicSigException {
 		JSONMagicEnvelope jme = new JSONMagicEnvelope();

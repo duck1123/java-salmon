@@ -22,6 +22,8 @@ import java.util.Map;
 
 public class LRDDTemplateProcessor implements TemplateProcessor {
 	
+	public static final String REL = "lrdd";
+	
 	public URI process(String template, URI contextResourceURI) throws TemplateException {
 		if (null == template) { throw new IllegalArgumentException("template must not be null."); }
 		if (null == contextResourceURI) { throw new IllegalArgumentException("contextResourceURI must not be null."); }

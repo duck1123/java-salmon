@@ -1,5 +1,5 @@
 /*
-	Copyright 2010 Cliqset Inc.
+ 	Copyright 2010 Cliqset Inc.
 	
 	Licensed under the Apache License, Version 2.0 (the "License"); 
 	you may not use this file except in compliance with the License. 
@@ -19,10 +19,6 @@ package com.cliqset.salmon;
 import java.io.ByteArrayOutputStream;
 import java.net.URI;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -30,27 +26,17 @@ import java.util.concurrent.Future;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.cliqset.magicsig.DataParser;
 import com.cliqset.magicsig.EnvelopeVerificationResult;
-import com.cliqset.magicsig.KeyFinder;
 import com.cliqset.magicsig.MagicEnvelope;
 import com.cliqset.magicsig.Key;
 import com.cliqset.magicsig.MagicSig;
-import com.cliqset.magicsig.MagicSigAlgorithm;
 import com.cliqset.magicsig.MagicSigConstants;
-import com.cliqset.magicsig.MagicSigEncoding;
 import com.cliqset.magicsig.MagicSigException;
-import com.cliqset.magicsig.json.JSONMagicEnvelopeDeserializer;
-import com.cliqset.magicsig.json.JSONMagicEnvelopeSerializer;
-import com.cliqset.magicsig.keyfinder.MagicPKIKeyFinder;
-import com.cliqset.magicsig.xml.XMLMagicEnvelopeDeserializer;
-import com.cliqset.magicsig.xml.XMLMagicEnvelopeSerializer;
 import com.cliqset.magicsig.SignatureVerificationResult;
-import com.cliqset.magicsig.URIPayloadToMetadataMapper;
-import com.cliqset.magicsig.algorithm.RSASHA256MagicSigAlgorithm;
-import com.cliqset.magicsig.compact.CompactMagicEnvelopeDeserializer;
-import com.cliqset.magicsig.compact.CompactMagicEnvelopeSerializer;
-import com.cliqset.magicsig.encoding.Base64URLMagicSigEncoding;
+
+import com.google.inject.Guice;
+import com.google.inject.Inject;
+import com.google.inject.Injector;
 
 public class Salmon {
 
@@ -72,32 +58,10 @@ public class Salmon {
 	
 	private MagicSig magicSig = null;
 	
-	public Salmon() {
-		Map<String, MagicSigAlgorithm> algorithms = new HashMap<String, MagicSigAlgorithm>();
-		algorithms.put("RSA-SHA256", new RSASHA256MagicSigAlgorithm());
-		
-		Map<String, MagicSigEncoding> encodings = new HashMap<String, MagicSigEncoding>();
-		encodings.put("base64url", new Base64URLMagicSigEncoding());
-		
-		Set<DataParser> dataParsers = new HashSet<DataParser>();
-		dataParsers.add(new SimpleAtomDataParser());
-		
-		Set<KeyFinder> keyFinders = new HashSet<KeyFinder>();
-		keyFinders.add(new MagicPKIKeyFinder());
-		
-		this.magicSig = new MagicSig(algorithms, encodings, new URIPayloadToMetadataMapper(dataParsers, keyFinders));
-		
-		MagicEnvelope.withSerializer(new CompactMagicEnvelopeSerializer());
-		MagicEnvelope.withSerializer(new JSONMagicEnvelopeSerializer());
-		MagicEnvelope.withSerializer(new XMLMagicEnvelopeSerializer());
-		
-		MagicEnvelope.withDeserializer(new CompactMagicEnvelopeDeserializer());
-		MagicEnvelope.withDeserializer(new JSONMagicEnvelopeDeserializer());
-		MagicEnvelope.withDeserializer(new XMLMagicEnvelopeDeserializer());
-	}
-	
-	public Salmon(MagicSig magicSig, ExecutorService executor) {
+	@Inject
+	public Salmon(MagicSig magicSig, SalmonSender sender, ExecutorService executor) {
 		this.magicSig = magicSig;
+		this.sender = sender;
 		this.executor = executor;
 	}
 	
@@ -229,5 +193,10 @@ public class Salmon {
 			throw new SalmonException("Please assign a SalmonSender.");
 		}
 		this.sender.send(destinationURL, contentType, data);
+	}
+	
+	public static Salmon getDefault() {
+		Injector i = Guice.createInjector(new DefaultSalmonModule());
+		return i.getInstance(Salmon.class);
 	}
 }

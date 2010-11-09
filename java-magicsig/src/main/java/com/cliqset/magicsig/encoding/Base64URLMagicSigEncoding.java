@@ -24,7 +24,7 @@ import com.cliqset.magicsig.MagicSigEncoding;
 
 public class Base64URLMagicSigEncoding implements MagicSigEncoding {
 
-	private static final String identifier = "base64url";
+	public static final String ENCODING_IDENTIFIER = "base64url";
 	
 	public byte[] decode(String armoredData) {
 		//remove whitespace
@@ -63,9 +63,4 @@ public class Base64URLMagicSigEncoding implements MagicSigEncoding {
 		}
 		return b64;
 	}
-
-	public String getIdentifier() {
-		return identifier;
-	}
-
 }

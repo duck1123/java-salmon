@@ -100,23 +100,10 @@ public class MagicEnvelope {
 	}
 	
 	public void writeTo(String mediaType, OutputStream os) throws MagicSigException {
-		//TODO: support wildcards and other complex media-type matching
-		for (MagicEnvelopeSerializer s : serializers) {
-			if (s.getSupportedMediaTypes().contains(mediaType)) {
-				s.serialize(this, os);
-				return;
-			}
-		}
-		throw new MagicSigException("No known serializer for media-type " + mediaType);
+		MagicEnvelopeSerializationProvider.getDefault().getSerializer(mediaType).serialize(this, os);
 	}
 	
 	public static MagicEnvelope fromInputStream(String mediaType, InputStream is) throws MagicSigException {		
-		//TODO: support wildcards and other complex media-type matching
-		for (MagicEnvelopeDeserializer d : deserializers) {
-			if (d.getSupportedMediaTypes().contains(mediaType)) {
-				return d.deserialize(is);
-			}
-		}
-		throw new MagicSigException("No known deserializer for media-type " + mediaType);
+		return MagicEnvelopeSerializationProvider.getDefault().getDeserializer(mediaType).deserialize(is);
 	}
 }

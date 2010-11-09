@@ -53,7 +53,7 @@ public class BraceSyntaxTemplateTest {
 	@Test
 	public void nullTemplate() {
 		try {
-			BraceSyntaxTemplate t = new BraceSyntaxTemplate(null);
+			new BraceSyntaxTemplate(null);
 			Assert.fail("Constructor should have thrown an IllegalArgumentException");
 		} catch (IllegalArgumentException iae) {
 			Assert.assertTrue(true);

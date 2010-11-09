@@ -1,4 +1,4 @@
-package com.cliqset.salmon;
+package com.cliqset.magicsig.dataparser;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;

@@ -40,6 +40,8 @@ import com.cliqset.magicsig.URIPayloadToMetadataMapper;
 import com.cliqset.magicsig.algorithm.RSASHA256MagicSigAlgorithm;
 import com.cliqset.magicsig.encoding.Base64URLMagicSigEncoding;
 import com.cliqset.magicsig.xml.XMLMagicEnvelopeDeserializer;
+import com.cliqset.magicsig.MagicEnvelopeSerializationProvider;
+import com.cliqset.salmon.JavaNetSalmonSender;
 import com.cliqset.salmon.Salmon;
 import com.cliqset.salmon.dataparser.AbderaDataParser;
 import com.cliqset.salmon.keyfinder.OpenXRDKeyFinder;
@@ -54,25 +56,9 @@ public class Verifier {
 				filename = args[0];
 			}
 			
-			MagicEnvelope.withDeserializer(new XMLMagicEnvelopeDeserializer());
-			MagicEnvelope envelope = MagicEnvelope.fromInputStream(MagicSigConstants.MEDIA_TYPE_MAGIC_ENV_XML, new FileInputStream(filename));
-			MagicKey key = new MagicKey(getBytes("/DemoKeys.txt"));
-			List<Key> keys = new ArrayList<Key>();
-			keys.add(key);
+			MagicEnvelope envelope = MagicEnvelopeSerializationProvider.getDefault().getDeserializer(MagicSigConstants.MEDIA_TYPE_MAGIC_ENV_XML).deserialize(new FileInputStream(filename));
 			
-			Map<String, MagicSigAlgorithm> algorithms = new HashMap<String, MagicSigAlgorithm>();
-			algorithms.put("RSA-SHA256", new RSASHA256MagicSigAlgorithm());
-			
-			Map<String, MagicSigEncoding> encodings = new HashMap<String, MagicSigEncoding>();
-			encodings.put("base64url", new Base64URLMagicSigEncoding());
-			
-			Set<DataParser> dataParsers = new HashSet<DataParser>();
-			
-			Set<KeyFinder> keyFinders = new HashSet<KeyFinder>();
-			
-			MagicSig magicSig = new MagicSig(algorithms, encodings, new URIPayloadToMetadataMapper(dataParsers, keyFinders));
-			
-			Salmon s = new Salmon(magicSig, null);
+			Salmon s = Salmon.getDefault();
 			System.out.println(s.verify(envelope));
 			
 		} catch (Exception e) {

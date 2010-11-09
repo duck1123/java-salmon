@@ -13,13 +13,9 @@ import com.cliqset.magicsig.SecretKey;
 
 public class HMACSHA256MagicSigAlgorithm implements MagicSigAlgorithm {
 
-	private static String IDENTIFIER = "HMAC-SHA256";
+	public static String ALGORITHM_IDENTIFIER = "HMAC-SHA256";
 	
 	private static final String algorithm = "HmacSHA256";
-	
-	public String getIdentifier() {
-		return IDENTIFIER;
-	}
 
 	public byte[] sign(byte[] data, Key key) throws MagicSigException {
 		if (null == data) { throw new IllegalArgumentException("data must not be null."); }
@@ -28,11 +24,11 @@ public class HMACSHA256MagicSigAlgorithm implements MagicSigAlgorithm {
 		SecretKey secretKey = null;
 		if (key instanceof SecretKey) {
 			secretKey = (SecretKey)key;
-			if (!secretKey.getAlgorithm().equals(IDENTIFIER)) {
-				throw new MagicSigException("Key must be a SecretKey suitable for algorithm " + IDENTIFIER + " to use this algorithm.");
+			if (!secretKey.getAlgorithm().equals(ALGORITHM_IDENTIFIER)) {
+				throw new MagicSigException("Key must be a SecretKey suitable for algorithm " + ALGORITHM_IDENTIFIER + " to use this algorithm.");
 			}
 		} else {
-			throw new MagicSigException("Key must be a SecretKey suitable for algorithm " + IDENTIFIER + " to use this algorithm.");
+			throw new MagicSigException("Key must be a SecretKey suitable for algorithm " + ALGORITHM_IDENTIFIER + " to use this algorithm.");
 		}
 
 		try {

@@ -10,6 +10,7 @@
 	</parent>
 	<groupId>com.cliqset</groupId>
 	<artifactId>java-salmon-examples</artifactId>
+	<name>java-salmon-examples</name>
 	<version>0.0.1-SNAPSHOT</version>
 	<dependencies>
 		<dependency>

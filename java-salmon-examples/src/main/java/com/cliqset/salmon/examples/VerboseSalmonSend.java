@@ -5,6 +5,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import com.cliqset.magicsig.DataParser;
 import com.cliqset.magicsig.KeyFinder;
@@ -13,10 +18,13 @@ import com.cliqset.magicsig.MagicKey;
 import com.cliqset.magicsig.MagicSig;
 import com.cliqset.magicsig.MagicSigAlgorithm;
 import com.cliqset.magicsig.MagicSigEncoding;
+import com.cliqset.magicsig.PayloadToMetadataMapper;
 import com.cliqset.magicsig.URIPayloadToMetadataMapper;
+import com.cliqset.magicsig.algorithm.HMACSHA256MagicSigAlgorithm;
 import com.cliqset.magicsig.algorithm.RSASHA256MagicSigAlgorithm;
 import com.cliqset.magicsig.compact.CompactMagicEnvelopeDeserializer;
 import com.cliqset.magicsig.compact.CompactMagicEnvelopeSerializer;
+import com.cliqset.magicsig.dataparser.SimpleAtomDataParser;
 import com.cliqset.magicsig.encoding.Base64URLMagicSigEncoding;
 import com.cliqset.magicsig.json.JSONMagicEnvelopeDeserializer;
 import com.cliqset.magicsig.json.JSONMagicEnvelopeSerializer;
@@ -26,7 +34,12 @@ import com.cliqset.magicsig.xml.XMLMagicEnvelopeSerializer;
 import com.cliqset.salmon.HostMetaSalmonEndpointFinder;
 import com.cliqset.salmon.JavaNetSalmonSender;
 import com.cliqset.salmon.Salmon;
-import com.cliqset.salmon.SimpleAtomDataParser;
+import com.cliqset.salmon.SalmonSender;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Provides;
+import com.google.inject.multibindings.Multibinder;
 
 public class VerboseSalmonSend {
 	public static final String keyString = "RSA.oidnySWI_e4OND41VHNtYSRzbg5SaZ0YwnQ0J1ihKFEHY49-61JFybnszkSaJJD7vBfxyVZ1lTJjxdtBJzSNGEZlzKbkFvcMdtln8g2ec6oI2G0jCsjKQtsH57uHbPY3IAkBAW3Ar14kGmOKwqoGUq1yhz93rXUomLnDYwz8E88=.AQAB.hgOzTxbqhZN9wce4I7fSKnsJu2eyzP69O9j2UZ56cuulA6_Q4YP5kaNMB53DF32L0ASqHBCM1WXz984hptlT0e4U3asXxqegTqrGPNAXw5A6r2E-9MeS84LDFUnUz420YPxMxknzMJBeAz21PuKyrv_QZf6zmRQ0m5eQ0QNJoYE=";
@@ -47,33 +60,43 @@ public class VerboseSalmonSend {
 	
 	public static void main(String[] args) {
 		try {
-			Map<String, MagicSigAlgorithm> algorithms = new HashMap<String, MagicSigAlgorithm>();
-			algorithms.put("RSA-SHA256", new RSASHA256MagicSigAlgorithm());
-			
-			Map<String, MagicSigEncoding> encodings = new HashMap<String, MagicSigEncoding>();
-			encodings.put("base64url", new Base64URLMagicSigEncoding());
-			
-			Set<DataParser> dataParsers = new HashSet<DataParser>();
-			
-			Set<KeyFinder> keyFinders = new HashSet<KeyFinder>();
-			
-			MagicSig magicSig = new MagicSig(algorithms, encodings, new URIPayloadToMetadataMapper(dataParsers, keyFinders));
-			
-			Salmon salmon = new Salmon(magicSig, null);
-			
-			MagicEnvelope.withSerializer(new CompactMagicEnvelopeSerializer());
-			MagicEnvelope.withSerializer(new JSONMagicEnvelopeSerializer());
-			MagicEnvelope.withSerializer(new XMLMagicEnvelopeSerializer());
-			
-			MagicEnvelope.withDeserializer(new CompactMagicEnvelopeDeserializer());
-			MagicEnvelope.withDeserializer(new JSONMagicEnvelopeDeserializer());
-			MagicEnvelope.withDeserializer(new XMLMagicEnvelopeDeserializer());
-			
+			Injector injector = Guice.createInjector(new CustomSalmonModule());
+			Salmon salmon = injector.getInstance(Salmon.class);
 			MagicKey key = new MagicKey(keyString.getBytes("UTF-8"));
 			salmon.signAndDeliver(entry.getBytes("UTF-8"), key, destinationUser);
 			
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+	}
+	
+	public static class CustomSalmonModule extends AbstractModule {
+
+		@Override
+		protected void configure() {
+			bind(MagicSig.class).to(MagicSig.class);
+			bind(SalmonSender.class).to(JavaNetSalmonSender.class);
+			
+			//MagicSig dependencies
+			Multibinder<MagicSigAlgorithm> algorithmBinder = Multibinder.newSetBinder(binder(), MagicSigAlgorithm.class);
+		    algorithmBinder.addBinding().to(HMACSHA256MagicSigAlgorithm.class);
+		    algorithmBinder.addBinding().to(RSASHA256MagicSigAlgorithm.class);
+		    
+		    Multibinder<MagicSigEncoding> encodingBinder = Multibinder.newSetBinder(binder(), MagicSigEncoding.class);
+		    encodingBinder.addBinding().to(Base64URLMagicSigEncoding.class);
+		    
+		    Multibinder<KeyFinder> keyFinderBinder = Multibinder.newSetBinder(binder(), KeyFinder.class);
+		    keyFinderBinder.addBinding().to(MagicPKIKeyFinder.class);
+		    
+		    Multibinder<DataParser> dataParserBinder = Multibinder.newSetBinder(binder(), DataParser.class);
+		    dataParserBinder.addBinding().to(SimpleAtomDataParser.class);
+
+			bind(PayloadToMetadataMapper.class).to(URIPayloadToMetadataMapper.class);		
+		}
+		
+		@Provides
+		ExecutorService provideExecutorService() {
+			return new ThreadPoolExecutor(10, 10, 60, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(30), Executors.defaultThreadFactory(), new ThreadPoolExecutor.CallerRunsPolicy());
 		}
 	}
 }

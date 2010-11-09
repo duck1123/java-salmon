@@ -15,6 +15,8 @@ import com.google.gson.Gson;
 
 public class JSONMagicEnvelopeDeserializer implements MagicEnvelopeDeserializer {
 
+	public static final String MEDIA_TYPE = MagicSigConstants.MEDIA_TYPE_MAGIC_ENV_JSON;
+	
 	public MagicEnvelope deserialize(InputStream is) throws MagicSigException {
 		JSONMagicEnvelope jsonEnv = new Gson().fromJson(new InputStreamReader(is), JSONMagicEnvelope.class);
 		
@@ -29,9 +31,5 @@ public class JSONMagicEnvelopeDeserializer implements MagicEnvelopeDeserializer 
 			me.withSignature(new Signature().withKeyId(s.getKey_id()).withValue(s.getValue()));
 		}
 		return me;
-	}
-
-	public List<String> getSupportedMediaTypes() {
-		return Collections.unmodifiableList(Arrays.asList(new String[] {MagicSigConstants.MEDIA_TYPE_MAGIC_ENV_JSON}));
 	}
 }

@@ -11,8 +11,8 @@ public class SimpleSalmonVerify {
 	
 	public static void main(String[] args) {
 		try {
-			Salmon salmon = new Salmon();
-			MagicEnvelope m = MagicEnvelope.fromInputStream("application/magic-envelope+xml", new ByteArrayInputStream(envelope.getBytes("UTF-8")));
+			Salmon salmon = Salmon.getDefault();
+			MagicEnvelope m = MagicEnvelope.fromInputStream("application/magic-env+xml", new ByteArrayInputStream(envelope.getBytes("UTF-8")));
 			byte[] verifiedData = salmon.verify(m);
 			System.out.print(new String(verifiedData, "UTF-8"));
 		} catch (Exception e) {

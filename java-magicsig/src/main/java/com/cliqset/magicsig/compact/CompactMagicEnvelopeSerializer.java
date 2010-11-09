@@ -18,11 +18,9 @@ import com.cliqset.magicsig.encoding.Base64URLMagicSigEncoding;
 
 public class CompactMagicEnvelopeSerializer implements MagicEnvelopeSerializer {
 
-	private static Logger logger = LoggerFactory.getLogger(CompactMagicEnvelopeSerializer.class);
+	public static final String MEDIA_TYPE = MagicSigConstants.MEDIA_TYPE_MAGIC_ENV_COMPACT;
 	
-	public List<String> getSupportedMediaTypes() {
-		return Collections.unmodifiableList(Arrays.asList(MagicSigConstants.MEDIA_TYPE_MAGIC_ENV_COMPACT));
-	}
+	private static Logger logger = LoggerFactory.getLogger(CompactMagicEnvelopeSerializer.class);
 
 	public void serialize(MagicEnvelope env, OutputStream os) throws MagicSigException {
 		/*

@@ -28,11 +28,7 @@ import com.cliqset.magicsig.MagicSigException;
 
 public class RSASHA256MagicSigAlgorithm implements MagicSigAlgorithm {
 
-	private static final String IDENTIFIER = "RSA-SHA256";
-	
-	public String getIdentifier() {
-		return IDENTIFIER;
-	}
+	public static final String ALGORITHM_IDENTIFIER = "RSA-SHA256";
 
 	public byte[] sign(byte[] data, Key key) throws MagicSigException {
 		if (null == data) { throw new IllegalArgumentException("data must not be null."); }

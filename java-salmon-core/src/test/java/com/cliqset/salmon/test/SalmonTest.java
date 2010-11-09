@@ -17,14 +17,14 @@
 package com.cliqset.salmon.test;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 import org.junit.Assert;
@@ -32,22 +32,27 @@ import org.junit.Assert;
 import com.cliqset.magicsig.DataParser;
 import com.cliqset.magicsig.Key;
 import com.cliqset.magicsig.KeyFinder;
-import com.cliqset.magicsig.URIPayloadToMetadataMapper;
+import com.cliqset.magicsig.PayloadToMetadataMapper;
 import com.cliqset.magicsig.MagicEnvelope;
 import com.cliqset.magicsig.MagicKey;
 import com.cliqset.magicsig.MagicSigConstants;
 import com.cliqset.magicsig.MagicSigException;
 import com.cliqset.magicsig.MagicSig;
+import com.cliqset.magicsig.algorithm.HMACSHA256MagicSigAlgorithm;
 import com.cliqset.magicsig.algorithm.RSASHA256MagicSigAlgorithm;
 import com.cliqset.magicsig.encoding.Base64URLMagicSigEncoding;
 import com.cliqset.magicsig.xml.XMLMagicEnvelopeDeserializer;
+import com.cliqset.salmon.JavaNetSalmonSender;
 import com.cliqset.salmon.Salmon;
-import com.cliqset.salmon.SalmonException;
-import com.cliqset.magicsig.encoding.Base64URLMagicSigEncoding;
-import com.cliqset.magicsig.MagicSig;
+import com.cliqset.salmon.SalmonSender;
+import com.cliqset.magicsig.MagicEnvelopeSerializationProvider;
 import com.cliqset.magicsig.MagicSigAlgorithm;
 import com.cliqset.magicsig.MagicSigEncoding;
-import com.cliqset.magicsig.algorithm.RSASHA256MagicSigAlgorithm;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Provides;
+import com.google.inject.multibindings.MapBinder;
 
 public class SalmonTest extends BaseTestCase {
 	/*
@@ -73,49 +78,35 @@ public class SalmonTest extends BaseTestCase {
 	@Test
 	public void testVerifyBasic() {
 		try {
-			Map<String, MagicSigAlgorithm> algorithms = new HashMap<String, MagicSigAlgorithm>();
-			algorithms.put("RSA-SHA256", new RSASHA256MagicSigAlgorithm());
-			
-			Map<String, MagicSigEncoding> encodings = new HashMap<String, MagicSigEncoding>();
-			encodings.put("base64url", new Base64URLMagicSigEncoding());
-			
-			Set<DataParser> dataParsers = new HashSet<DataParser>();
-			dataParsers.add(new DataParser() {
+			Injector i = Guice.createInjector(new AbstractModule() {
 
-				public URI getSignerUri(byte[] data) throws MagicSigException {
-					try {
-						return new URI("acct:doesnt@matter.com");
-					} catch (Exception e) {
-						throw new MagicSigException("Couldn't create the URI!");
-					}
-				}
-
-				public boolean parsesMimeType(String mimeType) {
-					return true;
-				}					
-			});
-			
-			Set<KeyFinder> keyFinders = new HashSet<KeyFinder>();
-			keyFinders.add(new KeyFinder() {
-
-				public List<Key> findKeys(URI signerUri) throws MagicSigException {
-					List<Key> keys = new LinkedList<Key>();
-					try {
-						keys.add(new MagicKey(getBytes("/BasicRSAKey.txt")));
-					} catch (Exception e) {
-						throw new MagicSigException("Couldn't read the keys!");
-					}
-					return keys;
+				@Override
+				protected void configure() {
+					bind(MagicSig.class);
+					bind(SalmonSender.class).to(JavaNetSalmonSender.class);
 					
+					//MagicSig dependencies
+					MapBinder<String, MagicSigAlgorithm> algorithmBinder = MapBinder.newMapBinder(binder(), String.class, MagicSigAlgorithm.class);
+				    algorithmBinder.addBinding(HMACSHA256MagicSigAlgorithm.ALGORITHM_IDENTIFIER).to(HMACSHA256MagicSigAlgorithm.class);
+				    algorithmBinder.addBinding(RSASHA256MagicSigAlgorithm.ALGORITHM_IDENTIFIER).to(RSASHA256MagicSigAlgorithm.class);
+				    
+				    MapBinder<String, MagicSigEncoding> encodingBinder = MapBinder.newMapBinder(binder(), String.class, MagicSigEncoding.class);
+				    encodingBinder.addBinding(Base64URLMagicSigEncoding.ENCODING_IDENTIFIER).to(Base64URLMagicSigEncoding.class);
+
+					bind(PayloadToMetadataMapper.class).to(BasicPayloadToMetadataMapper.class);	
 				}
-			
+				
+				@SuppressWarnings("unused")
+				@Provides
+				ExecutorService provideExecutorService() {
+					return new ThreadPoolExecutor(10, 10, 60, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(30), Executors.defaultThreadFactory(), new ThreadPoolExecutor.CallerRunsPolicy());
+				}
+				
 			});
 			
-			MagicSig magicSig = new MagicSig(algorithms, encodings, new URIPayloadToMetadataMapper(dataParsers, keyFinders));
-			
-			Salmon salmon = new Salmon(magicSig, null);
+			Salmon salmon = i.getInstance(Salmon.class);
 			MagicEnvelope.withDeserializer(new XMLMagicEnvelopeDeserializer());
-			MagicEnvelope env = MagicEnvelope.fromInputStream(MagicSigConstants.MEDIA_TYPE_MAGIC_ENV_XML, SalmonTest.class.getResourceAsStream("/BasicEnvelope.txt"));
+			MagicEnvelope env = MagicEnvelopeSerializationProvider.getDefault().getDeserializer(MagicSigConstants.MEDIA_TYPE_MAGIC_ENV_XML).deserialize(SalmonTest.class.getResourceAsStream("/BasicEnvelope.txt"));
 			
 			byte[] dataBytes = salmon.verify(env);
 			Assert.assertArrayEquals(dataBytes, getBytes("/BasicAtom.txt"));
@@ -229,7 +220,7 @@ public class SalmonTest extends BaseTestCase {
 	}
 	*/
 	
-	public class BasicAtomDataParser implements DataParser {
+	public static class BasicAtomDataParser implements DataParser {
 
 		public URI getSignerUri(byte[] data) throws MagicSigException {
 			return URI.create("acct:test@example.com");
@@ -240,7 +231,7 @@ public class SalmonTest extends BaseTestCase {
 		}
 	}
 	
-	public class BasicKeyFinder implements KeyFinder {
+	public static class BasicKeyFinder implements KeyFinder {
 
 		public List<Key> findKeys(URI signerUri) throws MagicSigException {
 			if (URI.create("acct:test@example.com").equals(signerUri)) {
@@ -248,5 +239,18 @@ public class SalmonTest extends BaseTestCase {
 			}
 			throw new MagicSigException("Can't find keys for " + signerUri);
 		}	
+	}
+	
+	public static class BasicPayloadToMetadataMapper implements PayloadToMetadataMapper {
+
+		public List<Key> getKeys(String mediaType, byte[] data) throws MagicSigException {
+			List<Key> keys = new LinkedList<Key>();
+			try {
+				keys.add(new MagicKey(getBytes("/BasicRSAKey.txt")));
+			} catch (Exception e) {
+				throw new MagicSigException("Couldn't read the keys!");
+			}
+			return keys;
+		}
 	}
 }

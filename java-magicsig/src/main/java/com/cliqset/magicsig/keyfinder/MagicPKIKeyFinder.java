@@ -16,40 +16,29 @@ package com.cliqset.magicsig.keyfinder;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import com.cliqset.hostmeta.HostMeta;
 import com.cliqset.hostmeta.HostMetaException;
 import com.cliqset.hostmeta.HostMetaHandler;
-import com.cliqset.hostmeta.JavaNetXRDFetcher;
-import com.cliqset.hostmeta.template.LRDDTemplateProcessor;
-import com.cliqset.hostmeta.template.TemplateProcessor;
 import com.cliqset.magicsig.MagicKey;
 import com.cliqset.magicsig.Key;
 import com.cliqset.magicsig.KeyFinder;
 import com.cliqset.magicsig.MagicSigException;
 import com.cliqset.xrd.Property;
 import com.cliqset.magicsig.MagicSigConstants;
+import com.google.inject.Inject;
 
 public class MagicPKIKeyFinder implements KeyFinder {
 
 	private HostMeta hostMeta;
-	
-	public MagicPKIKeyFinder() {
-		Map<String, TemplateProcessor> templateProcessors = new HashMap<String, TemplateProcessor>();
-		templateProcessors.put("lrdd", new LRDDTemplateProcessor());
-		
-		HostMeta hm = new HostMeta(templateProcessors, new JavaNetXRDFetcher());
-	}
-	
+
+	@Inject
 	public MagicPKIKeyFinder(HostMeta hostMeta) {
 		this.hostMeta = hostMeta;
 	}
-	                                            
-	
+
 	public List<Key> findKeys(URI uri) throws MagicSigException {
 		try {
 			MagicKeyHandler handler = new MagicKeyHandler();

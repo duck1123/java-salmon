@@ -17,6 +17,8 @@ import com.cliqset.magicsig.encoding.Base64URLMagicSigEncoding;
 
 public class CompactMagicEnvelopeDeserializer implements MagicEnvelopeDeserializer {
 
+	public static final String MEDIA_TYPE = MagicSigConstants.MEDIA_TYPE_MAGIC_ENV_COMPACT;
+	
 	private static final int KEY_ID_INDEX = 0;
 	private static final int SIG_INDEX = 1;
 	private static final int DATA_INDEX = 2;
@@ -70,9 +72,5 @@ public class CompactMagicEnvelopeDeserializer implements MagicEnvelopeDeserializ
 		} catch (IOException ie) {
 			throw new MagicSigException("Unable to deserialize magic envelope.", ie);
 		}
-	}
-
-	public List<String> getSupportedMediaTypes() {
-		return Collections.unmodifiableList(Arrays.asList(MagicSigConstants.MEDIA_TYPE_MAGIC_ENV_COMPACT));
 	}
 }

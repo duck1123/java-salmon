@@ -6,34 +6,19 @@ import java.util.Set;
 
 import com.cliqset.magicsig.DataParser;
 import com.cliqset.magicsig.KeyFinder;
+import com.google.inject.Inject;
 
 public class URIPayloadToMetadataMapper implements PayloadToMetadataMapper {
 
 	private Set<DataParser> dataParsers;
-	
 	private Set<KeyFinder> keyFinders;
 	
-	public URIPayloadToMetadataMapper(Set<DataParser> dataParsers, Set<KeyFinder> keyFinders) {
+	@Inject
+	protected URIPayloadToMetadataMapper(Set<DataParser> dataParsers, Set<KeyFinder> keyFinders) {
 		this.keyFinders = keyFinders;
 		this.dataParsers = dataParsers;
 	}
-	/*
-	public URIPayloadToMetadataMapper withDataParser(DataParser parser) {
-		if (null == parser) {
-			throw new IllegalArgumentException("parser must not be null.");
-		}
-		dataParsers.add(parser);
-		return this;
-	}
-	
-	public URIPayloadToMetadataMapper withKeyFinder(KeyFinder keyFinder) {
-		if (null == keyFinder) {
-			throw new IllegalArgumentException("keyfinder must not be null.");
-		}
-		keyFinders.add(keyFinder);
-		return this;
-	}
-	*/
+
 	public List<Key> getKeys(String mediaType, byte[] data) throws MagicSigException {
 		URI signerURI = extractSignerUri(mediaType, data);
         

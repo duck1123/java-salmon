@@ -52,17 +52,7 @@ public class Signer {
 			
 			MagicKey key = new MagicKey(getBytes("/DemoKeys.txt"));
 			
-			Map<String, MagicSigAlgorithm> algorithms = new HashMap<String, MagicSigAlgorithm>();
-			algorithms.put("RSA-SHA256", new RSASHA256MagicSigAlgorithm());
-			
-			Map<String, MagicSigEncoding> encodings = new HashMap<String, MagicSigEncoding>();
-			encodings.put("base64url", new Base64URLMagicSigEncoding());
-			
-			Set<DataParser> dataParsers = new HashSet<DataParser>();
-			
-			Set<KeyFinder> keyFinders = new HashSet<KeyFinder>();
-			
-			MagicSig magicSig = new MagicSig(algorithms, encodings, new URIPayloadToMetadataMapper(dataParsers, keyFinders));
+			MagicSig magicSig = MagicSig.getDefault();
 			
 			MagicEnvelope env = magicSig.sign(bytes, key, "RSA-SHA256", "base64url", "application/atom+xml");
 			

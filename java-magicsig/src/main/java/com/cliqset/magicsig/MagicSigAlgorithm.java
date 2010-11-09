@@ -19,8 +19,6 @@ package com.cliqset.magicsig;
 
 public interface MagicSigAlgorithm {
 
-	String getIdentifier();
-	
 	byte[] sign(byte[] data, Key key) throws MagicSigException;
 	
 	boolean verify(byte[] data, byte[] signature, Key key) throws MagicSigException;
