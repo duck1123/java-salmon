@@ -13,7 +13,7 @@ public class MagicEnvelopeSerializationProvider {
 	private Map<String, MagicEnvelopeSerializer> serializers;
 	
 	@Inject
-	public MagicEnvelopeSerializationProvider (
+	private MagicEnvelopeSerializationProvider (
 			Map<String, MagicEnvelopeSerializer> serializers, 
 			Map<String, MagicEnvelopeDeserializer> deserializers) {
 		

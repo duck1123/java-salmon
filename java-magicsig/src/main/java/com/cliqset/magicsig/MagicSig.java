@@ -38,7 +38,7 @@ public class MagicSig {
 	private PayloadToMetadataMapper payloadToMetadataMapper;
 	
 	@Inject
-	protected MagicSig(Map<String, MagicSigAlgorithm> algorithms, 
+	private MagicSig(Map<String, MagicSigAlgorithm> algorithms, 
 					Map<String, MagicSigEncoding> encodings,
 					PayloadToMetadataMapper payloadToMetadataMapper) {
 		this.algorithms = algorithms;
