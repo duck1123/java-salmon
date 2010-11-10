@@ -20,31 +20,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
-import com.cliqset.magicsig.DataParser;
-import com.cliqset.magicsig.Key;
-import com.cliqset.magicsig.KeyFinder;
 import com.cliqset.magicsig.MagicEnvelope;
-import com.cliqset.magicsig.MagicKey;
-import com.cliqset.magicsig.MagicSigAlgorithm;
 import com.cliqset.magicsig.MagicSigConstants;
-import com.cliqset.magicsig.MagicSig;
-import com.cliqset.magicsig.MagicSigEncoding;
-import com.cliqset.magicsig.URIPayloadToMetadataMapper;
-import com.cliqset.magicsig.algorithm.RSASHA256MagicSigAlgorithm;
-import com.cliqset.magicsig.encoding.Base64URLMagicSigEncoding;
-import com.cliqset.magicsig.xml.XMLMagicEnvelopeDeserializer;
 import com.cliqset.magicsig.MagicEnvelopeSerializationProvider;
-import com.cliqset.salmon.JavaNetSalmonSender;
 import com.cliqset.salmon.Salmon;
-import com.cliqset.salmon.dataparser.AbderaDataParser;
-import com.cliqset.salmon.keyfinder.OpenXRDKeyFinder;
+
 
 public class Verifier {
 	
