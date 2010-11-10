@@ -2,9 +2,6 @@ package com.cliqset.magicsig.json;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 import com.cliqset.magicsig.MagicEnvelopeDeserializer;
 import com.cliqset.magicsig.MagicEnvelope;

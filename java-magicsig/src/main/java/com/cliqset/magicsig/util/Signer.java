@@ -21,22 +21,11 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
-import com.cliqset.magicsig.DataParser;
-import com.cliqset.magicsig.KeyFinder;
 import com.cliqset.magicsig.MagicEnvelope;
 import com.cliqset.magicsig.MagicKey;
 import com.cliqset.magicsig.MagicSigConstants;
-import com.cliqset.magicsig.MagicSigAlgorithm;
-import com.cliqset.magicsig.MagicSigEncoding;
 import com.cliqset.magicsig.MagicSig;
-import com.cliqset.magicsig.URIPayloadToMetadataMapper;
-import com.cliqset.magicsig.algorithm.RSASHA256MagicSigAlgorithm;
-import com.cliqset.magicsig.encoding.Base64URLMagicSigEncoding;
 
 public class Signer {
 

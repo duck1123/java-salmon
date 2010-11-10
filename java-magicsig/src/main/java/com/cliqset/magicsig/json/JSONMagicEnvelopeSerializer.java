@@ -2,10 +2,7 @@ package com.cliqset.magicsig.json;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedList;
-import java.util.List;
 
 import com.cliqset.magicsig.MagicEnvelope;
 import com.cliqset.magicsig.MagicEnvelopeSerializer;

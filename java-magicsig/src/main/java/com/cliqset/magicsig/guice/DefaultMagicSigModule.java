@@ -1,5 +1,10 @@
 package com.cliqset.magicsig.guice;
 
+import com.cliqset.hostmeta.HostMeta;
+import com.cliqset.hostmeta.JavaNetXRDFetcher;
+import com.cliqset.hostmeta.XRDFetcher;
+import com.cliqset.hostmeta.template.LRDDTemplateProcessor;
+import com.cliqset.hostmeta.template.TemplateProcessor;
 import com.cliqset.magicsig.DataParser;
 import com.cliqset.magicsig.KeyFinder;
 import com.cliqset.magicsig.MagicSigAlgorithm;
@@ -12,25 +17,32 @@ import com.cliqset.magicsig.dataparser.SimpleAtomDataParser;
 import com.cliqset.magicsig.encoding.Base64URLMagicSigEncoding;
 import com.cliqset.magicsig.keyfinder.MagicPKIKeyFinder;
 import com.google.inject.AbstractModule;
+import com.google.inject.multibindings.MapBinder;
 import com.google.inject.multibindings.Multibinder;
 
 public class DefaultMagicSigModule extends AbstractModule {
 
 	@Override
 	protected void configure() {
-		Multibinder<MagicSigAlgorithm> algorithmBinder = Multibinder.newSetBinder(binder(), MagicSigAlgorithm.class);
-	    algorithmBinder.addBinding().to(HMACSHA256MagicSigAlgorithm.class);
-	    algorithmBinder.addBinding().to(RSASHA256MagicSigAlgorithm.class);
+		bind(HostMeta.class);
+		bind(XRDFetcher.class).to(JavaNetXRDFetcher.class);
+		
+		MapBinder<String, MagicSigAlgorithm> algorithmBinder = MapBinder.newMapBinder(binder(), String.class, MagicSigAlgorithm.class);
+	    algorithmBinder.addBinding(HMACSHA256MagicSigAlgorithm.ALGORITHM_IDENTIFIER).to(HMACSHA256MagicSigAlgorithm.class);
+	    algorithmBinder.addBinding(RSASHA256MagicSigAlgorithm.ALGORITHM_IDENTIFIER).to(RSASHA256MagicSigAlgorithm.class);
 	    
-	    Multibinder<MagicSigEncoding> encodingBinder = Multibinder.newSetBinder(binder(), MagicSigEncoding.class);
-	    encodingBinder.addBinding().to(Base64URLMagicSigEncoding.class);
+	    MapBinder<String, MagicSigEncoding> encodingBinder = MapBinder.newMapBinder(binder(), String.class, MagicSigEncoding.class);
+	    encodingBinder.addBinding(Base64URLMagicSigEncoding.ENCODING_IDENTIFIER).to(Base64URLMagicSigEncoding.class);
 	    
 	    Multibinder<KeyFinder> keyFinderBinder = Multibinder.newSetBinder(binder(), KeyFinder.class);
 	    keyFinderBinder.addBinding().to(MagicPKIKeyFinder.class);
 	    
-	    Multibinder<DataParser> dataParserBinder = Multibinder.newSetBinder(binder(), DataParser.class);
-	    dataParserBinder.addBinding().to(SimpleAtomDataParser.class);
+	    MapBinder<String, DataParser> dataParserBinder = MapBinder.newMapBinder(binder(), String.class, DataParser.class);
+	    dataParserBinder.addBinding("application/atom+xml").to(SimpleAtomDataParser.class);
 
 		bind(PayloadToMetadataMapper.class).to(URIPayloadToMetadataMapper.class);
+		
+		MapBinder<String, TemplateProcessor> templateBinder = MapBinder.newMapBinder(binder(), String.class, TemplateProcessor.class);
+		templateBinder.addBinding(LRDDTemplateProcessor.REL).to(LRDDTemplateProcessor.class);
 	}
 }

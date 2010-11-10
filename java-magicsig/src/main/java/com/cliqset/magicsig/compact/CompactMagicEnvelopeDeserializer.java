@@ -3,9 +3,6 @@ package com.cliqset.magicsig.compact;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 import com.cliqset.magicsig.MagicEnvelopeDeserializer;
 import com.cliqset.magicsig.MagicEnvelope;

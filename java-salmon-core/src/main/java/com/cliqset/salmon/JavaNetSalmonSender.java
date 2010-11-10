@@ -7,7 +7,7 @@ import java.net.URL;
 
 public class JavaNetSalmonSender implements SalmonSender {
 
-	public void send(URL destination, String contentType, byte[] data) throws SalmonException {
+	public SalmonDeliveryResponse send(URL destination, String contentType, byte[] data) throws SalmonException {
 		try {
 			HttpURLConnection connection = (HttpURLConnection) destination.openConnection();
 	        connection.setDoOutput(true);
@@ -17,10 +17,11 @@ public class JavaNetSalmonSender implements SalmonSender {
 	        OutputStream os = connection.getOutputStream();
 	        os.write(data);
 	        os.close();
-	         int responseCode = connection.getResponseCode();
+	        int responseCode = connection.getResponseCode();
 			if (!(responseCode == HttpURLConnection.HTTP_OK || responseCode == HttpURLConnection.HTTP_ACCEPTED)) {
 				throw new SalmonException("Unsuccessful response code: " + responseCode + " received when delivering salmon.");
 			}
+			return new SalmonDeliveryResponse().withResponseCode(responseCode);
 		} catch (IOException e) {
 			throw new SalmonException("Unable to deliver salmon.", e);
 		}

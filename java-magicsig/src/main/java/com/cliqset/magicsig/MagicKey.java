@@ -26,7 +26,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPrivateKeySpec;
 import java.security.spec.RSAPublicKeySpec;
 import org.apache.commons.codec.binary.Base64;
-public class MagicKey extends Key {
+public class MagicKey extends PKIKey {
 
 	private static final String SEPARATOR = ".";
 	

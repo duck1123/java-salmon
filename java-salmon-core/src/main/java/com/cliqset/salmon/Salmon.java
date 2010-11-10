@@ -50,11 +50,13 @@ public class Salmon {
 	
 	private ExecutorService executor;
 	
-	private static final String DEFAULT_DATA_TYPE = "application/atom+xml";
+	public static final String DEFAULT_DATA_TYPE = "application/atom+xml";
 	
-	private static final String DEFAULT_ALGORITHM = "RSA-SHA256";
+	public static final String DEFAULT_ALGORITHM = "RSA-SHA256";
 	
-	private static final String DEFAULT_ENCODING = "base64url";
+	public static final String DEFAULT_ENCODING = "base64url";
+	
+	public static final String DEFAULT_ENVELOPE_MEDIA_TYPE = MagicSigConstants.MEDIA_TYPE_MAGIC_ENV_XML;
 	
 	private MagicSig magicSig = null;
 	
@@ -90,11 +92,14 @@ public class Salmon {
 	}
 	
 	public SalmonDeliveryResponse signAndDeliver(byte[] entry, Key key, URL destinationURL, String mediaType, String encoding, String algorithm) throws SalmonException {
+		return signAndDeliver(entry, key, destinationURL, mediaType, DEFAULT_ENCODING, DEFAULT_ALGORITHM, DEFAULT_ENVELOPE_MEDIA_TYPE);
+	}
+	public SalmonDeliveryResponse signAndDeliver(byte[] entry, Key key, URL destinationURL, String mediaType, String encoding, String algorithm, String envelopeMediaType) throws SalmonException {
 		try {
-			MagicEnvelope env = sign(entry, key);
+			MagicEnvelope env = sign(entry, key, mediaType, encoding, algorithm, envelopeMediaType);
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			env.writeTo(MagicSigConstants.MEDIA_TYPE_MAGIC_ENV_XML, baos);
-			send(destinationURL, MagicSigConstants.MEDIA_TYPE_MAGIC_ENV_XML, baos.toByteArray());
+			env.writeTo(envelopeMediaType, baos);
+			send(destinationURL, envelopeMediaType, baos.toByteArray());
 			
 			return new SalmonDeliveryResponse();
 		} catch (MagicSigException mse) {
@@ -111,12 +116,16 @@ public class Salmon {
 	}
 	
 	public SalmonDeliveryResponse signAndDeliver(byte[] entry, Key key, URI destinationUser, String mediaType, String encoding, String algorithm) throws SalmonException {
-		URL destinationURL = findSalmonEndpoint(destinationUser);
-		return signAndDeliver(entry, key, destinationURL, mediaType, encoding, algorithm);
+		return signAndDeliver(entry, key, destinationUser, mediaType, DEFAULT_ENCODING, DEFAULT_ALGORITHM, DEFAULT_ENVELOPE_MEDIA_TYPE);
 	}
 	
-	public MagicEnvelope sign(byte[] entry, Key key) throws MagicSigException {
-		return magicSig.sign(entry, key, DEFAULT_ALGORITHM, DEFAULT_ENCODING, DEFAULT_DATA_TYPE);
+	public SalmonDeliveryResponse signAndDeliver(byte[] entry, Key key, URI destinationUser, String mediaType, String encoding, String algorithm, String envelopeMediaType) throws SalmonException {
+		URL destinationURL = findSalmonEndpoint(destinationUser);
+		return signAndDeliver(entry, key, destinationURL, mediaType, encoding, algorithm, envelopeMediaType);
+	}
+	
+	public MagicEnvelope sign(byte[] entry, Key key, String dataType, String encoding, String algorithm, String envelopeDataType) throws MagicSigException {
+		return magicSig.sign(entry, key, algorithm, encoding, dataType);
 	}
 	
 	public Future<byte[]> verifyAsync(final MagicEnvelope envelope) {

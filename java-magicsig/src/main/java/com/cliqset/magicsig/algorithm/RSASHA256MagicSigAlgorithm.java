@@ -22,7 +22,7 @@ import java.security.Signature;
 import java.security.SignatureException;
 
 import com.cliqset.magicsig.Key;
-import com.cliqset.magicsig.MagicKey;
+import com.cliqset.magicsig.PKIKey;
 import com.cliqset.magicsig.MagicSigAlgorithm;
 import com.cliqset.magicsig.MagicSigException;
 
@@ -34,11 +34,11 @@ public class RSASHA256MagicSigAlgorithm implements MagicSigAlgorithm {
 		if (null == data) { throw new IllegalArgumentException("data must not be null."); }
 		if (null == key) { throw new IllegalArgumentException("key must not be null."); }
 		
-		MagicKey magicKey = null;
+		PKIKey pkiKey = null;
 		
-		if (key instanceof MagicKey) {
-			magicKey = (MagicKey)key;
-			if (!"RSA".equals(magicKey.getType())) {
+		if (key instanceof PKIKey) {
+			pkiKey = (PKIKey)key;
+			if (!"RSA".equals(pkiKey.getType())) {
 				throw new MagicSigException("Key must be a MagicKey of type RSA to use this algorithm.");	
 			}
 		} else {
@@ -48,7 +48,7 @@ public class RSASHA256MagicSigAlgorithm implements MagicSigAlgorithm {
 		Signature sig = null;
 		try {
 			sig = Signature.getInstance("SHA256withRSA");
-			sig.initSign(magicKey.getPrivateKey());
+			sig.initSign(pkiKey.getPrivateKey());
 			sig.update(data);
 			return sig.sign();
 		} catch (NoSuchAlgorithmException nsae) {
@@ -67,11 +67,11 @@ public class RSASHA256MagicSigAlgorithm implements MagicSigAlgorithm {
 		
 		Signature sig = null;
 		
-		MagicKey magicKey = null;
+		PKIKey pkiKey = null;
 		
-		if (key instanceof MagicKey) {
-			magicKey = (MagicKey)key;
-			if (!"RSA".equals(magicKey.getType())) {
+		if (key instanceof PKIKey) {
+			pkiKey = (PKIKey)key;
+			if (!"RSA".equals(pkiKey.getType())) {
 				throw new MagicSigException("Key must be a MagicKey of type RSA to use this algorithm.");	
 			}
 		} else {
@@ -80,7 +80,7 @@ public class RSASHA256MagicSigAlgorithm implements MagicSigAlgorithm {
 		
 		try {
 			sig = Signature.getInstance("SHA256withRSA");
-			sig.initVerify(magicKey.getPublicKey());
+			sig.initVerify(pkiKey.getPublicKey());
 			sig.update(data);
 			return sig.verify(signature);
 		} catch (NoSuchAlgorithmException nsae) {
