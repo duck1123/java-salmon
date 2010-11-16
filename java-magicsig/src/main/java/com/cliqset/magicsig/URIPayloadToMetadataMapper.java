@@ -37,7 +37,7 @@ public class URIPayloadToMetadataMapper implements PayloadToMetadataMapper {
 
 	public List<Key> getKeys(String mediaType, byte[] data) throws MagicSigException {
 		URI signerURI = extractSignerUri(mediaType, data);
-        
+		
         List<Key> signerKeys = findKeys(signerURI);
         
         return signerKeys;
@@ -48,7 +48,11 @@ public class URIPayloadToMetadataMapper implements PayloadToMetadataMapper {
 		if (null == parser) {
 			throw new MagicSigException("No parser for mediaType: " + mediaType);
 		}
-		return parser.getSignerUri(data);
+		URI signerURI = parser.getSignerUri(data);
+		if (null == signerURI) {
+			throw new MagicSigException("Unable extract signer's URI from data of type " + mediaType + ", data parser " + parser.getClass().getName() + " returned null signerUri.");
+		}
+		return signerURI;
 	}
 	
 	private List<Key> findKeys(URI authorUri) throws MagicSigException {

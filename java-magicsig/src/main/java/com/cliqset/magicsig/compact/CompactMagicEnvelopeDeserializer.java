@@ -42,6 +42,10 @@ public class CompactMagicEnvelopeDeserializer implements MagicEnvelopeDeserializ
 	private static final String DEFAULT_ALGORITHM = "RSA-SHA256";
 	
 	public MagicEnvelope deserialize(InputStream is) throws MagicSigException {
+		if (null == is) {
+			throw new IllegalArgumentException("Cannot deserialize from null input stream.");
+		}
+		
 		/*
 		 * 
 			1. The value of the "key_id" parameter

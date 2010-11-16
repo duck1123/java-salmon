@@ -32,6 +32,9 @@ public class XMLMagicEnvelopeSerializer implements MagicEnvelopeSerializer {
 	public static final String MEDIA_TYPE = MagicSigConstants.MEDIA_TYPE_MAGIC_ENV_XML;
 
 	public void serialize(MagicEnvelope env, OutputStream os) throws MagicSigException {
+		if (null == env) { throw new IllegalArgumentException("Cannot serialize a null magic envelope."); }
+		if (null == os) { throw new IllegalArgumentException("Cannot serialize to a null output stream."); }
+		
 		try {
 			XMLMagicEnvelope xme = new XMLMagicEnvelope();
 			xme.setAlgorithm(env.getAlgorithm());

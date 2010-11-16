@@ -117,7 +117,8 @@ public class MagicSig {
 			Key verifiedKey = null;
 			
 			for (Key key : keys) {
-				if (!key.supportsKeyId() || sig.getKeyId() == null || sig.getKeyId().equals("") || sig.getKeyId().equals(key.getKeyId())) {
+				if (null == sig.getKeyId() || "".equals(sig.getKeyId()) || sig.getKeyId().equals(key.getKeyId())) {
+				//if (!key.supportsKeyId() || sig.getKeyId() == null || sig.getKeyId().equals("") || sig.getKeyId().equals(key.getKeyId())) {
 					logger.debug("Attempting to verify signature with:{}", key.toString());
 					if (algorithm.verify(dataForSig, encoder.decode(sig.getValue()), key)) {
 						verifiedKey = key;
@@ -126,7 +127,7 @@ public class MagicSig {
 						logger.info("Key with keyId {} matched Signature keyId {}, but didn't verify.", key.toString(), sig.getKeyId());
 					}
 				} else {
-					logger.debug("Did not attempt to verify key {} because the keyid does not match signature keyId of {}", key.toString(), sig.getKeyId());
+					logger.debug("Did not attempt to verify key {} because the keyId does not match signature keyId of {}", key.toString(), sig.getKeyId());
 				}
 			}
 			result.withSignatureVerificationResult(new SignatureVerificationResult()

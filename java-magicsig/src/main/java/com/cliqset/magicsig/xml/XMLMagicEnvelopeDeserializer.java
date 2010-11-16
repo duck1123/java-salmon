@@ -31,6 +31,9 @@ public class XMLMagicEnvelopeDeserializer implements MagicEnvelopeDeserializer {
 	public static final String MEDIA_TYPE = MagicSigConstants.MEDIA_TYPE_MAGIC_ENV_XML;
 	
 	public MagicEnvelope deserialize(InputStream is) throws MagicSigException {
+		if (null == is) {
+			throw new IllegalArgumentException("Cannot deserialize from null input stream.");
+		}
 		try {
 			JAXBContext context = JAXBContext.newInstance(XMLMagicEnvelope.class);
 			XMLMagicEnvelope xmlEnv = (XMLMagicEnvelope)context.createUnmarshaller().unmarshal(is);

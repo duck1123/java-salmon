@@ -37,6 +37,8 @@ public class MagicEnvelopeSerializationProvider {
 	}
 	
 	public MagicEnvelopeDeserializer getDeserializer(String mediaType) throws MagicSigException {
+		if (null == mediaType) { throw new IllegalArgumentException("Cannot retrieve MagicEnvelopeDeserializer with a null media-type"); }
+		
 		MagicEnvelopeDeserializer d = this.deserializers.get(mediaType);
 		if (null == d) {
 			throw new MagicSigException("No known deserializer for media-type " + mediaType);
@@ -45,6 +47,8 @@ public class MagicEnvelopeSerializationProvider {
 	}
 	
 	public MagicEnvelopeSerializer getSerializer(String mediaType) throws MagicSigException {
+		if (null == mediaType) { throw new IllegalArgumentException("Cannot retrieve MagicEnvelopeSerializer with a null media-type"); }
+		
 		MagicEnvelopeSerializer s = this.serializers.get(mediaType);
 		if (null == s) {
 			throw new MagicSigException("No known serializer for media-type " + mediaType);

@@ -35,6 +35,9 @@ public class CompactMagicEnvelopeSerializer implements MagicEnvelopeSerializer {
 	private static Logger logger = LoggerFactory.getLogger(CompactMagicEnvelopeSerializer.class);
 
 	public void serialize(MagicEnvelope env, OutputStream os) throws MagicSigException {
+		if (null == env) { throw new IllegalArgumentException("Cannot serialize a null magic envelope."); }
+		if (null == os) { throw new IllegalArgumentException("Cannot serialize to a null output stream."); }
+		
 		/*
 			1. The value of the "key_id" parameter
 			2. The value of the "sig" parameter

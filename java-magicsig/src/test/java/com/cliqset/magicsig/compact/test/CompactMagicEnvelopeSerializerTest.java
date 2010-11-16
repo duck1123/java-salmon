@@ -50,4 +50,28 @@ public class CompactMagicEnvelopeSerializerTest {
 			Assert.fail(mse.getMessage());
 		}
 	}
+	
+	@Test
+	public void testNullOutputStream() {
+		try {
+			new CompactMagicEnvelopeSerializer().serialize(new MagicEnvelope(), null);
+			Assert.fail("Should have received a IllegalArgumentException");
+		} catch (IllegalArgumentException iae) {
+			Assert.assertEquals("Cannot serialize to a null output stream.", iae.getMessage());
+		} catch (Exception e) {
+			Assert.fail("Expecting an IllegalArgumentException not a " + e.getClass().getName());
+		}
+	}
+	
+	@Test
+	public void testNullMagicEnvelope() {
+		try {
+			new CompactMagicEnvelopeSerializer().serialize(null, null);
+			Assert.fail("Should have received a IllegalArgumentException");
+		} catch (IllegalArgumentException iae) {
+			Assert.assertEquals("Cannot serialize a null magic envelope.", iae.getMessage());
+		} catch (Exception e) {
+			Assert.fail("Expecting an IllegalArgumentException not a " + e.getClass().getName());
+		}
+	}
 }

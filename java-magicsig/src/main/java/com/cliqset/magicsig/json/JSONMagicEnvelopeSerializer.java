@@ -32,6 +32,9 @@ public class JSONMagicEnvelopeSerializer implements MagicEnvelopeSerializer {
 	public static final String MEDIA_TYPE = MagicSigConstants.MEDIA_TYPE_MAGIC_ENV_JSON;
 
 	public void serialize(MagicEnvelope env, OutputStream os) throws MagicSigException {
+		if (null == env) { throw new IllegalArgumentException("Cannot serialize a null magic envelope."); }
+		if (null == os) { throw new IllegalArgumentException("Cannot serialize to a null output stream."); }
+		
 		JSONMagicEnvelope jme = new JSONMagicEnvelope();
 		jme.setAlg(env.getAlgorithm());
 		jme.setEncoding(env.getEncoding());

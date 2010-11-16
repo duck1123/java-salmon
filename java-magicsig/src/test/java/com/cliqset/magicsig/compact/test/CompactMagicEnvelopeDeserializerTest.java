@@ -38,4 +38,16 @@ public class CompactMagicEnvelopeDeserializerTest {
 			Assert.fail(mse.getMessage());
 		}
 	}
+	
+	@Test
+	public void testNullInputStream() {
+		try {
+			new CompactMagicEnvelopeDeserializer().deserialize(null);
+			Assert.fail("Should have received an IllegalArgumentException");
+		} catch (IllegalArgumentException iae) {
+			Assert.assertEquals("Cannot deserialize from null input stream.", iae.getMessage());
+		} catch (Exception e) {
+			Assert.fail("Expecting an IllegalArgumentException not a " + e.getClass().getName());
+		}
+	}
 }

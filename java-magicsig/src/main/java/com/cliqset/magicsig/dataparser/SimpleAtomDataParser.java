@@ -45,8 +45,4 @@ public class SimpleAtomDataParser implements DataParser {
 			throw new MagicSigException("Cannot extract signer URI, author uri element is not a valid URI.", use);
 		}	
 	}
-
-	public boolean parsesMimeType(String mimeType) {
-		return "application/atom+xml".equals(mimeType);
-	}
 }

@@ -20,7 +20,5 @@ import java.net.URI;
 
 public interface DataParser {
 
-	boolean parsesMimeType(String mimeType);
-	
 	URI getSignerUri(byte[] data) throws MagicSigException;
 }
