@@ -176,14 +176,16 @@ public class HostMeta {
 								}
 							}
 							//for each link that is not an lrdd
-							for (Link lk : x.getLinks()) {
-								if (!HostMetaConstants.REL_LRDD.equals(lk.getRel().toString())) {
-									if (lk.hasTemplate()) {
-										URI processedTemplate = this.templateProcessors.get(lk.getRel().toString()).process(lk.getTemplate(), contextResourceURI);
-										lk.setProcessedTemplate(processedTemplate);
+							if (x.hasLinks()) {
+								for (Link lk : x.getLinks()) {
+									if (!HostMetaConstants.REL_LRDD.equals(lk.getRel().toString())) {
+										if (lk.hasTemplate()) {
+											URI processedTemplate = this.templateProcessors.get(lk.getRel().toString()).process(lk.getTemplate(), contextResourceURI);
+											lk.setProcessedTemplate(processedTemplate);
+										}
+										
+										if (handler.onLink(lk)) { return; }
 									}
-									
-									if (handler.onLink(lk)) { return; }
 								}
 							}
 						} else {

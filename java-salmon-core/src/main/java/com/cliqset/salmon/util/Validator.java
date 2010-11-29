@@ -94,7 +94,6 @@ public class Validator {
 			
 			Salmon salmon = Salmon.getDefault();
 			MagicEnvelopeDeserializer deserializer = MagicEnvelopeSerializationProvider.getDefault().getDeserializer(MagicSigConstants.MEDIA_TYPE_MAGIC_ENV_XML);
-			MagicEnvelope.withDeserializer(new XMLMagicEnvelopeDeserializer());
 			byte[] output = salmon.verify(deserializer.deserialize(new FileInputStream(filename)));
 			
 			System.out.println(new String(output, "UTF-8"));

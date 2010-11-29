@@ -18,6 +18,9 @@ package com.cliqset.salmon.examples;
 import java.io.ByteArrayInputStream;
 
 import com.cliqset.magicsig.MagicEnvelope;
+import com.cliqset.magicsig.MagicEnvelopeDeserializer;
+import com.cliqset.magicsig.MagicEnvelopeSerializationProvider;
+import com.cliqset.magicsig.MagicSigConstants;
 import com.cliqset.salmon.Salmon;
 
 public class SimpleSalmonVerify {
@@ -27,7 +30,8 @@ public class SimpleSalmonVerify {
 	public static void main(String[] args) {
 		try {
 			Salmon salmon = Salmon.getDefault();
-			MagicEnvelope m = MagicEnvelope.fromInputStream("application/magic-env+xml", new ByteArrayInputStream(envelope.getBytes("UTF-8")));
+			MagicEnvelopeDeserializer deserializer = MagicEnvelopeSerializationProvider.getDefault().getDeserializer(MagicSigConstants.MEDIA_TYPE_MAGIC_ENV_XML); 
+			MagicEnvelope m = deserializer.deserialize(new ByteArrayInputStream(envelope.getBytes("UTF-8")));
 			byte[] verifiedData = salmon.verify(m);
 			System.out.print(new String(verifiedData, "UTF-8"));
 		} catch (Exception e) {

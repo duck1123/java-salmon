@@ -23,6 +23,8 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import com.cliqset.magicsig.MagicEnvelope;
+import com.cliqset.magicsig.MagicEnvelopeSerializationProvider;
+import com.cliqset.magicsig.MagicEnvelopeSerializer;
 import com.cliqset.magicsig.MagicKey;
 import com.cliqset.magicsig.MagicSigConstants;
 import com.cliqset.magicsig.MagicSig;
@@ -46,8 +48,9 @@ public class Signer {
 			MagicEnvelope env = magicSig.sign(bytes, key, "RSA-SHA256", "base64url", "application/atom+xml");
 			
 			FileOutputStream fos = new FileOutputStream(filename + ".env");
-			//TODO: use new method to serialize this
-			env.writeTo(MagicSigConstants.MEDIA_TYPE_MAGIC_ENV_XML, fos);
+			
+			MagicEnvelopeSerializer serializer = MagicEnvelopeSerializationProvider.getDefault().getSerializer(MagicSigConstants.MEDIA_TYPE_MAGIC_ENV_XML);
+			serializer.serialize(env, fos);
 			fos.flush();
 			fos.close();
 		} catch (Exception e) {

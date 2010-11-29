@@ -16,22 +16,62 @@
 package com.cliqset.hostmeta;
 
 import java.net.URI;
+import java.net.URL;
 
 import junit.framework.Assert;
 import org.junit.Test;
 
+import com.cliqset.hostmeta.template.LRDDTemplateProcessor;
+import com.cliqset.hostmeta.template.TemplateProcessor;
+import com.cliqset.xrd.XRD;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.multibindings.MapBinder;
+
 public class HostMetaTest {
 
 	@Test
-	public void googleLRDD() {
+	public void testDescriptor() {
 		try {
-			HostMeta hm = HostMeta.getDefault();
+			Injector i = Guice.createInjector(new AbstractModule() {
+				@Override
+				protected void configure() {
+					MapBinder<String, TemplateProcessor> templateBinder = MapBinder.newMapBinder(binder(), String.class, TemplateProcessor.class);
+				    templateBinder.addBinding(LRDDTemplateProcessor.REL).to(LRDDTemplateProcessor.class);
+				    
+					bind(XRDFetcher.class).to(TestResourceXRDFetcher.class);
+				}
+			});
+			
+			HostMeta hm = i.getInstance(HostMeta.class);
 		
-			Descriptor d = hm.discoverResourceSpecific(URI.create("acct:charlie.cauthen@gmail.com"));
-			Assert.assertEquals(URI.create("acct:charlie.cauthen@gmail.com"), d.getSubject().getValue());
-			Assert.assertEquals(URI.create("http://www.google.com/profiles/charlie.cauthen"), d.getAliases().get(0).getValue());
+			Descriptor d = hm.discoverResourceSpecific(URI.create("acct:charlie@fakedomain.com"));
+			Assert.assertEquals(URI.create("acct:charlie@fakedomain.com"), d.getSubject().getValue());
+			Assert.assertEquals(URI.create("http://www.fakedomain.com/profiles/charlie"), d.getAliases().get(0).getValue());
 		} catch (Exception e) {
 			Assert.fail(e.getMessage());
+		}
+	}
+	
+	public static class TestResourceXRDFetcher implements XRDFetcher {
+
+		public XRD fetchXRD(URL url) throws HostMetaException {
+			try {
+				if (url.equals(new URL("https://fakedomain.com/.well-known/host-meta"))) {
+					return XRD.fromStream(HostMetaTest.class.getResourceAsStream("/hostmeta.xml"));
+				} else if (url.equals(new URL("http://fakedomain.com/.well-known/host-meta"))) {
+					return XRD.fromStream(HostMetaTest.class.getResourceAsStream("/hostmeta.xml"));
+				} else if (url.equals(new URL("https://fakedomain.com/lrddone?q=acct%3Acharlie%40fakedomain.com"))) {
+					return XRD.fromStream(HostMetaTest.class.getResourceAsStream("/lrddone.xml"));
+				} else if (url.equals(new URL("http://fakedomain.com/lrddone?q=acct%3Acharlie%40fakedomain.com"))) {
+					return XRD.fromStream(HostMetaTest.class.getResourceAsStream("/lrddone.xml"));	
+				} else {
+					throw new HostMetaException("unrecognized URL " + url);
+				}
+			} catch (Exception e) {
+				throw new HostMetaException(e);
+			}
 		}
 	}
 }

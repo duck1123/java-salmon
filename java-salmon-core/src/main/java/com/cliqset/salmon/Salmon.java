@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import com.cliqset.magicsig.EnvelopeVerificationResult;
 import com.cliqset.magicsig.MagicEnvelope;
 import com.cliqset.magicsig.Key;
+import com.cliqset.magicsig.MagicEnvelopeSerializationProvider;
 import com.cliqset.magicsig.MagicSig;
 import com.cliqset.magicsig.MagicSigConstants;
 import com.cliqset.magicsig.MagicSigException;
@@ -50,6 +51,8 @@ public class Salmon {
 	
 	private ExecutorService executor;
 	
+	private MagicEnvelopeSerializationProvider envelopeSerializationProvider;
+	
 	public static final String DEFAULT_DATA_TYPE = "application/atom+xml";
 	
 	public static final String DEFAULT_ALGORITHM = "RSA-SHA256";
@@ -61,10 +64,15 @@ public class Salmon {
 	private MagicSig magicSig = null;
 	
 	@Inject
-	private Salmon(MagicSig magicSig, SalmonSender sender, SalmonEndpointFinder endpointFinder, ExecutorService executor) {
+	private Salmon(MagicSig magicSig, 
+			SalmonSender sender, 
+			SalmonEndpointFinder endpointFinder, 
+			MagicEnvelopeSerializationProvider envelopeSerializationProvider,
+			ExecutorService executor) {
 		this.magicSig = magicSig;
 		this.sender = sender;
 		this.endpointFinder = endpointFinder;
+		this.envelopeSerializationProvider = envelopeSerializationProvider;
 		this.executor = executor;
 	}
 	
@@ -98,9 +106,8 @@ public class Salmon {
 		try {
 			MagicEnvelope env = sign(entry, key, mediaType, encoding, algorithm, envelopeMediaType);
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			env.writeTo(envelopeMediaType, baos);
+			this.envelopeSerializationProvider.getSerializer(envelopeMediaType).serialize(env, baos);
 			send(destinationURL, envelopeMediaType, baos.toByteArray());
-			
 			return new SalmonDeliveryResponse();
 		} catch (MagicSigException mse) {
 			throw new SalmonException(mse);

@@ -15,17 +15,11 @@
 */
 package com.cliqset.magicsig;
 
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.LinkedList;
 import java.util.List;
 
 public class MagicEnvelope {
 
-	private static List<MagicEnvelopeDeserializer> deserializers = new LinkedList<MagicEnvelopeDeserializer>();
-	
-	private static List<MagicEnvelopeSerializer> serializers = new LinkedList<MagicEnvelopeSerializer>();
-	
 	private String data;
 	
 	private String dataType;
@@ -98,27 +92,5 @@ public class MagicEnvelope {
 			this.signatures = new LinkedList<Signature>();
 		}
 		return signatures;
-	}
-	
-	public static void withDeserializer(MagicEnvelopeDeserializer deserializer) {
-		if (null == deserializer) {
-			throw new IllegalArgumentException("deserializer must not be null.");
-		}
-		deserializers.add(deserializer);
-	}
-	
-	public static void withSerializer(MagicEnvelopeSerializer serializer) {
-		if (null == serializer) {
-			throw new IllegalArgumentException("serializer must not be null.");
-		}
-		serializers.add(serializer);
-	}
-	
-	public void writeTo(String mediaType, OutputStream os) throws MagicSigException {
-		MagicEnvelopeSerializationProvider.getDefault().getSerializer(mediaType).serialize(this, os);
-	}
-	
-	public static MagicEnvelope fromInputStream(String mediaType, InputStream is) throws MagicSigException {		
-		return MagicEnvelopeSerializationProvider.getDefault().getDeserializer(mediaType).deserialize(is);
 	}
 }

@@ -36,6 +36,8 @@ import com.cliqset.hostmeta.template.TemplateProcessor;
 import com.cliqset.magicsig.DataParser;
 import com.cliqset.magicsig.Key;
 import com.cliqset.magicsig.KeyFinder;
+import com.cliqset.magicsig.MagicEnvelopeDeserializer;
+import com.cliqset.magicsig.MagicEnvelopeSerializer;
 import com.cliqset.magicsig.PayloadToMetadataMapper;
 import com.cliqset.magicsig.MagicEnvelope;
 import com.cliqset.magicsig.MagicKey;
@@ -44,8 +46,13 @@ import com.cliqset.magicsig.MagicSigException;
 import com.cliqset.magicsig.MagicSig;
 import com.cliqset.magicsig.algorithm.HMACSHA256MagicSigAlgorithm;
 import com.cliqset.magicsig.algorithm.RSASHA256MagicSigAlgorithm;
+import com.cliqset.magicsig.compact.CompactMagicEnvelopeDeserializer;
+import com.cliqset.magicsig.compact.CompactMagicEnvelopeSerializer;
 import com.cliqset.magicsig.encoding.Base64URLMagicSigEncoding;
+import com.cliqset.magicsig.json.JSONMagicEnvelopeDeserializer;
+import com.cliqset.magicsig.json.JSONMagicEnvelopeSerializer;
 import com.cliqset.magicsig.xml.XMLMagicEnvelopeDeserializer;
+import com.cliqset.magicsig.xml.XMLMagicEnvelopeSerializer;
 import com.cliqset.salmon.HostMetaSalmonEndpointFinder;
 import com.cliqset.salmon.JavaNetSalmonSender;
 import com.cliqset.salmon.Salmon;
@@ -103,7 +110,17 @@ public class SalmonTest extends BaseTestCase {
 				    MapBinder<String, MagicSigEncoding> encodingBinder = MapBinder.newMapBinder(binder(), String.class, MagicSigEncoding.class);
 				    encodingBinder.addBinding(Base64URLMagicSigEncoding.ENCODING_IDENTIFIER).to(Base64URLMagicSigEncoding.class);
 
-					bind(PayloadToMetadataMapper.class).to(BasicPayloadToMetadataMapper.class);	
+					bind(PayloadToMetadataMapper.class).to(BasicPayloadToMetadataMapper.class);
+					
+				    MapBinder<String, MagicEnvelopeSerializer> serializerBinder = MapBinder.newMapBinder(binder(), String.class, MagicEnvelopeSerializer.class);
+				    serializerBinder.addBinding(XMLMagicEnvelopeSerializer.MEDIA_TYPE).to(XMLMagicEnvelopeSerializer.class);
+				    serializerBinder.addBinding(JSONMagicEnvelopeSerializer.MEDIA_TYPE).to(JSONMagicEnvelopeSerializer.class);
+				    serializerBinder.addBinding(CompactMagicEnvelopeSerializer.MEDIA_TYPE).to(CompactMagicEnvelopeSerializer.class);
+
+				    MapBinder<String, MagicEnvelopeDeserializer> deserializerBinder = MapBinder.newMapBinder(binder(), String.class, MagicEnvelopeDeserializer.class);
+				    deserializerBinder.addBinding(XMLMagicEnvelopeDeserializer.MEDIA_TYPE).to(XMLMagicEnvelopeDeserializer.class);
+				    deserializerBinder.addBinding(JSONMagicEnvelopeDeserializer.MEDIA_TYPE).to(JSONMagicEnvelopeDeserializer.class);
+				    deserializerBinder.addBinding(CompactMagicEnvelopeDeserializer.MEDIA_TYPE).to(CompactMagicEnvelopeDeserializer.class);
 				}
 				
 				@SuppressWarnings("unused")
@@ -115,7 +132,6 @@ public class SalmonTest extends BaseTestCase {
 			});
 			
 			Salmon salmon = i.getInstance(Salmon.class);
-			MagicEnvelope.withDeserializer(new XMLMagicEnvelopeDeserializer());
 			MagicEnvelope env = MagicEnvelopeSerializationProvider.getDefault().getDeserializer(MagicSigConstants.MEDIA_TYPE_MAGIC_ENV_XML).deserialize(SalmonTest.class.getResourceAsStream("/BasicEnvelope.txt"));
 			
 			byte[] dataBytes = salmon.verify(env);
