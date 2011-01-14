@@ -34,7 +34,7 @@ public class JavaNetXRDFetcher implements XRDFetcher {
 		HttpURLConnection conn = null;
 		try {
 			conn = (HttpURLConnection)url.openConnection();
-			conn.setConnectTimeout(30000);
+			conn.setConnectTimeout(3000);
 			conn.setReadTimeout(30000);
 			conn.connect();
 			if (null == conn.getContentType() || !conn.getContentType().startsWith(XRDConstants.XRD_MEDIA_TYPE)) {
@@ -48,8 +48,10 @@ public class JavaNetXRDFetcher implements XRDFetcher {
 			throw new HostMetaException("Unable to request XRD.", ioe);
 		} catch (XRDException xe) {
 			throw new HostMetaException("Unable to parse XRD.", xe);
+		} catch (RuntimeException re) {
+			throw new HostMetaException("Unable to request XRD.", re);
 		} finally {
-			try { conn.getInputStream().close(); } catch (Exception e) {}
+			conn.disconnect();
 		}
 	}
 }
